@@ -10,3 +10,9 @@ body{
     -o-user-select:none;
     -ms-user-select:none;
 }
+
+#tileset-area{
+    border:1px solid black;
+    width:250px;
+    height:350px;
+}
