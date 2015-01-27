@@ -1,0 +1,12 @@
+.project-list-item:hover{
+    cursor:pointer !important;
+    background-color:#029ae7 !important;
+}
+
+body{
+    user-select:none;
+    -moz-user-select:none;
+    -webkit-user-select:none;
+    -o-user-select:none;
+    -ms-user-select:none;
+}

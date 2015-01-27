@@ -1,0 +1,156 @@
+.col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
+	padding-left: 3px;
+	padding-right: 3px;
+}
+
+.row {
+	margin-left: -3px;
+	margin-right: -3px;
+}
+
+.btn-custom {
+	padding: 10px;
+}
+
+.nav.nav-tabs {
+	margin-bottom: 10px;
+}
+
+.form-group {
+	margin-bottom: 10px;
+}
+
+.form-control {
+	height: 42px;
+}
+
+
+/* MENU HEADER */
+
+#header {
+	background: #FFFFFF;
+	border-top: 5px solid #077FC2;
+	border-bottom: 1px solid #EEEEEE;
+}
+
+#header .container {
+	position: relative;
+	height: 90px;
+}
+
+#header img {
+	height: 30px;
+	margin: 20px 0 0;
+}
+
+#header #logo h1 {
+	font-size: 18px;
+	color: #AAAAAA;
+	margin: 5px 0 0 70px;
+	text-transform: uppercase;
+	font-family: pt-sans-narrow, sans-serif;
+}
+
+#menu {
+	position: absolute;
+	top: 0; right: 19px;
+}
+
+#menu li {
+	list-style: none;
+	display: inline-block;
+}
+
+#menu li.active a, #menu li.active a:hover {
+	background: #077FC2;
+	color: #FFFFFF;
+	border-color: 1px solid #077FC2;
+}
+
+#menu li a {
+	border-radius: 0 !important;
+	display: inline-block;
+	margin-right: -5px;
+	background: #FFFFFF;
+	line-height: 90px;
+	border-left: 1px solid #EEEEEE;
+	font-family: pt-sans-narrow, sans-serif;
+	text-transform: uppercase;
+	font-size: 17px;
+	color: #077FC2;
+	padding: 0 15px;
+}
+
+#menu li a:last-child {
+	border-right: 1px solid #EEEEEE;
+}
+
+#menu li a:hover {
+	background-color: #f9f9f9;
+}
+
+#logoCadastrar {
+	margin: 20px 0 -20px;
+}
+
+/* MENU HEADER */
+
+body {
+	font-family: source-sans-pro, sans-serif;
+	background: url('../img/pw_pattern.png');
+}
+
+.alert {
+	margin: 5px 0 10px;
+	padding: 8px 15px;
+}
+
+.page-header.custom {
+	margin: 0 0 10px;
+	text-align: center;
+	font-family: pt-sans-narrow, sans-serif;
+	color: #077FC2;
+}
+
+#completarCadastroPagina {
+	/* background: rgba(224,209,222, 1); */
+}
+
+#completarCadastroPagina h1 small {
+	display: block;
+	margin-left: 5px;
+}
+
+#containerCadastro, #containerClube {
+	background: #ffffff;
+	border: 1px solid #e7e7e7;
+	padding: 40px;
+	box-shadow: 0 5px 30px -10px rgba(0,0,0,0.1), 0 15px 20px -14px rgba(0,0,0,0.1);
+}
+
+.unclickable {
+	pointer-events: none;
+	opacity: 0.5;
+}
+
+#cadastro-area {
+
+}
+
+.loading {
+	background: white url("../img/ui-anim_basic_16x16.gif") right 10px center no-repeat;
+}
+
+#footer .container {
+	padding: 20px 30px; 
+	color: #999999;
+	line-height: 34px;
+}
+
+#clubeIndex section {
+	padding: 0 10px;
+	border-right: 1px solid #e7e7e7;
+	min-height: 250px;
+}
+
+#clubeIndex section:last-child {border: none;}

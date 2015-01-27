@@ -1,0 +1,11 @@
+.wrap{
+	word-wrap:break-word;
+}
+
+.produtoImage:hover{
+	cursor:pointer;
+}
+
+.disabled:hover{
+	cursor:pointer;
+}
