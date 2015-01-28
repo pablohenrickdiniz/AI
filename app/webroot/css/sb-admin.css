@@ -11,8 +11,35 @@ body{
     -ms-user-select:none;
 }
 
-#tileset-area{
+#tileset-container{
     border:1px solid black;
-    width:250px;
-    height:350px;
+    width:300px;
+    height:250px;
+    overflow-x:hidden;
+}
+
+.tools li{
+    display:inline-block;
+    width:8%;
+    text-align:center;
+}
+
+.tools{
+    overflow:hidden;
+    width:1200px;
+    margin:auto;
+}
+
+#container-a{
+    border:1px solid black;
+    width:300px;
+    height:500px;
+    float:left;
+}
+
+#container-b{
+    width:800px;
+    border:1px solid black;
+    float:left;
+    height:500px;
 }

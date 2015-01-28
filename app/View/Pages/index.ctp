@@ -29,10 +29,10 @@
         });
 
         var checkProjectName = function () {
-            var nome = $(this).val().trim();
-            if (nome != '') {
-                if (validator.nameExp.test(nome)) {
-                    validator.validateProjectName(nome);
+            var name = $(this).val().trim();
+            if (name != '') {
+                if (validator.nameExp.test(name)) {
+                    validator.validateProjectName(name);
                 }
                 else {
                     $('#alert-project-exists').html('Esse nome de projeto é inválido');
@@ -55,23 +55,23 @@
             checking: false,
             checkinglist: [],
             nameExp: /^[a-zA-z]+[0-9a-zA-z]+$/,
-            validateProjectName: function (nome) {
-                this.checkinglist.push(nome);
+            validateProjectName: function (name) {
+                this.checkinglist.push(name);
                 if (!this.checking) {
                     this.checking = true;
                     this.checkName();
                 }
             },
             checkName: function () {
-                var nome = this.checkinglist.pop();
+                var name = this.checkinglist.pop();
                 this.checkinglist = [];
                 this.checking = true;
                 var self = this;
                 $.ajax({
-                    url: '<?=$this->Html->url(array('controller'=>'projeto','action'=>'exists'))?>',
+                    url: '<?=$this->Html->url(array('controller'=>'project','action'=>'exists'))?>',
                     type: 'post',
                     data: {
-                        'data[nome]': nome
+                        'data[name]': name
                     },
                     success: function (data) {
                         data = $.parseJSON(data);
@@ -101,19 +101,29 @@
             project_id: 0,
             loading: false,
             createProject: function () {
-                var nome = $('#new-project-name').val();
-                if (validator.nameExp.test(nome)) {
+                var name = $('#new-project-name').val();
+                if (validator.nameExp.test(name)) {
                     $('#create-new-project').attr('disabled', true);
                     $.ajax({
-                        url: '<?=$this->Html->url(array('controller'=>'projeto','action'=>'addAjax'))?>',
+                        url: '<?=$this->Html->url(array('controller'=>'project','action'=>'addAjax'))?>',
                         type: 'post',
                         data: {
-                            'data[nome]': nome
+                            'data[name]': name
                         },
                         success: function (data) {
                             data = $.parseJSON(data);
                             if (data.success) {
                                 $('#new-project-modal').modal('hide');
+                                $("#tree").dynatree({
+                                    initAjax:{
+                                        url:'<?=$this->Html->url(array('controller'=>'project','action'=>'getMapTree'))?>',
+                                        data:{
+                                            'data[id]':data.id
+                                        },
+                                        type:'post'
+                                    },
+                                    persist: true
+                                });
                             }
                         },
                         complete: function () {
@@ -126,20 +136,20 @@
                 var self = this;
                 if (!self.loading) {
                     $.ajax({
-                        url: '<?=$this->Html->url(array('controller'=>'projeto','action'=>'getAll'))?>',
+                        url: '<?=$this->Html->url(array('controller'=>'project','action'=>'getAll'))?>',
                         type: 'post',
                         success: function (data) {
                             data = $.parseJSON(data);
                             $('#open-project-select').find('tr > td').remove();
-                            for (var i = 0; i < data.Projeto.length; i++) {
-                                var projeto = data.Projeto[i];
+                            for (var i = 0; i < data.Project.length; i++) {
+                                var project = data.Project[i];
                                 var tr = document.createElement('tr');
                                 var td = document.createElement('td');
                                 var td2 = document.createElement('td');
                                 var radio = document.createElement('input');
-                                $(radio).attr('type', 'radio').attr('name', 'project').val(projeto.id);
+                                $(radio).attr('type', 'radio').attr('name', 'project').val(project.id);
                                 $(td2).append(radio);
-                                $(td).attr('data-id', projeto.id).html(projeto.nome);
+                                $(td).attr('data-id', project.id).html(project.nome);
                                 $(tr).append(td, td2).attr('class', 'project-list-item');
                                 $('#open-project-select').append(tr);
                             }
@@ -151,6 +161,9 @@
                 }
             }
         };
+
+
+
     });
 </script>
 <div class="row">
@@ -225,50 +238,46 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <nav class="navbar navbar-default">
-            <div class="container-fluid">
-                <!-- Brand and toggle get grouped for better mobile display -->
+        <ul class="nav navbar-nav tools">
+            <li><a href="#" id="new-project"><span class="fa fa-2x fa-file-o"></span></a></li>
+            <li><a href="#" id="open-project"><span class="fa fa-2x fa-folder-open-o"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-floppy-o"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-scissors"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-copy"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-paste"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-eraser"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-repeat"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-picture-o"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-user"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-th"></span></a></li>
+            <div class="clearfix"></div>
+            <li><a href="#"><span class="fa fa-2x fa-pencil"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-square"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-circle"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-tint"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-pencil-square"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-database"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-server"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-file-code-o"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-music"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-street-view"></span></a></li>
+            <li><a href="#"><span class="fa fa-2x fa-play"></span></a></li>
 
-                <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav">
-                        <li><a href="#" id="new-project"><span class="fa fa-file-o"></span></a></li>
-                        <li><a href="#" id="open-project"><span class="fa fa-folder-open-o"></span></a></li>
-                        <li><a href="#"><span class="fa fa-floppy-o"></span></a></li>
-                        <li class="divider"></li>
-                        <li><a href="#"><span class="fa fa-scissors"></span></a></li>
-                        <li><a href="#"><span class="fa fa-copy"></span></a></li>
-                        <li><a href="#"><span class="fa fa-paste"></span></a></li>
-                        <li><a href="#"><span class="fa fa-eraser"></span></a></li>
-                        <li><a href="#"><span class="fa fa-repeat"></span></a></li>
-                        <li><a href="#"><span class="fa fa-picture-o"></span></a></li>
-                        <li><a href="#"><span class="fa fa-user"></span></a></li>
-                        <li><a href="#"><span class="fa fa-th"></span></a></li>
-                        <li><a href="#"><span class="fa fa-pencil"></span></a></li>
-                        <li><a href="#"><span class="fa fa-square"></span></a></li>
-                        <li><a href="#"><span class="fa fa-circle"></span></a></li>
-                        <li><a href="#"><span class="fa fa-tint"></span></a></li>
-                        <li><a href="#"><span class="fa fa-pencil-square"></span></a></li>
-                        <li><a href="#"><span class="fa fa-database"></span></a></li>
-                        <li><a href="#"><span class="fa fa-server"></span></a></li>
-                        <li><a href="#"><span class="fa fa-file-code-o"></span></a></li>
-                        <li><a href="#"><span class="fa fa-music"></span></a></li>
-                        <li><a href="#"><span class="fa fa-street-view"></span></a></li>
-                        <li><a href="#"><span class="fa fa-play"></span></a></li>
-                        <li><a href="#"><span class="fa fa-sign-out"></span></li>
-                    </ul>
-                </div><!-- /.navbar-collapse -->
-            </div><!-- /.container-fluid -->
-        </nav>
+        </ul>
     </div>
 </div>
 <div class="row">
-    <div class="col-md-2">
-        <div id="tileset-area">
+    <div id="container-a">
+        <div id="tileset-container">
 
         </div>
+        <div id="map-container">
+            <div id="tree">
+
+            </div>
+        </div>
     </div>
-    <div class="col-md-10">
+    <div id="container-b">
 
     </div>
 </div>

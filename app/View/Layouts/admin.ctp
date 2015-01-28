@@ -1,16 +1,15 @@
 <!doctype html>
 <html>
 <head>
-    <?php
-    echo $this->Html->script('jquery-1.11.1.min');
-    echo $this->Html->css('font-awesome/css/font-awesome');
-    echo $this->Html->css('bootstrap.min');
-    echo $this->Html->script('bootstrap.min');
-    echo $this->Html->css('sb-admin');
-    echo $this->fetch('meta');
-    echo $this->fetch('script');
-    echo $this->fetch('css');
-    ?>
+    <?=$this->Html->script('jquery-1.11.2.min')?>
+    <?=$this->Html->script('jquery-ui.min')?>
+    <?=$this->Html->script('jquery.cookie')?>
+    <?=$this->Html->script('jquery.dynatree.min')?>
+    <?=$this->Html->css('jquery-ui.min')?>
+    <?=$this->Html->css('font-awesome/css/font-awesome')?>
+    <?=$this->Html->css('bootstrap.min')?>
+    <?=$this->Html->css('sb-admin')?>
+    <?=$this->Html->script('bootstrap.min')?>
     <title>
         <?= $this->fetch('title') ?>
     </title>
