@@ -7,8 +7,10 @@
     <?=$this->Html->script('jquery.dynatree.min')?>
     <?=$this->Html->css('jquery-ui.min')?>
     <?=$this->Html->css('font-awesome/css/font-awesome')?>
+    <?=$this->Html->css('skin/ui.dynatree')?>
     <?=$this->Html->css('bootstrap.min')?>
     <?=$this->Html->css('sb-admin')?>
+
     <?=$this->Html->script('bootstrap.min')?>
     <title>
         <?= $this->fetch('title') ?>
