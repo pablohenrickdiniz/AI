@@ -439,3 +439,26 @@ span.custom1 a
 	background-color: maroon;
 	color: yellow;
 }
+
+.dynatree-icon:before{
+    display: inline-block;
+    font: normal normal normal 18px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transform: translate(0, 0);
+
+}
+
+.dynatree-icon{
+    background-image:none !important;
+}
+
+.dynatree-folder .dynatree-icon:before{
+    content: "\f114";
+}
+
+.dynatree-folder.dynatree-expanded .dynatree-icon:before{
+    content: "\f115";
+}

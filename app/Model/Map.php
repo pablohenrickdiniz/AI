@@ -15,7 +15,7 @@ class Map extends AppModel{
         $map = $this->read(array('id','name'));
         $root['title'] = $map['Map']['name'];
         $root['key'] = $map['Map']['id'];
-
+        $root['icon'] = false;
         $maps = $this->find('all',array(
             'fields' => array(
                 'Map.id'
@@ -33,5 +33,12 @@ class Map extends AppModel{
             $root['children'][$i] = $this->getTree();
         }
         return $root;
+    }
+
+    public function beforeDelete($cascade = false){
+        $deleted = $this->deleteAll(array(
+            'Map.parent_id' => $this->id
+        ));
+        return $deleted;
     }
 } 

@@ -28,6 +28,14 @@
             $(selfInput).prop('checked', true);
         });
 
+
+        $('#open-project-action').click(function () {
+            var id = $('input[name=project]:checked').val();
+            projectManager.project_id = id;
+            projectManager.clear();
+            projectManager.loadProject();
+        });
+
         var checkProjectName = function () {
             var name = $(this).val().trim();
             if (name != '') {
@@ -98,9 +106,10 @@
 
 
         var projectManager = {
-            project_id: 0,
+            project_id: <?=$project_id?>,
             loading: false,
             createProject: function () {
+                var self = this;
                 var name = $('#new-project-name').val();
                 if (validator.nameExp.test(name)) {
                     $('#create-new-project').attr('disabled', true);
@@ -114,16 +123,9 @@
                             data = $.parseJSON(data);
                             if (data.success) {
                                 $('#new-project-modal').modal('hide');
-                                $("#tree").dynatree({
-                                    initAjax:{
-                                        url:'<?=$this->Html->url(array('controller'=>'project','action'=>'getMapTree'))?>',
-                                        data:{
-                                            'data[id]':data.id
-                                        },
-                                        type:'post'
-                                    },
-                                    persist: true
-                                });
+                                self.project_id = data.id;
+                                self.clear();
+                                self.loadProject();
                             }
                         },
                         complete: function () {
@@ -149,7 +151,7 @@
                                 var radio = document.createElement('input');
                                 $(radio).attr('type', 'radio').attr('name', 'project').val(project.id);
                                 $(td2).append(radio);
-                                $(td).attr('data-id', project.id).html(project.nome);
+                                $(td).html(project.nome);
                                 $(tr).append(td, td2).attr('class', 'project-list-item');
                                 $('#open-project-select').append(tr);
                             }
@@ -159,11 +161,29 @@
                         }
                     });
                 }
+            },
+            clear:function(){
+                $("#tree").dynatree("destroy");
+            },
+            loadProject: function () {
+                var self = this;
+
+                if(self.project_id != 0){
+                    $("#tree").dynatree({
+                        initAjax: {
+                            url: '<?=$this->Html->url(array('controller'=>'project','action'=>'getMapTree'))?>',
+                            data: {
+                                'data[id]': self.project_id
+                            },
+                            type: 'post'
+                        },
+                        persist: false
+                    });
+                }
             }
         };
 
-
-
+        projectManager.loadProject();
     });
 </script>
 <div class="row">
