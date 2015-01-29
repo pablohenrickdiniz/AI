@@ -455,10 +455,14 @@ span.custom1 a
     background-image:none !important;
 }
 
-.dynatree-folder .dynatree-icon:before{
+.dynatree-node.dynatree-folder .dynatree-icon:before{
     content: "\f114";
 }
 
-.dynatree-folder.dynatree-expanded .dynatree-icon:before{
+.dynatree-node.dynatree-folder.dynatree-expanded .dynatree-icon:before{
     content: "\f115";
+}
+
+.dynatree-node .dynatree-icon:before{
+    content: "\f03e";
 }
