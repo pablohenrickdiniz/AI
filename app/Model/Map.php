@@ -15,6 +15,7 @@ class Map extends AppModel{
         $map = $this->read(array('id','name'));
         $root['title'] = $map['Map']['name'];
         $root['key'] = $map['Map']['id'];
+        $root['addClass'] = 'map';
 
         $maps = $this->find('all',array(
             'fields' => array(

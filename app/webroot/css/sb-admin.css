@@ -18,11 +18,6 @@ body{
     overflow-x:hidden;
 }
 
-.tools li{
-    display:inline-block;
-    width:8%;
-    text-align:center;
-}
 
 .tools{
     overflow:hidden;

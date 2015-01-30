@@ -42,7 +42,7 @@ class Project extends AppModel{
         $root['title'] = $project['Project']['name'];
         $root['key'] = $project['Project']['id'];
         $root['isFolder'] = true;
-
+        $root['addClass'] = 'project';
 
         $maps = $Map->find('all',array(
             'fields' => array(

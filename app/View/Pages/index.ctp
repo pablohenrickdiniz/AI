@@ -19,6 +19,10 @@
             $('#open-project-modal').modal('hide');
         });
 
+        $('#cancel-new-map').click(function(){
+            $('#create-map-modal').modal('hide');
+        });
+
         $('#create-new-project').click(function () {
             projectManager.createProject();
         });
@@ -177,13 +181,63 @@
                             },
                             type: 'post'
                         },
-                        persist: false
+                        persist: false,
+                        generateIds:true,
+                        idPrefix:'data-id:'
                     });
                 }
             }
         };
 
         projectManager.loadProject();
+
+        var mapManager = {
+            id:0
+        };
+
+        $(document).on('mousedown','li.dynatree-lastsib',function(event){
+            if(event.which == 3){
+                var id = $(this).prop('id');
+                var data = id.split(':');
+                id = data[1];
+                mapManager.id = id;
+                event.stopPropagation();
+            }
+        });
+
+        $.contextMenu({
+            selector: '.map',
+            callback: function(key, options) {
+                if(key == 'new'){
+                    $('#create-map-modal').modal();
+                }
+            },
+            items: {
+                "edit": {name: "Alterar propriedades", icon: "edit"},
+                'sp1':'-----------',
+                'new':{name:'Novo Mapa',icon:"add"},
+                'sp2':'-----------',
+                "copy":{name:"Copiar",icon:"copy"},
+                "paste":{name:"Colar",icon:"paste"},
+                "delete":{name:"Apagar",icon:"delete"}
+            }
+        });
+
+        $.contextMenu({
+            selector: '.project',
+            callback: function(key, options) {
+                if(key == 'new'){
+                    $('#create-map-modal').modal();
+                }
+            },
+            items: {
+                'new':{name:'Novo Mapa',icon:"add"},
+                'sp2':'-----------',
+                "copy":{name:"Copiar",icon:"copy"},
+                "paste":{name:"Colar",icon:"paste"},
+                "delete":{name:"Apagar",icon:"delete"}
+            }
+        });
     });
 </script>
 <div class="row">
@@ -257,31 +311,76 @@
     </div>
 </div>
 <div class="row">
+    <div class="modal" id="create-map-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Novo Mapa</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="nome-mapa">Nome</label>
+                            <input type="text" id="nome-mapa" class="form-control"/>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="nome-mapa">Nome de Apresentação</label>
+                            <input type="text" id="nome-apresentacao" class="form-control"/>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="mapa-altura">Altura</label>
+                            <input type="number" id="mapa-altura" class="form-control" min="10" max="1000" value="10"/>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="mapa-largura">Largura</label>
+                            <input type="number" id="mapa-largura" class="form-control" min="10" max="1000" value="10"/>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <select id="mapa-loop" class="form-control">
+                                <option value="0">Sem Loop</option>
+                                <option value="1">Loop Vertical</option>
+                                <option value="2">Loop Horizontal</option>
+                                <option value="2">Loop Vertical e Horizontal</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button id="open-map-action" type="button" class="btn btn-default" data-dismiss="modal">Criar
+                    </button>
+                    <button id="cancel-new-map" type="button" class="btn btn-primary">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
     <div class="col-md-12">
         <ul class="nav navbar-nav tools">
-            <li><a href="#" id="new-project"><span class="fa fa-2x fa-file-o"></span></a></li>
-            <li><a href="#" id="open-project"><span class="fa fa-2x fa-folder-open-o"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-floppy-o"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-scissors"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-copy"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-paste"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-eraser"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-repeat"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-picture-o"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-user"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-th"></span></a></li>
-            <div class="clearfix"></div>
-            <li><a href="#"><span class="fa fa-2x fa-pencil"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-square"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-circle"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-tint"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-pencil-square"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-database"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-server"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-file-code-o"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-music"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-street-view"></span></a></li>
-            <li><a href="#"><span class="fa fa-2x fa-play"></span></a></li>
+            <li><a href="#" id="new-project"><span class="fa  fa-file-o"></span></a></li>
+            <li><a href="#" id="open-project"><span class="fa  fa-folder-open-o"></span></a></li>
+            <li><a href="#"><span class="fa  fa-floppy-o"></span></a></li>
+            <li><a href="#"><span class="fa  fa-scissors"></span></a></li>
+            <li><a href="#"><span class="fa  fa-copy"></span></a></li>
+            <li><a href="#"><span class="fa  fa-paste"></span></a></li>
+            <li><a href="#"><span class="fa  fa-eraser"></span></a></li>
+            <li><a href="#"><span class="fa  fa-repeat"></span></a></li>
+            <li><a href="#"><span class="fa  fa-picture-o"></span></a></li>
+            <li><a href="#"><span class="fa  fa-user"></span></a></li>
+            <li><a href="#"><span class="fa  fa-th"></span></a></li>
+            <li><a href="#"><span class="fa  fa-pencil"></span></a></li>
+            <li><a href="#"><span class="fa  fa-square"></span></a></li>
+            <li><a href="#"><span class="fa  fa-circle"></span></a></li>
+            <li><a href="#"><span class="fa  fa-tint"></span></a></li>
+            <li><a href="#"><span class="fa  fa-pencil-square"></span></a></li>
+            <li><a href="#"><span class="fa  fa-database"></span></a></li>
+            <li><a href="#"><span class="fa  fa-server"></span></a></li>
+            <li><a href="#"><span class="fa  fa-file-code-o"></span></a></li>
+            <li><a href="#"><span class="fa  fa-music"></span></a></li>
+            <li><a href="#"><span class="fa  fa-street-view"></span></a></li>
+            <li><a href="#"><span class="fa  fa-play"></span></a></li>
 
         </ul>
     </div>
