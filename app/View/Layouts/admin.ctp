@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="pt_BR">
 <head>
     <?=$this->Html->script('jquery-1.11.2.min')?>
     <?=$this->Html->script('jquery-ui.min')?>
@@ -13,8 +13,8 @@
     <?=$this->Html->css('bootstrap.min')?>
     <?=$this->Html->css('/jquery-context-menu/jquery.contextMenu')?>
     <?=$this->Html->css('sb-admin')?>
-
     <?=$this->Html->script('bootstrap.min')?>
+    <meta charset="utf-8"/>
     <title>
         <?= $this->fetch('title') ?>
     </title>
