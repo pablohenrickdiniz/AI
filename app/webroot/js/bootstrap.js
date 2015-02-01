@@ -188,7 +188,7 @@ if (typeof jQuery === 'undefined') {
 
   var Button = function (element, options) {
     this.$element  = $(element)
-    this.options   = $.extend({}, Button.DEFAULTS, options)
+    this.options   = $.expand({}, Button.DEFAULTS, options)
     this.isLoading = false
   }
 
@@ -467,7 +467,7 @@ if (typeof jQuery === 'undefined') {
     return this.each(function () {
       var $this   = $(this)
       var data    = $this.data('bs.carousel')
-      var options = $.extend({}, Carousel.DEFAULTS, $this.data(), typeof option == 'object' && option)
+      var options = $.expand({}, Carousel.DEFAULTS, $this.data(), typeof option == 'object' && option)
       var action  = typeof option == 'string' ? option : options.slide
 
       if (!data) $this.data('bs.carousel', (data = new Carousel(this, options)))
@@ -500,7 +500,7 @@ if (typeof jQuery === 'undefined') {
     var $this   = $(this)
     var $target = $($this.attr('data-target') || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) // strip for ie7
     if (!$target.hasClass('carousel')) return
-    var options = $.extend({}, $target.data(), $this.data())
+    var options = $.expand({}, $target.data(), $this.data())
     var slideIndex = $this.attr('data-slide-to')
     if (slideIndex) options.interval = false
 
@@ -543,7 +543,7 @@ if (typeof jQuery === 'undefined') {
 
   var Collapse = function (element, options) {
     this.$element      = $(element)
-    this.options       = $.extend({}, Collapse.DEFAULTS, options)
+    this.options       = $.expand({}, Collapse.DEFAULTS, options)
     this.$trigger      = $(this.options.trigger).filter('[href="#' + element.id + '"], [data-target="#' + element.id + '"]')
     this.transitioning = null
 
@@ -698,7 +698,7 @@ if (typeof jQuery === 'undefined') {
     return this.each(function () {
       var $this   = $(this)
       var data    = $this.data('bs.collapse')
-      var options = $.extend({}, Collapse.DEFAULTS, $this.data(), typeof option == 'object' && option)
+      var options = $.expand({}, Collapse.DEFAULTS, $this.data(), typeof option == 'object' && option)
 
       if (!data && options.toggle && option == 'show') options.toggle = false
       if (!data) $this.data('bs.collapse', (data = new Collapse(this, options)))
@@ -731,7 +731,7 @@ if (typeof jQuery === 'undefined') {
 
     var $target = getTargetFromTrigger($this)
     var data    = $target.data('bs.collapse')
-    var option  = data ? 'toggle' : $.extend({}, $this.data(), { trigger: this })
+    var option  = data ? 'toggle' : $.expand({}, $this.data(), { trigger: this })
 
     Plugin.call($target, option)
   })
@@ -1180,7 +1180,7 @@ if (typeof jQuery === 'undefined') {
     return this.each(function () {
       var $this   = $(this)
       var data    = $this.data('bs.modal')
-      var options = $.extend({}, Modal.DEFAULTS, $this.data(), typeof option == 'object' && option)
+      var options = $.expand({}, Modal.DEFAULTS, $this.data(), typeof option == 'object' && option)
 
       if (!data) $this.data('bs.modal', (data = new Modal(this, options)))
       if (typeof option == 'string') data[option](_relatedTarget)
@@ -1210,7 +1210,7 @@ if (typeof jQuery === 'undefined') {
     var $this   = $(this)
     var href    = $this.attr('href')
     var $target = $($this.attr('data-target') || (href && href.replace(/.*(?=#[^\s]+$)/, ''))) // strip for ie7
-    var option  = $target.data('bs.modal') ? 'toggle' : $.extend({ remote: !/#/.test(href) && href }, $target.data(), $this.data())
+    var option  = $target.data('bs.modal') ? 'toggle' : $.expand({ remote: !/#/.test(href) && href }, $target.data(), $this.data())
 
     if ($this.is('a')) e.preventDefault()
 
@@ -1296,7 +1296,7 @@ if (typeof jQuery === 'undefined') {
     }
 
     this.options.selector ?
-      (this._options = $.extend({}, this.options, { trigger: 'manual', selector: '' })) :
+      (this._options = $.expand({}, this.options, { trigger: 'manual', selector: '' })) :
       this.fixTitle()
   }
 
@@ -1305,7 +1305,7 @@ if (typeof jQuery === 'undefined') {
   }
 
   Tooltip.prototype.getOptions = function (options) {
-    options = $.extend({}, this.getDefaults(), this.$element.data(), options)
+    options = $.expand({}, this.getDefaults(), this.$element.data(), options)
 
     if (options.delay && typeof options.delay == 'number') {
       options.delay = {
@@ -1467,7 +1467,7 @@ if (typeof jQuery === 'undefined') {
 
     // $.fn.offset doesn't round pixel values
     // so we use setOffset directly with our own function B-0
-    $.offset.setOffset($tip[0], $.extend({
+    $.offset.setOffset($tip[0], $.expand({
       using: function (props) {
         $tip.css({
           top: Math.round(props.top),
@@ -1563,13 +1563,13 @@ if (typeof jQuery === 'undefined') {
     var elRect    = el.getBoundingClientRect()
     if (elRect.width == null) {
       // width and height are missing in IE8, so compute them manually; see https://github.com/twbs/bootstrap/issues/14093
-      elRect = $.extend({}, elRect, { width: elRect.right - elRect.left, height: elRect.bottom - elRect.top })
+      elRect = $.expand({}, elRect, { width: elRect.right - elRect.left, height: elRect.bottom - elRect.top })
     }
     var elOffset  = isBody ? { top: 0, left: 0 } : $element.offset()
     var scroll    = { scroll: isBody ? document.documentElement.scrollTop || document.body.scrollTop : $element.scrollTop() }
     var outerDims = isBody ? { width: $(window).width(), height: $(window).height() } : null
 
-    return $.extend({}, elRect, scroll, outerDims, elOffset)
+    return $.expand({}, elRect, scroll, outerDims, elOffset)
   }
 
   Tooltip.prototype.getCalculatedOffset = function (placement, pos, actualWidth, actualHeight) {
@@ -1721,7 +1721,7 @@ if (typeof jQuery === 'undefined') {
 
   Popover.VERSION  = '3.3.2'
 
-  Popover.DEFAULTS = $.extend({}, $.fn.tooltip.Constructor.DEFAULTS, {
+  Popover.DEFAULTS = $.expand({}, $.fn.tooltip.Constructor.DEFAULTS, {
     placement: 'right',
     trigger: 'click',
     content: '',
@@ -1732,7 +1732,7 @@ if (typeof jQuery === 'undefined') {
   // NOTE: POPOVER EXTENDS tooltip.js
   // ================================
 
-  Popover.prototype = $.extend({}, $.fn.tooltip.Constructor.prototype)
+  Popover.prototype = $.expand({}, $.fn.tooltip.Constructor.prototype)
 
   Popover.prototype.constructor = Popover
 
@@ -1832,7 +1832,7 @@ if (typeof jQuery === 'undefined') {
 
     this.$body          = $('body')
     this.$scrollElement = $(element).is('body') ? $(window) : $(element)
-    this.options        = $.extend({}, ScrollSpy.DEFAULTS, options)
+    this.options        = $.expand({}, ScrollSpy.DEFAULTS, options)
     this.selector       = (this.options.target || '') + ' .nav li > a'
     this.offsets        = []
     this.targets        = []
@@ -2158,7 +2158,7 @@ if (typeof jQuery === 'undefined') {
   // ======================
 
   var Affix = function (element, options) {
-    this.options = $.extend({}, Affix.DEFAULTS, options)
+    this.options = $.expand({}, Affix.DEFAULTS, options)
 
     this.$target = $(this.options.target)
       .on('scroll.bs.affix.data-api', $.proxy(this.checkPosition, this))

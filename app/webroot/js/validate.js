@@ -14,7 +14,7 @@
 
     var defaults = {
         messages: {
-            required: 'O %s é obrigatório',
+            required: '%s',
             matches: 'The %s field does not match the %s field.',
             "default": 'The %s field is still set to default, please change.',
             valid_email: 'The %s field must contain a valid email address.',

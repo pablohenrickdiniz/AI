@@ -2,7 +2,7 @@
 
 
 class PagesController extends AppController {
-	public $uses = array('Config');
+	public $uses = array('Config','Map');
     public $layout = 'admin';
 
     public function beforeFilter(){

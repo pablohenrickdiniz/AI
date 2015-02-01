@@ -10,11 +10,6 @@ class ProjectController extends AppController
 {
     public $model = 'Project';
 
-    public function beforeFilter()
-    {
-        $this->Auth->Allow('addAjax', 'exists', 'getAll', 'getMapTree');
-    }
-
     public function addAjax()
     {
         $this->autoRender = false;
@@ -32,7 +27,7 @@ class ProjectController extends AppController
                             $response['id'] = $this->Project->getLastInsertID();
                         }
                     } catch (Exception $ex) {
-
+                        echo $ex;
                     }
                 }
             }
@@ -68,6 +63,33 @@ class ProjectController extends AppController
         }
     }
 
+    public function expand()
+    {
+        $this->autoRender = false;
+        if ($this->request->is('post') && $this->request->is('ajax')) {
+            $result['success'] = false;
+            if (isset($this->request->data['expand'])) {
+                $expand = $this->request->data['expand'];
+                $id = $this->request->data['id'];
+                if ($this->Project->exists($id)) {
+                    $updated = $this->Project->updateAll(
+                        array(
+                            'Project.expand' => $expand
+                        ),
+                        array(
+                            'Project.id' => $id
+                        )
+                    );
+
+                    if ($updated) {
+                        $result['success'] = true;
+                    }
+                }
+            }
+            echo json_encode($result);
+        }
+    }
+
     public function getMapTree()
     {
         $this->autoRender = false;
@@ -76,8 +98,12 @@ class ProjectController extends AppController
             $result = [];
             if ($this->Project->exists($id)) {
                 $this->Project->id = $id;
-                $tree = $this->Project->getTree();
-                $result = $tree;
+                try {
+                    $tree = $this->Project->getTree();
+                    $result = $tree;
+                } catch (Exception $ex) {
+
+                }
             }
             echo json_encode($result);
         }
