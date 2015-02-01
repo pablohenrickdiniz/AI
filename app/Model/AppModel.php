@@ -40,54 +40,5 @@ class AppModel extends Model {
         }
         return self::$instances[$class];
     }
-    /*
-   public function beforeSave($options=array()){
-       $class = get_class($this);
-       $instance = Disponible::getInstance();
-       $id = $instance->getNextID($class);
-       if(!is_null($id)){
-           $this->data[$class]['id'] = $id;
-       }
-   }
 
-   public function afterSave($created,$options=array()){
-       if($created){
-           $class = get_class($this);
-           $instance = Disponible::getInstance();
-           try{
-               $instance->deleteAll(array(
-                   'Disponible.table_name' => $class,
-                   'Disponible.table_id' => $this->getLastInsertID()
-               ));
-           }
-           catch(Exception $ex){
-
-           }
-       }
-   }
-
-   public function afterDelete(){
-       $class = get_class($this);
-       $instance = Disponible::getInstance();
-       $disponible['Disponible'] = array(
-           'table_name' => $class,
-           'table_id' => $this->id
-       );
-       try{
-           $instance->save($disponible);
-       }
-       catch(Exception $ex){
-           echo $ex;
-       }
-   }
-
-   public function getFreeID(){
-       $class = get_class($this);
-       $results = $this->find('first',array(
-           'fields' => array(
-               'COALESCE(MAX('.$class.'.id)+1,1) as next_id'
-           )
-       ));
-       return $results[0]['next_id'];
-   }*/
 }

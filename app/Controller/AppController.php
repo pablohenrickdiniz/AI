@@ -174,31 +174,4 @@ class AppController extends Controller {
             $this->Session->setFlash(__($this->messages[$action]['error']),'erro');
         }
     }
-
-    public function updateIndexes(){
-        $this->autoRender = false;
-        $model = $this->model;
-        $map_max = $this->$model->getFreeID();
-        $disponibles = [];
-
-        for($i=1;$i<$map_max;$i++){
-            if(!$this->$model->exists($i)){
-                $disponibles[] = array(
-                    'Disponible' => array(
-                        'table_name' => 'Map',
-                        'table_id' => $i
-                    )
-                );
-            }
-        }
-
-        for($i=0;$i<count($disponibles);$i++){
-            try{
-                $this->Disponible->saveAll($disponibles);
-            }
-            catch(Exception $ex){
-
-            }
-        }
-    }
 }

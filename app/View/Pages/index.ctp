@@ -32,6 +32,14 @@ $(document).ready(function () {
         $(selfInput).prop('checked', true);
     });
 
+    $('#map-create-action').click(function(){
+        $('#map-create-form').submit();
+    });
+
+    $('#map-update-action').click(function(){
+        $('#map-update-form').submit();
+    });
+
 
     $('#open-project-action').click(function () {
         var id = $('input[name=project]:checked').val();
@@ -221,7 +229,6 @@ $(document).ready(function () {
                             mapManager.expand(flag);
                         }
                         else {
-
                             projectManager.expand(flag);
                         }
                     }
@@ -254,16 +261,17 @@ $(document).ready(function () {
         creating: false,
         node: null,
         success:false,
+        copy:0,
         createMap: function () {
             var self = this;
             if (!self.creating) {
                 self.creating = true;
                 var data = {
-                    'data[Map][name]': $('#nome-mapa').val(),
-                    'data[Map][display_name]': $('#nome-apresentacao').val(),
-                    'data[Map][altura]': $('#mapa-altura').val(),
-                    'data[Map][largura]': $('#mapa-largura').val(),
-                    'data[Map][loop]': $('#mapa-loop').val()
+                    'data[Map][name]': $('#map-name-create').val(),
+                    'data[Map][display]': $('#map-display-create').val(),
+                    'data[Map][width]': $('#map-width-create').val(),
+                    'data[Map][height]': $('#map-height-create').val(),
+                    'data[Map][scroll]': $('#map-scroll-create').val()
                 };
 
                 if (self.type == 'project') {
@@ -301,29 +309,27 @@ $(document).ready(function () {
             var self = this;
             if (!self.creating) {
                 self.creating = true;
-                var data = {
-                    'data[Map][name]': $('#nome-mapa').val(),
-                    'data[Map][display_name]': $('#nome-apresentacao').val(),
-                    'data[Map][altura]': $('#mapa-altura').val(),
-                    'data[Map][largura]': $('#mapa-largura').val(),
-                    'data[Map][loop]': $('#mapa-loop').val()
-                };
-
-                if (self.type == 'project') {
-                    data['data[Map][project_id]'] = self.id;
-                }
-                else {
-                    data['data[Map][parent_id]'] = self.id;
-                }
-
                 $.ajax({
-                    url: '<?=$this->Html->url(array('controller'=>'map','action'=>'add'))?>',
+                    url: '<?=$this->Html->url(array('controller'=>'map','action'=>'edit'))?>',
                     type: 'post',
-                    data: data,
+                    data: {
+                        'data[Map][id]':self.id,
+                        'data[Map][name]': $('#map-name-update').val(),
+                        'data[Map][display]': $('#map-display-update').val(),
+                        'data[Map][width]': $('#map-width-update').val(),
+                        'data[Map][height]': $('#map-height-update').val(),
+                        'data[Map][scroll]': $('#map-scroll-update').val()
+                    },
                     success: function (data) {
                         data = $.parseJSON(data);
                         if (data.success) {
                             self.closeUpdateModal();
+                            var tree = $('#tree').dynatree('getTree');
+                            var node = tree.getNodeByKey(self.id);
+                            if(node != null){
+                                node.data.title = data.map.name;
+                                node.render();
+                            }
                         }
                         else {
                             self.showUpdateError();
@@ -375,19 +381,18 @@ $(document).ready(function () {
                     success: function (data) {
                         data = $.parseJSON(data);
                         if (data.success) {
-                            console.log(data);
                             var map = data.map;
                             self.success = true;
-                            $('#nome-mapa-update').val(map.Map.name);
-                            $('#nome-apresentacao-update').val(map.Map.display);
-                            $('#mapa-altura-update').val(map.Map.width);
-                            $('#mapa-largura-update').val(map.Map.height);
-                            $('#mapa-loop-update').val(map.Map.scroll);
+                            $('#map-name-update').val(map.Map.name);
+                            $('#map-display-update').val(map.Map.display);
+                            $('#map-width-update').val(map.Map.width);
+                            $('#map-height-update').val(map.Map.height);
+                            $('#map-scroll-update').val(map.Map.scroll);
                         }
                     },
                     complete:function(){
                         if(self.success){
-                            $('#edit-map-modal').modal();
+                            $('#map-update-modal').modal();
                             self.success = false;
                         }
                         self.creating = false;
@@ -460,38 +465,36 @@ $(document).ready(function () {
             this.closeAlerts();
         },
         closeUpdateModal: function () {
-            $('#update-map-modal').modal('hide');
-            $('#update-map-modal').find('input[type!=number]').val('');
-            $('#update-map-modal').find('input[type=number]').val(10);
+            $('#map-update-modal').modal('hide');
             this.closeUpdateAlerts();
         }
     };
 
     var nomeMapa = /^[A-Za-z]+[A-Za-z0-9]+$/;
 
-    var updateMapValidator = new FormValidator('update-map-form', [
+    var updateMapValidator = new FormValidator('map-update-form', [
         {
-            name: 'nome-mapa',
+            name: 'map-name-update',
             display: 'O nome do mapa é obrigatório',
             rules: 'required|nomeMapa'
         },
         {
-            name: 'nome-apresentacao',
+            name: 'map-display-update',
             display: 'O nome de apresentação é obrigatório',
             rules: 'required|nomeMapa'
         },
         {
-            name: 'mapa-altura',
+            name: 'map-height-update',
             display: 'A altura do mapa deve ser um inteiro entre 10 e 1000',
             rules: 'required|integer|greater_than[9]|less_than[1001]'
         },
         {
-            name: 'mapa-largura',
+            name: 'map-width-update',
             display: 'A largura do mapa deve ser um inteiro entre 10 e 1000',
             rules: 'required|integer|greater_than[9]|less_than[1001]'
         },
         {
-            name: 'mapa-loop',
+            name: 'map-scroll-update',
             display: 'loop do mapa',
             rules: 'required|greater_than[-1]|less_than[4]'
         }
@@ -511,29 +514,29 @@ $(document).ready(function () {
         event.preventDefault();
     });
 
-    var createMapValidator = new FormValidator('create-map-form', [
+    var createMapValidator = new FormValidator('map-create-form', [
         {
-            name: 'nome-mapa',
+            name: 'map-name-create',
             display: 'O nome do mapa é obrigatório',
             rules: 'required|nomeMapa'
         },
         {
-            name: 'nome-apresentacao',
+            name: 'map-display-create',
             display: 'O nome de apresentação é obrigatório',
             rules: 'required|nomeMapa'
         },
         {
-            name: 'mapa-altura',
+            name: 'map-height-create',
             display: 'A altura do mapa deve ser um inteiro entre 10 e 1000',
             rules: 'required|integer|greater_than[9]|less_than[1001]'
         },
         {
-            name: 'mapa-largura',
+            name: 'map-width-create',
             display: 'A largura do mapa deve ser um inteiro entre 10 e 1000',
             rules: 'required|integer|greater_than[9]|less_than[1001]'
         },
         {
-            name: 'mapa-loop',
+            name: 'map-scroll-create',
             display: 'loop do mapa',
             rules: 'required|greater_than[-1]|less_than[4]'
         }
@@ -565,6 +568,12 @@ $(document).ready(function () {
             }
             else if (key == 'delete') {
                 mapManager.deleteMap();
+            }
+            else if(key == 'copy'){
+                mapManager.copy = mapManager.id;
+            }
+            else if(key == 'paste'){
+                mapManager.paste();
             }
         },
         items: {
@@ -669,7 +678,7 @@ $(document).ready(function () {
     <div class="modal" id="create-map-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
          aria-hidden="true">
         <div class="modal-dialog">
-            <form action="#" id="create-map-form" name="create-map-form">
+            <form action="#" id="map-create-form" name="map-create-form">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
@@ -679,23 +688,23 @@ $(document).ready(function () {
                     <div class="modal-body">
                         <div class="row">
                             <div class="form-group col-md-6">
-                                <input type="text" id="nome-mapa" name="nome-mapa" class="form-control"
+                                <input type="text" id="map-name-create" name="map-name-create" class="form-control"
                                        placeholder="Nome"/>
                             </div>
                             <div class="form-group col-md-6">
-                                <input type="text" name="nome-apresentacao" id="nome-apresentacao" class="form-control"
+                                <input type="text" name="map-display-create" id="map-display-create" class="form-control"
                                        placeholder="Nome de apresentação"/>
                             </div>
                             <div class="form-group col-md-6">
-                                <input type="number" id="mapa-altura" placeholder="Altura" name="mapa-altura"
+                                <input type="number" id="map-width-create" placeholder="Altura" name="map-width-create"
                                        class="form-control" min="10" max="1000" value="10"/>
                             </div>
                             <div class="form-group col-md-6">
-                                <input type="number" id="mapa-largura" placeholder="Largura" name="mapa-largura"
+                                <input type="number" id="map-height-create" placeholder="Largura" name="map-height-create"
                                        class="form-control" min="10" max="1000" value="10"/>
                             </div>
                             <div class="form-group col-md-12">
-                                <select id="mapa-loop" class="form-control" name="mapa-loop">
+                                <select id="map-scroll-create" class="form-control" name="map-scroll-create">
                                     <option value="0">Sem Loop</option>
                                     <option value="1">Loop Vertical</option>
                                     <option value="2">Loop Horizontal</option>
@@ -714,7 +723,7 @@ $(document).ready(function () {
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button id="create-map-action" type="button" class="btn btn-default">Criar
+                        <button id="map-create-action" type="button" class="btn btn-default">Criar
                         </button>
                         <button id="cancel-new-map" type="button" class="btn btn-primary" data-dismiss="modal">
                             Cancelar
@@ -726,10 +735,10 @@ $(document).ready(function () {
     </div>
 </div>
 <div class="row">
-    <div class="modal" id="edit-map-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+    <div class="modal" id="map-update-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
          aria-hidden="true">
         <div class="modal-dialog">
-            <form action="#" id="edit-map-form" name="edit-map-form">
+            <form action="#" id="map-update-form" name="map-update-form">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
@@ -739,23 +748,23 @@ $(document).ready(function () {
                     <div class="modal-body">
                         <div class="row">
                             <div class="form-group col-md-6">
-                                <input type="text" id="nome-mapa-update" name="nome-mapa" class="form-control"
+                                <input type="text" id="map-name-update" name="map-name-update" class="form-control"
                                        placeholder="Nome"/>
                             </div>
                             <div class="form-group col-md-6">
-                                <input type="text" name="nome-apresentacao-update" id="nome-apresentacao" class="form-control"
+                                <input type="text" name="map-display-update" id="map-display-update" class="form-control"
                                        placeholder="Nome de apresentação"/>
                             </div>
                             <div class="form-group col-md-6">
-                                <input type="number" id="mapa-altura-update" placeholder="Altura" name="mapa-altura"
+                                <input type="number" id="map-height-update" placeholder="Altura" name="map-height-update""
                                        class="form-control" min="10" max="1000" value="10"/>
                             </div>
                             <div class="form-group col-md-6">
-                                <input type="number" id="mapa-largura-update" placeholder="Largura" name="mapa-largura"
+                                <input type="number" id="map-width-update" placeholder="Largura" name="map-width-update"
                                        class="form-control" min="10" max="1000" value="10"/>
                             </div>
                             <div class="form-group col-md-12">
-                                <select id="mapa-loop-update" class="form-control" name="mapa-loop">
+                                <select id="map-scroll-update" class="form-control" name="map-scroll-update">
                                     <option value="0">Sem Loop</option>
                                     <option value="1">Loop Vertical</option>
                                     <option value="2">Loop Horizontal</option>
@@ -774,7 +783,7 @@ $(document).ready(function () {
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button id="update-map-action" type="button" class="btn btn-default">Atualizar
+                        <button id="map-update-action" type="button" class="btn btn-default">Atualizar
                         </button>
                         <button id="cancel-update-map" type="button" class="btn btn-primary" data-dismiss="modal">
                             Cancelar

@@ -1,12 +1,13 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Pablo Henrick Diniz
  * Date: 28/01/15
  * Time: 08:49
  */
-
-class Map extends AppModel{
+class Map extends AppModel
+{
     public $useTable = 'map';
     public $validate = array(
         'name' => array(
@@ -14,72 +15,62 @@ class Map extends AppModel{
             'required' => true,
             'allowEmpty' => false
         ),
-        'display_name' => array(
+        'display' => array(
             'rule' => 'notEmpty',
             'required' => true
         ),
         'width' => array(
-            'rule-1' => array(
-                'rule' => array('comparison','>=',10)
-            ),
-            'rule-2' => array(
-                'rule' => array('comparison','<=',1000)
-            ),
-            'required' => true,
-            'allowEmpty' => false
+            'rule' => '/^([0-9]{2,3}|1000)$/i',
+            'required' => true
         ),
         'height' => array(
-            'rule-1' => array(
-                'rule' => array('comparison','>=',10)
-            ),
-            'rule-2' => array(
-                'rule' => array('comparison','<=',1000)
-            ),
-            'required' => true,
-            'allowEmpty' => false
+            'rule' => '/^([0-9]{2,3}|1000)$/i',
+            'required' => true
         ),
-        'scroll_type' => array(
-            'rule-1' => array(
-                'rule' => array('comparison','>=',0)
-            ),
-            'rule-2' => array(
-                'rule' => array('comparison','<=',3)
-            ),
-            'required' => true,
-            'allowEmpty' => false
+        'scroll' => array(
+            'rule' => '/^[0-3]$/i',
+            'required' => true
         )
     );
 
-    public function beforeSave($options = array()){
-        $continue = isset($this->data['Map']['project_id']) || isset($this->data['Map']['parent_id']);
-        if($continue){
+    public function beforeSave($options = array())
+    {
+        $continue = true;
+
+        if (isset($this->data['Map']['project_id'])) {
+            unset($this->data['Map']['parent_id']);
+        } else if (isset($this->data['Map']['parent_id'])) {
+            unset($this->data['Map']['project_id']);
+        } else {
+            $continue = false;
+        }
+
+        if ($continue && !isset($this->data['Map']['id'])) {
             $name = trim($this->data['Map']['name']);
             $options['conditions']['Map.name'] = $name;
-            if(isset($this->data['Map']['project_id'])){
-                unset($this->data['Map']['parent_id']);
+            if (isset($this->data['Map']['project_id'])) {
                 $project_id = $this->data['Map']['project_id'];
                 $options['conditions']['Map.project_id'] = $project_id;
-            }
-            else{
+            } else {
                 $parent_id = $this->data['Map']['parent_id'];
-                unset($this->data['Map']['project_id']);
                 $options['conditions']['Map.parent_id'] = $parent_id;
             }
-            $count = $this->find('count',$options);
+            $count = $this->find('count', $options);
             $continue = $count == 0;
         }
 
         return $continue;
     }
 
-    public function getTree(){
-        $map = $this->read(array('id','name','expand'));
+    public function getTree()
+    {
+        $map = $this->read(array('id', 'name', 'expand'));
         $root['title'] = $map['Map']['name'];
         $root['key'] = $map['Map']['id'];
         $root['expand'] = $map['Map']['expand'];
         $root['addClass'] = 'map';
 
-        $maps = $this->find('all',array(
+        $maps = $this->find('all', array(
             'fields' => array(
                 'Map.id'
             ),
@@ -91,14 +82,15 @@ class Map extends AppModel{
             )
         ));
 
-        for($i=0;$i<count($maps);$i++){
+        for ($i = 0; $i < count($maps); $i++) {
             $this->id = $maps[$i]['Map']['id'];
             $root['children'][$i] = $this->getTree();
         }
         return $root;
     }
 
-    public function beforeDelete($cascade = false){
+    public function beforeDelete($cascade = false)
+    {
         $deleted = $this->deleteAll(array(
             'Map.parent_id' => $this->id
         ));
