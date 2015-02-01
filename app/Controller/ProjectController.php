@@ -108,4 +108,24 @@ class ProjectController extends AppController
             echo json_encode($result);
         }
     }
+
+
+    public function setSelectedList(){
+        $this->autoRender = false;
+        if($this->request->is('post') && $this->request->is('ajax')){
+            $result['success'] = false;
+            if(isset($this->request->data['id']) && isset($this->request->data['listindex'])){
+                $id = $this->request->data['id'];
+                $list = $this->request->data['listindex'];
+                $updated = $this->Project->updateAll(
+                    array('Project.selected_list' => $list),
+                    array('Project.id' => $id)
+                );
+                if($updated){
+                    $result['success'] = true;
+                }
+            }
+            echo json_encode($result);
+        }
+    }
 } 

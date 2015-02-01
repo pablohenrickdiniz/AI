@@ -2,8 +2,8 @@
 
 
 class PagesController extends AppController {
-	public $uses = array('Config','Map');
-    public $layout = 'admin';
+	public $uses = array('Config','Map','Resource','Project');
+    public $layout = 'painel';
 
     public function beforeFilter(){
         parent::beforeFilter();
@@ -18,6 +18,11 @@ class PagesController extends AppController {
 
     public function index(){
         $project_id = $this->Config->getLastProjectId();
+        $this->Project->id = $project_id;
+        $project = $this->Project->read('Project.selected_list');
+
         $this->set('project_id',$project_id);
+        $this->set('categorias',$this->Resource->category);
+        $this->set('selected_list',$project['Project']['selected_list']);
     }
 }
