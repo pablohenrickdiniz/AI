@@ -40,7 +40,7 @@ $(document).ready(function () {
         $('#map-update-form').submit();
     });
 
-    $('#resources').click(function(){
+    $('#resources').click(function () {
         resourcesManager.openModal();
     });
 
@@ -607,7 +607,7 @@ $(document).ready(function () {
         }
     });
 
-    $('.categoria-item').click(function(){
+    $('.categoria-item').click(function () {
         var id = $(this).attr('categoria-id');
         resourcesManager.selectedList = id;
         resourcesManager.updateSelectedList();
@@ -615,37 +615,45 @@ $(document).ready(function () {
         $(this).addClass('active');
     });
 
+
+    $('#import-resource').click(function () {
+        resourcesManager.openImport();
+    });
+
     var resourcesManager = {
-        updating:false,
+        updating: false,
         selectedList:<?=$selected_list?>,
-        loadResources:function(){
+        loadResources: function () {
 
         },
-        openModal:function(){
+        openImport: function () {
+            $('#resource-create-modal').modal();
+        },
+        openModal: function () {
             $('#resources-modal').modal();
         },
-        closeModal:function(){
+        closeModal: function () {
             $('#resources-modal').modal('hide');
         },
-        updateSelectedList:function(){
+        updateSelectedList: function () {
             var self = this;
-            if(!self.updating){
+            if (!self.updating) {
                 self.updating = true;
                 $.ajax({
-                    url:'<?=$this->Html->url(array('controller'=>'project','action'=>'setSelectedList'))?>',
-                    type:'post',
-                    data:{
-                        'data[id]':projectManager.project_id,
-                        'data[listindex]':self.selectedList
+                    url: '<?=$this->Html->url(array('controller'=>'project','action'=>'setSelectedList'))?>',
+                    type: 'post',
+                    data: {
+                        'data[id]': projectManager.project_id,
+                        'data[listindex]': self.selectedList
                     },
-                    success:function(data){
+                    success: function (data) {
                         data = $.parseJSON(data)
-                        if(data.success){
+                        if (data.success) {
 
                         }
                     },
-                    complete:function(){
-                        self.updating =false;
+                    complete: function () {
+                        self.updating = false;
                     }
                 });
             }
@@ -694,22 +702,12 @@ $(document).ready(function () {
                 <h4 class="modal-title" id="myModalLabel">Abrir Projeto</h4>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12 form-group" style="overflow-x:hidden;height:200px;">
-                        <table id="open-project-select" class="table table-striped">
-                            <tr>
-                                <th>Nome do projeto</th>
-                                <th></th>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12 form-group alert alert-warning" id="alert-project-exists"
-                         style="display:none;">
-
-                    </div>
-                </div>
+                <table id="open-project-select" class="table table-striped">
+                    <tr>
+                        <th>Nome do projeto</th>
+                        <th></th>
+                    </tr>
+                </table>
             </div>
             <div class="modal-footer">
                 <button id="open-project-action" type="button" class="btn btn-default" data-dismiss="modal">Abrir
@@ -852,85 +850,69 @@ $(document).ready(function () {
                 <div class="row">
                     <div class="col-md-4">
                         <table class="table table-bordered" id="table-resources">
-                            <?php foreach($categorias as $key => $categoria):?>
-                            <tr>
-                                <th class="categoria-item <?=$key==$selected_list?'active':''?>" categoria-id="<?=$key?>"><?=$categoria?></th>
-                            </tr>
-                            <?php endforeach;?>
+                            <?php foreach ($categorias as $key => $categoria): ?>
+                                <tr>
+                                    <th class="categoria-item <?= $key == $selected_list ? 'active' : '' ?>"
+                                        categoria-id="<?= $key ?>"><?= $categoria ?></th>
+                                </tr>
+                            <?php endforeach; ?>
                         </table>
                     </div>
                     <div class="col-md-5" id="resources-list">
                         <table class="table table-bordered">
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
-                            <tr>
-                                <th>teste</th>
-                            </tr>
+
                         </table>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <input type="button" value="Importar" class="form-control btn btn-default"/>
+                            <input id="import-resource" type="button" value="Importar"
+                                   class="form-control btn btn-default"/>
                         </div>
                         <div class="form-group">
-                            <input type="button" value="Apagar" class="form-control btn btn-default"/>
+                            <input id="delete-resurce" type="button" value="Apagar"
+                                   class="form-control btn btn-default"/>
                         </div>
                         <div class="form-group">
-                            <input type="button" value="Pré-visualização" class="form-control btn btn-default"/>
+                            <input id="view-resource" type="button" value="Pré-visualização"
+                                   class="form-control btn btn-default"/>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
+<div class="modal" id="resource-create-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="#" id="resource-create-form" name="resource-create-form">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Novo Recurso</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                            <input type="text" name="resource-name" id="resource-create-name" class="form-control"
+                                   required="true"/>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <input type="file" name="resource-file" id="resource-create-file" class="form-control"
+                                   required="true"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="resource-create-action" type="button" class="btn btn-default">Próximo
+                    </button>
+                    <button id="resource-cancel-action" type="button" class="btn btn-primary" data-dismiss="modal">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 <nav class="navbar navbar-default" id="navbar-editor">
