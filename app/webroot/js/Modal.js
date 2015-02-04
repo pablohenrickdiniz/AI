@@ -4,29 +4,54 @@ function Modal(id,titleText,label){
     self.titleText = titleText;
     self.label = label;
     self.title = null;
-    self.container = null;
+    self.modal = null;
     self.dialog = null;
     self.content = null;
     self.header = null;
     self.closeBtn = null;
     self.body = null;
     self.footer = null;
+    self.confirmBtn = null;
+    self.cancelBtn = null;
 }
 
-Modal.prototype.getContainer = function(){
+Modal.prototype.close = function(){
     var self = this;
-    if(self.container == null){
-        self.container = document.createElement('div');
-        $(self.container).
+    $(self.getModal()).modal('hide');
+};
+
+Modal.prototype.getConfirm = function(){
+    var self = this;
+    if(self.confirmBtn == null){
+        self.confirmBtn = document.createElement('button');
+        $(self.confirmBtn).attr('type','button').html('Confirm').addClass('btn btn-primary');
+    }
+    return self.confirmBtn;
+};
+
+Modal.prototype.getCancel = function(){
+    var self = this;
+    if(self.cancelBtn == null){
+        self.cancelBtn = document.createElement('button');
+        $(self.cancelBtn).attr('type','button').html('Cancel').addClass('btn btn-default').attr('data-dismiss','modal');
+    }
+    return self.cancelBtn;
+};
+
+Modal.prototype.getModal = function(){
+    var self = this;
+    if(self.modal == null){
+        self.modal = document.createElement('div');
+        $(self.modal).
             addClass('modal').
             prop('id',self.id).
             attr('tabindex',-1).
             attr('role','dialog').
             attr('aria-labelledby',self.label).
             attr('aria-hidden',true);
-        $(self.container).append(self.getDialog());
+        $(self.modal).append(self.getDialog());
     }
-    return self.container;
+    return self.modal;
 };
 
 
@@ -44,6 +69,7 @@ Modal.prototype.getFooter = function(){
     if(self.footer == null){
         self.footer = document.createElement('div');
         $(self.footer).addClass('modal-footer');
+        $(self.footer).append(self.getCancel(),self.getConfirm());
     }
     return self.footer;
 };

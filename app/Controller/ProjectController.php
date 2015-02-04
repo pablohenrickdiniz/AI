@@ -9,6 +9,7 @@
 class ProjectController extends AppController
 {
     public $model = 'Project';
+    public $uses = array('Project','Config');
 
     public function addAjax()
     {
@@ -23,8 +24,10 @@ class ProjectController extends AppController
                     $project['Project'] = array('name' => $nome);
                     try {
                         if ($this->Project->save($project)) {
+                            $id =  $this->Project->getLastInsertID();
                             $response['success'] = true;
-                            $response['id'] = $this->Project->getLastInsertID();
+                            $response['id'] = $id;
+                            $this->Config->setLastProjectId($id);
                         }
                     } catch (Exception $ex) {
                         echo $ex;
@@ -56,7 +59,7 @@ class ProjectController extends AppController
             foreach ($projects as $project) {
                 $aux['Project'][] = array(
                     'id' => $project['Project']['id'],
-                    'nome' => $project['Project']['name']
+                    'name' => $project['Project']['name']
                 );
             }
             echo json_encode($aux);
@@ -101,6 +104,7 @@ class ProjectController extends AppController
                 try {
                     $tree = $this->Project->getTree();
                     $result = $tree;
+                    $this->Config->setLastProjectId($id);
                 } catch (Exception $ex) {
 
                 }

@@ -1,5 +1,139 @@
+<?=$this->Html->script('Modal')?>
+<?=$this->Html->script('InterfaceElements')?>
 <script type="text/javascript">
 $(document).ready(function () {
+    var projectManager = {
+        project_id: <?=$project_id?>,
+        loading: false,
+        treeLoaded: false,
+        createProject: function () {
+            var self = this;
+            var name = $('#new-project-name').val();
+            if (validator.nameExp.test(name)) {
+                $('#create-new-project').attr('disabled', true);
+                $.ajax({
+                    url: '<?=$this->Html->url(array('controller'=>'project','action'=>'addAjax'))?>',
+                    type: 'post',
+                    data: {
+                        'data[name]': name
+                    },
+                    success: function (data) {
+                        data = $.parseJSON(data);
+                        if (data.success) {
+                            $('#new-project-modal').modal('hide');
+                            console.log(data);
+                            self.project_id = data.id;
+                            self.reload();
+                        }
+                    },
+                    complete: function () {
+                        $('#create-new-project').attr('disabled', false);
+                    }
+                });
+            }
+        },
+        loadProjects: function (callback) {
+            var self = this;
+            if (!self.loading) {
+                $.ajax({
+                    url: '<?=$this->Html->url(array('controller'=>'project','action'=>'getAll'))?>',
+                    type: 'post',
+                    success: function (data) {
+                        data = $.parseJSON(data);
+                        $('#open-project-select').find('tr > td').remove();
+                        for (var i = 0; i < data.Project.length; i++) {
+                            var project = data.Project[i];
+                            openProjectModal.addProject(project.id,project.name);
+                        }
+                    },
+                    complete: function () {
+                        callback();
+                    }
+                });
+            }
+        },
+        reload: function (callback) {
+            var self = this;
+            if (self.treeLoaded) {
+                self.clear();
+            }
+
+            self.loadProject(callback);
+        },
+        clear: function () {
+            $("#tree").dynatree("destroy");
+        },
+        expand: function (expand) {
+            var self = this;
+            if (!self.loading) {
+                self.loading = true;
+                $.ajax({
+                    url: '<?=$this->Html->url(array('controller'=>'project','action'=>'expand'))?>',
+                    type: 'post',
+                    data: {
+                        'data[id]': mapManager.id,
+                        'data[expand]': expand
+                    },
+                    complete: function () {
+                        self.loading = false;
+                    }
+                });
+            }
+        },
+        loadProject: function (callback) {
+            var self = this;
+            console.log(self.project_id);
+            if (self.project_id != 0) {
+                $("#tree").dynatree({
+                    initAjax: {
+                        url: '<?=$this->Html->url(array('controller'=>'project','action'=>'getMapTree'))?>',
+                        data: {
+                            'data[id]': self.project_id
+                        },
+                        type: 'post',
+                        complete: function () {
+                            self.treeLoaded = true;
+                            if(typeof callback == 'function'){
+                                callback();
+                            }
+                        }
+                    },
+                    persist: false,
+                    generateIds: true,
+                    idPrefix: 'data-id:',
+                    onExpand: function (flag, dtnode) {
+                        var id = $(dtnode.li).prop('id');
+                        id = id.split(':')[1];
+                        mapManager.id = id;
+                        var span = $(dtnode.li).children()[0];
+                        var map = $(span).hasClass('map');
+                        if (map) {
+                            mapManager.expand(flag);
+                        }
+                        else {
+                            projectManager.expand(flag);
+                        }
+                    }
+                });
+            }
+        }
+    };
+
+    var openProjectModal = new OpenProjectModal();
+    var newProjectModal = new NewProjectModal();
+    var newMapModal = new NewMapModal();
+
+    openProjectModal.setProjectManager(projectManager);
+    $('body').append(
+        openProjectModal.getModal(),
+        newProjectModal.getModal(),
+        newMapModal.getModal()
+    );
+
+    projectManager.loadProject();
+
+
+
     $("#new-project").click(function () {
         $("#new-project-modal").modal();
         $('#new-project-name').val('');
@@ -10,14 +144,14 @@ $(document).ready(function () {
             $('#open-project-modal').modal();
         });
     });
-
+    /*
     $("#cancel-new-project").click(function () {
         $("#new-project-modal").modal('hide');
-    });
-
+    });*/
+    /*
     $('#cancel-open-project').click(function () {
         $('#open-project-modal').modal('hide');
-    });
+    });*/
 
     $('#cancel-new-map').click(function () {
         mapManager.closeModal();
@@ -44,13 +178,13 @@ $(document).ready(function () {
         resourcesManager.openModal();
     });
 
-
+    /*
     $('#open-project-action').click(function () {
         var id = $('input[name=project]:checked').val();
         projectManager.project_id = id;
         projectManager.clear();
         projectManager.loadProject();
-    });
+    });*/
 
     var checkProjectName = function () {
         var name = $(this).val().trim();
@@ -121,125 +255,6 @@ $(document).ready(function () {
     };
 
 
-    var projectManager = {
-        project_id: <?=$project_id?>,
-        loading: false,
-        treeLoaded: false,
-        createProject: function () {
-            var self = this;
-            var name = $('#new-project-name').val();
-            if (validator.nameExp.test(name)) {
-                $('#create-new-project').attr('disabled', true);
-                $.ajax({
-                    url: '<?=$this->Html->url(array('controller'=>'project','action'=>'addAjax'))?>',
-                    type: 'post',
-                    data: {
-                        'data[name]': name
-                    },
-                    success: function (data) {
-                        data = $.parseJSON(data);
-                        if (data.success) {
-                            $('#new-project-modal').modal('hide');
-                            self.project_id = data.id;
-                            self.reload();
-                        }
-                    },
-                    complete: function () {
-                        $('#create-new-project').attr('disabled', false);
-                    }
-                });
-            }
-        },
-        loadProjects: function (callback) {
-            var self = this;
-            if (!self.loading) {
-                $.ajax({
-                    url: '<?=$this->Html->url(array('controller'=>'project','action'=>'getAll'))?>',
-                    type: 'post',
-                    success: function (data) {
-                        data = $.parseJSON(data);
-                        $('#open-project-select').find('tr > td').remove();
-                        for (var i = 0; i < data.Project.length; i++) {
-                            var project = data.Project[i];
-                            var tr = document.createElement('tr');
-                            var td = document.createElement('td');
-                            var td2 = document.createElement('td');
-                            var radio = document.createElement('input');
-                            $(radio).attr('type', 'radio').attr('name', 'project').val(project.id);
-                            $(td2).append(radio);
-                            $(td).html(project.nome);
-                            $(tr).append(td, td2).attr('class', 'project-list-item');
-                            $('#open-project-select').append(tr);
-                        }
-                    },
-                    complete: function () {
-                        callback();
-                    }
-                });
-            }
-        },
-        reload: function () {
-            var self = this;
-            if (self.treeLoaded) {
-                self.clear();
-            }
-
-            self.loadProject();
-        },
-        clear: function () {
-            $("#tree").dynatree("destroy");
-        },
-        expand: function (expand) {
-            var self = this;
-            if (!self.loading) {
-                self.loading = true;
-                $.ajax({
-                    url: '<?=$this->Html->url(array('controller'=>'project','action'=>'expand'))?>',
-                    type: 'post',
-                    data: {
-                        'data[id]': mapManager.id,
-                        'data[expand]': expand
-                    },
-                    complete: function () {
-                        self.loading = false;
-                    }
-                });
-            }
-        },
-        loadProject: function () {
-            var self = this;
-            if (self.project_id != 0) {
-                $("#tree").dynatree({
-                    initAjax: {
-                        url: '<?=$this->Html->url(array('controller'=>'project','action'=>'getMapTree'))?>',
-                        data: {
-                            'data[id]': self.project_id
-                        },
-                        type: 'post',
-                        complete: function () {
-                            self.treeLoaded = true;
-                        }
-                    },
-                    persist: false,
-                    generateIds: true,
-                    idPrefix: 'data-id:',
-                    onExpand: function (flag, dtnode) {
-                        var id = $(dtnode.li).prop('id');
-                        id = id.split(':')[1];
-                        mapManager.id = id;
-                        var span = $(dtnode.li).children()[0];
-                        var map = $(span).hasClass('map');
-                        if (map) {
-                            mapManager.expand(flag);
-                        }
-                        else {
-                            projectManager.expand(flag);
-                        }
-                    }
-                });
-            }
-        }
-    };
 
 
     $(document).on('mousedown', '.dynatree-node', function (event) {
@@ -257,7 +272,7 @@ $(document).ready(function () {
         }
     });
 
-    projectManager.loadProject();
+
 
     var mapManager = {
         id: 0,
@@ -659,8 +674,11 @@ $(document).ready(function () {
             }
         }
     };
+
+
 });
 </script>
+<!--
 <div class="modal" id="new-project-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
     <div class="modal-dialog">
@@ -673,8 +691,7 @@ $(document).ready(function () {
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-12 form-group">
-                        <label for="new-project-name">Nome do projeto</label>
-                        <input id="new-project-name" type="text" class="form-control"/>
+                        <input id="new-project-name" type="text" class="form-control" placeholder="Nome do Projeto"/>
                     </div>
                 </div>
                 <div class="row">
@@ -685,13 +702,15 @@ $(document).ready(function () {
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="create-new-project" type="button" class="btn btn-default" data-dismiss="modal">Criar
+                <button id="create-new-project" type="button" class="btn btn-default">Criar
                 </button>
                 <button id="cancel-new-project" type="button" class="btn btn-primary">Cancelar</button>
             </div>
         </div>
     </div>
 </div>
+-->
+<!--
 <div class="modal" id="open-project-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
     <div class="modal-dialog">
@@ -716,7 +735,8 @@ $(document).ready(function () {
             </div>
         </div>
     </div>
-</div>
+</div>-->
+<!--
 <div class="modal" id="create-map-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
     <div class="modal-dialog">
@@ -777,6 +797,7 @@ $(document).ready(function () {
         </form>
     </div>
 </div>
+-->
 <div class="modal" id="map-update-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
     <div class="modal-dialog">

@@ -6,7 +6,6 @@
  * Time: 22:53
  */
 App::import('Model','Map');
-App::import('Model','Config');
 
 
 class Project extends AppModel{
@@ -14,8 +13,6 @@ class Project extends AppModel{
 
     public function getTree(){
         $Map = Map::getInstance();
-        $Config = Config::getInstance();
-        $Config->setLastProjectId($this->id);
         $project = $this->read(array('id','name','expand'));
         $root['title'] = $project['Project']['name'];
         $root['key'] = $project['Project']['id'];
