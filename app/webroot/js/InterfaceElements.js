@@ -191,11 +191,13 @@ NewProjectModal.prototype.getNameInput = function(){
     return self.inputName;
 };
 
-NewMapModal.prototype = new Modal();
 
-function NewMapModal(){
+
+MapModal.prototype = new Modal();
+
+function MapModal(id,title,label){
     var self = this;
-    Modal.call(self,'create-map-modal','Novo Mapa','new-map');
+    Modal.call(self,id,title,label);
     self.inputName = null;
     self.displayName = null;
     self.inputWidth = null;
@@ -215,9 +217,10 @@ function NewMapModal(){
     self.alertWarning = null;
     self.alertSuccess = null;
     self.alertDanger = null;
+    self.form = null;
 }
 
-NewMapModal.prototype.getGroup = function(group){
+MapModal.prototype.getGroup = function(group){
     var self = this;
     var alias = 'group'+group;
     if(self[alias] == undefined){
@@ -238,7 +241,7 @@ NewMapModal.prototype.getGroup = function(group){
 };
 
 
-Modal.prototype.getRow = function(){
+MapModal.prototype.getRow = function(){
     var self = this;
     if(self.row == null){
         self.row = document.createElement('div');
@@ -254,7 +257,7 @@ Modal.prototype.getRow = function(){
     return self.row;
 };
 
-NewMapModal.prototype.getBody = function(){
+MapModal.prototype.getBody = function(){
     var self = this;
     if(self.body == null){
         Modal.prototype.getBody.apply(self);
@@ -264,7 +267,7 @@ NewMapModal.prototype.getBody = function(){
 };
 
 
-NewMapModal.prototype.getOptions = function(){
+MapModal.prototype.getOptions = function(){
     var self = this;
     if(self.options == null){
         self.options = [];
@@ -276,61 +279,57 @@ NewMapModal.prototype.getOptions = function(){
     return self.options;
 };
 
-NewMapModal.prototype.getConfirm = function(){
+MapModal.prototype.getConfirm = function(){
     var self = this;
     if(self.confirmBtn == null){
         Modal.prototype.getConfirm.apply(self);
-        $(self.confirmBtn).prop('id','map-create-action').html('Criar');
+        $(self.confirmBtn).click(function () {
+            $(self.getForm()).submit();
+        });
     }
     return self.confirmBtn;
 };
 
-NewMapModal.prototype.getCancel = function(){
+MapModal.prototype.getCancel = function(){
     var self = this;
     if(self.cancelBtn == null){
         Modal.prototype.getCancel.apply(self);
-        $(self.cancelBtn).prop('id','cancel-new-map').html('Cancelar');
+        $(self.cancelBtn).html('Cancelar');
     }
     return self.cancelBtn;
 };
 
-NewMapModal.prototype.getInputName = function(){
+MapModal.prototype.getInputName = function(){
     var self = this;
     if(self.inputName == null){
         self.inputName = document.createElement('input');
         $(self.inputName).
             attr('type','text').
-            prop('id','map-name-create').
-            attr('name','map-name-create').
             addClass('form-control').
             attr('placeholder','Nome');
     }
     return self.inputName;
 };
 
-NewMapModal.prototype.getDisplayName = function(){
+MapModal.prototype.getDisplayName = function(){
     var self = this;
     if(self.displayName == null){
         self.displayName = document.createElement('input');
         $(self.displayName).
             attr('type','text').
-            prop('id','map-display-create').
-            attr('name','map-display-create').
             addClass('form-control').
             attr('placeholder','Nome de apresentação');
     }
     return self.displayName;
 };
 
-NewMapModal.prototype.getWidth = function(){
+MapModal.prototype.getWidth = function(){
     var self = this;
     if(self.inputWidth == null){
         self.inputWidth = document.createElement('input');
         $(self.inputWidth).
             attr('type','number').
-            prop('id','map-width-create').
             attr('placeholder','Largura').
-            attr('name','map-width-create').
             addClass('form-control').
             attr('min',10).
             attr('max',1000).
@@ -340,15 +339,13 @@ NewMapModal.prototype.getWidth = function(){
     return self.inputWidth;
 };
 
-NewMapModal.prototype.getHeight = function(){
+MapModal.prototype.getHeight = function(){
     var self = this;
     if(self.inputHeight == null){
         self.inputHeight = document.createElement('input');
         $(self.inputHeight).
             attr('type','number').
-            prop('id','map-height-create').
             attr('placeholder','Altura').
-            attr('name','map-height-create').
             addClass('form-control').
             attr('min',10).
             attr('max',1000).
@@ -358,14 +355,181 @@ NewMapModal.prototype.getHeight = function(){
     return self.inputHeight;
 };
 
-NewMapModal.prototype.getSelectScroll = function(){
+MapModal.prototype.getSelectScroll = function(){
     var self = this;
     if(self.selectScroll == null){
         self.selectScroll = document.createElement('select');
-        $(self.selectScroll).prop('id','map-scroll-create').addClass('form-control').attr('name','map-scroll-create');
+        $(self.selectScroll).addClass('form-control');
         self.getOptions().forEach(function(option){
             $(self.selectScroll).append(option);
         });
     }
     return self.selectScroll;
+};
+
+MapModal.prototype.getDialog = function(){
+    var self = this;
+    if(self.dialog == null){
+        self.dialog = document.createElement('div');
+        $(self.dialog).addClass('modal-dialog');
+        $(self.dialog).append(self.getForm());
+    }
+    return self.dialog;
+};
+
+MapModal.prototype.getForm = function(){
+    var self = this;
+    if(self.form == null){
+        self.form = document.createElement('form');
+        $(self.form).attr('action','#');
+        $(self.form).append(self.getContent());
+    }
+    return self.form;
+};
+
+
+
+
+NewMapModal.prototype = new MapModal();
+
+function NewMapModal(){
+    var self = this;
+    MapModal.call(self,'create-map-modal','Novo Mapa','new-map');
+}
+
+
+NewMapModal.prototype.getConfirm = function(){
+    var self = this;
+    if(self.confirmBtn == null){
+        MapModal.prototype.getConfirm.apply(self);
+        $(self.confirmBtn).prop('id','map-create-action').html('Criar');
+    }
+    return self.confirmBtn;
+};
+
+NewMapModal.prototype.getInputName = function(){
+    var self = this;
+    if(self.inputName == null){
+        MapModal.prototype.getInputName.apply(self);
+        $(self.inputName).prop('id','map-name-create').attr('name','map-name-create');
+    }
+    return self.inputName;
+};
+
+NewMapModal.prototype.getDisplayName = function(){
+    var self = this;
+    if(self.displayName == null){
+        MapModal.prototype.getDisplayName.apply(self);
+        $(self.displayName).prop('id','map-display-create').attr('name','map-display-create');
+    }
+    return self.displayName;
+};
+
+NewMapModal.prototype.getWidth = function(){
+    var self = this;
+    if(self.inputWidth == null){
+        MapModal.prototype.getWidth.apply(self);
+        $(self.inputWidth).prop('id','map-width-create').attr('name','map-width-create');
+    }
+    return self.inputWidth;
+};
+
+NewMapModal.prototype.getHeight = function(){
+    var self = this;
+    if(self.inputHeight == null){
+        MapModal.prototype.getHeight.apply(self);
+        $(self.inputHeight).prop('id','map-height-create').attr('name','map-height-create');
+    }
+    return self.inputHeight;
+};
+
+NewMapModal.prototype.getSelectScroll = function(){
+    var self = this;
+    if(self.selectScroll == null){
+        MapModal.prototype.getSelectScroll.apply(self);
+        $(self.selectScroll).prop('id','map-scroll-create').attr('name','map-scroll-create');
+    }
+    return self.selectScroll;
+};
+
+
+NewMapModal.prototype.getForm = function(){
+    var self = this;
+    if(self.form == null){
+        MapModal.prototype.getForm.apply(self);
+        $(self.form).prop('id','map-create-form').attr('name','map-create-form');
+    }
+    return self.form;
+};
+
+
+UpdateMapModal.prototype= new MapModal();
+
+function UpdateMapModal(){
+    var self = this;
+    MapModal.call(self,'map-update-modal','Alterar Mapa','update-map');
+}
+
+UpdateMapModal.prototype.getConfirm = function(){
+    var self = this;
+    if(self.confirmBtn == null){
+        MapModal.prototype.getConfirm.apply(self);
+        $(self.confirmBtn).prop('id','map-update-action').html('Atualizar');
+    }
+    return self.confirmBtn;
+};
+
+UpdateMapModal.prototype.getInputName = function(){
+    var self = this;
+    if(self.inputName == null){
+        MapModal.prototype.getInputName.apply(self);
+        $(self.inputName).prop('id','map-name-update').attr('name','map-name-update');
+    }
+    return self.inputName;
+};
+
+UpdateMapModal.prototype.getDisplayName = function(){
+    var self = this;
+    if(self.displayName == null){
+        MapModal.prototype.getDisplayName.apply(self);
+        $(self.displayName).prop('id','map-display-update').attr('name','map-display-update');
+    }
+    return self.displayName;
+};
+
+UpdateMapModal.prototype.getWidth = function(){
+    var self = this;
+    if(self.inputWidth == null){
+        MapModal.prototype.getWidth.apply(self);
+        $(self.inputWidth).prop('id','map-width-update').attr('name','map-width-update');
+    }
+    return self.inputWidth;
+};
+
+UpdateMapModal.prototype.getHeight = function(){
+    var self = this;
+    if(self.inputHeight == null){
+        MapModal.prototype.getHeight.apply(self);
+        $(self.inputHeight).prop('id','map-height-update').attr('name','map-height-update');
+    }
+    return self.inputHeight;
+};
+
+UpdateMapModal.prototype.getSelectScroll = function(){
+    var self = this;
+    if(self.selectScroll == null){
+        MapModal.prototype.getSelectScroll.apply(self);
+        $(self.selectScroll).prop('id','map-scroll-update').attr('name','map-scroll-update');
+    }
+    return self.selectScroll;
+};
+
+
+UpdateMapModal.prototype.getForm = function(){
+    var self = this;
+    if(self.form == null){
+        MapModal.prototype.getForm.apply(self);
+        $(self.form).prop('id','map-update-form').attr('name','map-update-form');
+    }
+    return self.form;
 };

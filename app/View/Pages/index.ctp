@@ -122,12 +122,15 @@ $(document).ready(function () {
     var openProjectModal = new OpenProjectModal();
     var newProjectModal = new NewProjectModal();
     var newMapModal = new NewMapModal();
+    var updateMapModal = new UpdateMapModal();
 
     openProjectModal.setProjectManager(projectManager);
+
     $('body').append(
         openProjectModal.getModal(),
         newProjectModal.getModal(),
-        newMapModal.getModal()
+        newMapModal.getModal(),
+        updateMapModal.getModal()
     );
 
     projectManager.loadProject();
@@ -166,6 +169,7 @@ $(document).ready(function () {
         $(selfInput).prop('checked', true);
     });
 
+    /*
     $('#map-create-action').click(function () {
         $('#map-create-form').submit();
     });
@@ -173,6 +177,7 @@ $(document).ready(function () {
     $('#map-update-action').click(function () {
         $('#map-update-form').submit();
     });
+    */
 
     $('#resources').click(function () {
         resourcesManager.openModal();
@@ -205,9 +210,10 @@ $(document).ready(function () {
         }
     };
 
-    $('#new-project-name').change(checkProjectName);
-    $('#new-project-name').keyup(checkProjectName)
-    $('#new-project-name').focus(checkProjectName);
+    $('#new-project-name').
+        change(checkProjectName).
+        keyup(checkProjectName).
+        focus(checkProjectName);
 
     var validator = {
         checking: false,
@@ -255,8 +261,6 @@ $(document).ready(function () {
     };
 
 
-
-
     $(document).on('mousedown', '.dynatree-node', function (event) {
         if (event.which == 3) {
             var id = $(this).parent().prop('id');
@@ -271,8 +275,6 @@ $(document).ready(function () {
             }
         }
     });
-
-
 
     var mapManager = {
         id: 0,
@@ -436,38 +438,27 @@ $(document).ready(function () {
                 });
             }
         },
-        showSuccess: function () {
-            $('#create-map-warning').hide();
-            $('#create-map-error').hide();
-            $('#create-map-success').show();
-        },
         showError: function () {
-            $('#create-map-success').hide();
             $('#create-map-warning').hide();
             $('#create-map-error').show();
         },
         showUpdateError: function () {
-            $('#update-map-success').hide();
             $('#update-map-warning').hide();
             $('#update-map-error').show();
         },
         showWarnings: function () {
-            $('#create-map-success').hide();
             $('#create-map-error').hide();
             $('#create-map-warning').show();
         },
         showUpdateWarnings: function () {
-            $('#update-map-success').hide();
             $('#update-map-error').hide();
             $('#update-map-warning').show();
         },
         closeAlerts: function () {
-            $('#create-map-success').hide();
             $('#create-map-error').hide();
             $('#create-map-warning').hide();
         },
         closeUpdateAlerts: function () {
-            $('#update-map-success').hide();
             $('#update-map-error').hide();
             $('#update-map-warning').hide();
         },
@@ -478,13 +469,11 @@ $(document).ready(function () {
             $('#create-update-warning').html(message);
         },
         closeModal: function () {
-            $('#create-map-modal').modal('hide');
-            $('#create-map-modal').find('input[type!=number]').val('');
-            $('#create-map-modal').find('input[type=number]').val(10);
+            newMapModal.close();
             this.closeAlerts();
         },
         closeUpdateModal: function () {
-            $('#map-update-modal').modal('hide');
+            updateMapModal.close();
             this.closeUpdateAlerts();
         }
     };
@@ -678,186 +667,6 @@ $(document).ready(function () {
 
 });
 </script>
-<!--
-<div class="modal" id="new-project-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">Novo projeto</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12 form-group">
-                        <input id="new-project-name" type="text" class="form-control" placeholder="Nome do Projeto"/>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12 form-group alert alert-warning" id="alert-project-exists"
-                         style="display:none;">
-
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="create-new-project" type="button" class="btn btn-default">Criar
-                </button>
-                <button id="cancel-new-project" type="button" class="btn btn-primary">Cancelar</button>
-            </div>
-        </div>
-    </div>
-</div>
--->
-<!--
-<div class="modal" id="open-project-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">Abrir Projeto</h4>
-            </div>
-            <div class="modal-body">
-                <table id="open-project-select" class="table table-striped">
-                    <tr>
-                        <th>Nome do projeto</th>
-                        <th></th>
-                    </tr>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button id="open-project-action" type="button" class="btn btn-default" data-dismiss="modal">Abrir
-                </button>
-                <button id="cancel-open-project" type="button" class="btn btn-primary">Cancelar</button>
-            </div>
-        </div>
-    </div>
-</div>-->
-<!--
-<div class="modal" id="create-map-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog">
-        <form action="#" id="map-create-form" name="map-create-form">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Novo Mapa</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="form-group col-md-6">
-                            <input type="text" id="map-name-create" name="map-name-create" class="form-control"
-                                   placeholder="Nome"/>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <input type="text" name="map-display-create" id="map-display-create"
-                                   class="form-control"
-                                   placeholder="Nome de apresentação"/>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <input type="number" id="map-width-create" placeholder="Altura" name="map-width-create"
-                                   class="form-control" min="10" max="1000" value="10"/>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <input type="number" id="map-height-create" placeholder="Largura"
-                                   name="map-height-create"
-                                   class="form-control" min="10" max="1000" value="10"/>
-                        </div>
-                        <div class="form-group col-md-12">
-                            <select id="map-scroll-create" class="form-control" name="map-scroll-create">
-                                <option value="0">Sem Loop</option>
-                                <option value="1">Loop Vertical</option>
-                                <option value="2">Loop Horizontal</option>
-                                <option value="3">Loop Vertical e Horizontal</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="alert alert-warning" id="create-map-warning" style="display:none;">
-
-                    </div>
-                    <div class="alert alert-success" id="create-map-success" style="display:none;">
-                        Mapa criado com sucesso
-                    </div>
-                    <div class="alert alert-danger" id="create-map-error" style="display:none;">
-                        Erro ao tentar criar mapa!
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button id="map-create-action" type="button" class="btn btn-default">Criar
-                    </button>
-                    <button id="cancel-new-map" type="button" class="btn btn-primary" data-dismiss="modal">
-                        Cancelar
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
--->
-<div class="modal" id="map-update-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog">
-        <form action="#" id="map-update-form" name="map-update-form">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Alterar Mapa</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="form-group col-md-6">
-                            <input type="text" id="map-name-update" name="map-name-update" class="form-control"
-                                   placeholder="Nome"/>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <input type="text" name="map-display-update" id="map-display-update"
-                                   class="form-control"
-                                   placeholder="Nome de apresentação"/>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <input type="number" id="map-height-update" placeholder="Altura"
-                                   name="map-height-update""
-                            class="form-control" min="10" max="1000" value="10"/>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <input type="number" id="map-width-update" placeholder="Largura" name="map-width-update"
-                                   class="form-control" min="10" max="1000" value="10"/>
-                        </div>
-                        <div class="form-group col-md-12">
-                            <select id="map-scroll-update" class="form-control" name="map-scroll-update">
-                                <option value="0">Sem Loop</option>
-                                <option value="1">Loop Vertical</option>
-                                <option value="2">Loop Horizontal</option>
-                                <option value="3">Loop Vertical e Horizontal</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="alert alert-warning" id="update-map-warning" style="display:none;">
-
-                    </div>
-                    <div class="alert alert-success" id="update-map-success" style="display:none;">
-                        Mapa atualizado com sucesso
-                    </div>
-                    <div class="alert alert-danger" id="update-map-error" style="display:none;">
-                        Erro ao tentar atualizar mapa!
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button id="map-update-action" type="button" class="btn btn-default">Atualizar
-                    </button>
-                    <button id="cancel-update-map" type="button" class="btn btn-primary" data-dismiss="modal">
-                        Cancelar
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
 <div class="modal" id="resources-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
     <div class="modal-dialog">
