@@ -1,220 +1,21 @@
-<?=$this->Html->script('Modal')?>
+<?=$this->Import->script('DOMOBJ',true)?>
+<script type="text/javascript">
+    Global = {
+        projectAddAction:'<?=$this->Html->url(array('controller'=>'project','action'=>'addAjax'))?>',
+        projectExpand:'<?=$this->Html->url(array('controller'=>'project','action'=>'expand'))?>',
+        projectGetAll:'<?=$this->Html->url(array('controller'=>'project','action'=>'getAll'))?>',
+        projectGetMapTree:'<?=$this->Html->url(array('controller'=>'project','action'=>'getMapTree'))?>',
+        mapAddAction:'<?=$this->Html->url(array('controller'=>'map','action'=>'add'))?>',
+        mapEditAction:'<?=$this->Html->url(array('controller'=>'map','action'=>'edit'))?>',
+        mapDeleteAction:'<?=$this->Html->url(array('controller'=>'map','action'=>'delete'))?>',
+        mapLoadMap:'<?=$this->Html->url(array('controller'=>'map','action'=>'loadMap'))?>',
+        mapExpand:'<?=$this->Html->url(array('controller'=>'map','action'=>'expand'))?>',
+        projectId:<?=$project_id?>
+    };
+</script>
 <?=$this->Html->script('InterfaceElements')?>
 <script type="text/javascript">
 $(document).ready(function () {
-    var projectManager = {
-        project_id: <?=$project_id?>,
-        loading: false,
-        treeLoaded: false,
-        createProject: function () {
-            var self = this;
-            var name = $('#new-project-name').val();
-            if (validator.nameExp.test(name)) {
-                $('#create-new-project').attr('disabled', true);
-                $.ajax({
-                    url: '<?=$this->Html->url(array('controller'=>'project','action'=>'addAjax'))?>',
-                    type: 'post',
-                    data: {
-                        'data[name]': name
-                    },
-                    success: function (data) {
-                        data = $.parseJSON(data);
-                        if (data.success) {
-                            $('#new-project-modal').modal('hide');
-                            console.log(data);
-                            self.project_id = data.id;
-                            self.reload();
-                        }
-                    },
-                    complete: function () {
-                        $('#create-new-project').attr('disabled', false);
-                    }
-                });
-            }
-        },
-        loadProjects: function (callback) {
-            var self = this;
-            if (!self.loading) {
-                $.ajax({
-                    url: '<?=$this->Html->url(array('controller'=>'project','action'=>'getAll'))?>',
-                    type: 'post',
-                    success: function (data) {
-                        data = $.parseJSON(data);
-                        $('#open-project-select').find('tr > td').remove();
-                        for (var i = 0; i < data.Project.length; i++) {
-                            var project = data.Project[i];
-                            openProjectModal.addProject(project.id,project.name);
-                        }
-                    },
-                    complete: function () {
-                        callback();
-                    }
-                });
-            }
-        },
-        reload: function (callback) {
-            var self = this;
-            if (self.treeLoaded) {
-                self.clear();
-            }
-
-            self.loadProject(callback);
-        },
-        clear: function () {
-            $("#tree").dynatree("destroy");
-        },
-        expand: function (expand) {
-            var self = this;
-            if (!self.loading) {
-                self.loading = true;
-                $.ajax({
-                    url: '<?=$this->Html->url(array('controller'=>'project','action'=>'expand'))?>',
-                    type: 'post',
-                    data: {
-                        'data[id]': mapManager.id,
-                        'data[expand]': expand
-                    },
-                    complete: function () {
-                        self.loading = false;
-                    }
-                });
-            }
-        },
-        loadProject: function (callback) {
-            var self = this;
-            console.log(self.project_id);
-            if (self.project_id != 0) {
-                $("#tree").dynatree({
-                    initAjax: {
-                        url: '<?=$this->Html->url(array('controller'=>'project','action'=>'getMapTree'))?>',
-                        data: {
-                            'data[id]': self.project_id
-                        },
-                        type: 'post',
-                        complete: function () {
-                            self.treeLoaded = true;
-                            if(typeof callback == 'function'){
-                                callback();
-                            }
-                        }
-                    },
-                    persist: false,
-                    generateIds: true,
-                    idPrefix: 'data-id:',
-                    onExpand: function (flag, dtnode) {
-                        var id = $(dtnode.li).prop('id');
-                        id = id.split(':')[1];
-                        mapManager.id = id;
-                        var span = $(dtnode.li).children()[0];
-                        var map = $(span).hasClass('map');
-                        if (map) {
-                            mapManager.expand(flag);
-                        }
-                        else {
-                            projectManager.expand(flag);
-                        }
-                    }
-                });
-            }
-        }
-    };
-
-    var openProjectModal = new OpenProjectModal();
-    var newProjectModal = new NewProjectModal();
-    var newMapModal = new NewMapModal();
-    var updateMapModal = new UpdateMapModal();
-
-    openProjectModal.setProjectManager(projectManager);
-
-    $('body').append(
-        openProjectModal.getModal(),
-        newProjectModal.getModal(),
-        newMapModal.getModal(),
-        updateMapModal.getModal()
-    );
-
-    projectManager.loadProject();
-
-
-
-    $("#new-project").click(function () {
-        $("#new-project-modal").modal();
-        $('#new-project-name').val('');
-    });
-
-    $('#open-project').click(function () {
-        projectManager.loadProjects(function () {
-            $('#open-project-modal').modal();
-        });
-    });
-    /*
-    $("#cancel-new-project").click(function () {
-        $("#new-project-modal").modal('hide');
-    });*/
-    /*
-    $('#cancel-open-project').click(function () {
-        $('#open-project-modal').modal('hide');
-    });*/
-
-    $('#cancel-new-map').click(function () {
-        mapManager.closeModal();
-    });
-
-    $('#create-new-project').click(function () {
-        projectManager.createProject();
-    });
-
-    $(document).on('click', '.project-list-item', function () {
-        var selfInput = $(this).find('input');
-        $(selfInput).prop('checked', true);
-    });
-
-    /*
-    $('#map-create-action').click(function () {
-        $('#map-create-form').submit();
-    });
-
-    $('#map-update-action').click(function () {
-        $('#map-update-form').submit();
-    });
-    */
-
-    $('#resources').click(function () {
-        resourcesManager.openModal();
-    });
-
-    /*
-    $('#open-project-action').click(function () {
-        var id = $('input[name=project]:checked').val();
-        projectManager.project_id = id;
-        projectManager.clear();
-        projectManager.loadProject();
-    });*/
-
-    var checkProjectName = function () {
-        var name = $(this).val().trim();
-        if (name != '') {
-            if (validator.nameExp.test(name)) {
-                validator.validateProjectName(name);
-            }
-            else {
-                $('#alert-project-exists').html('Esse nome de projeto é inválido');
-                $('#alert-project-exists').show();
-                $('#create-new-project').attr('disabled', true);
-            }
-        }
-        else {
-            $('#alert-project-exists').html('O nome do projeto não pode ser vazio');
-            $('#alert-project-exists').show();
-            $('#create-new-project').attr('disabled', true);
-        }
-    };
-
-    $('#new-project-name').
-        change(checkProjectName).
-        keyup(checkProjectName).
-        focus(checkProjectName);
-
     var validator = {
         checking: false,
         checkinglist: [],
@@ -261,6 +62,23 @@ $(document).ready(function () {
     };
 
 
+    ProjectWindow.projectManager.loadProject();
+
+    $("#new-project").click(function () {
+        $("#new-project-modal").modal();
+        $('#new-project-name').val('');
+    });
+
+    $('#open-project').click(function () {
+        ProjectWindow.projectManager.loadProjects(function () {
+            $('#open-project-modal').modal();
+        });
+    });
+
+    $('#resources').click(function () {
+        resourcesManager.openModal();
+    });
+
     $(document).on('mousedown', '.dynatree-node', function (event) {
         if (event.which == 3) {
             var id = $(this).parent().prop('id');
@@ -276,207 +94,6 @@ $(document).ready(function () {
         }
     });
 
-    var mapManager = {
-        id: 0,
-        type: '',
-        creating: false,
-        node: null,
-        success: false,
-        copy: 0,
-        createMap: function () {
-            var self = this;
-            if (!self.creating) {
-                self.creating = true;
-                var data = {
-                    'data[Map][name]': $('#map-name-create').val(),
-                    'data[Map][display]': $('#map-display-create').val(),
-                    'data[Map][width]': $('#map-width-create').val(),
-                    'data[Map][height]': $('#map-height-create').val(),
-                    'data[Map][scroll]': $('#map-scroll-create').val()
-                };
-
-                if (self.type == 'project') {
-                    data['data[Map][project_id]'] = self.id;
-                }
-                else {
-                    data['data[Map][parent_id]'] = self.id;
-                }
-
-                $.ajax({
-                    url: '<?=$this->Html->url(array('controller'=>'map','action'=>'add'))?>',
-                    type: 'post',
-                    data: data,
-                    success: function (data) {
-                        data = $.parseJSON(data);
-                        if (data.success) {
-                            var tree = $("#tree").dynatree("getTree");
-                            var node = tree.getNodeByKey(mapManager.id);
-                            if (node != null) {
-                                node.addChild(data.node);
-                            }
-                            self.closeModal();
-                        }
-                        else {
-                            self.showError();
-                        }
-                    },
-                    complete: function () {
-                        self.creating = false;
-                    }
-                });
-            }
-        },
-        updateMap: function () {
-            var self = this;
-            if (!self.creating) {
-                self.creating = true;
-                $.ajax({
-                    url: '<?=$this->Html->url(array('controller'=>'map','action'=>'edit'))?>',
-                    type: 'post',
-                    data: {
-                        'data[Map][id]': self.id,
-                        'data[Map][name]': $('#map-name-update').val(),
-                        'data[Map][display]': $('#map-display-update').val(),
-                        'data[Map][width]': $('#map-width-update').val(),
-                        'data[Map][height]': $('#map-height-update').val(),
-                        'data[Map][scroll]': $('#map-scroll-update').val()
-                    },
-                    success: function (data) {
-                        data = $.parseJSON(data);
-                        if (data.success) {
-                            self.closeUpdateModal();
-                            var tree = $('#tree').dynatree('getTree');
-                            var node = tree.getNodeByKey(self.id);
-                            if (node != null) {
-                                node.data.title = data.map.name;
-                                node.render();
-                            }
-                        }
-                        else {
-                            self.showUpdateError();
-                        }
-                    },
-                    complete: function () {
-                        self.creating = false;
-                    }
-                });
-            }
-        },
-        deleteMap: function () {
-            var self = this;
-            if (!self.creating) {
-                self.creating = true;
-                $.ajax({
-                    url: '<?=$this->Html->url(array('controller'=>'map','action'=>'delete'))?>',
-                    type: 'post',
-                    data: {
-                        'data[id]': self.id
-                    },
-                    success: function (data) {
-                        data = $.parseJSON(data);
-                        if (data.success) {
-                            var tree = $('#tree').dynatree('getTree');
-                            var node = tree.getNodeByKey(mapManager.id);
-                            if (node != null) {
-                                node.remove();
-                            }
-
-                        }
-                    },
-                    complete: function () {
-                        self.creating = false;
-                    }
-                });
-            }
-        },
-        loadEdit: function () {
-            var self = this;
-            if (!self.creating) {
-                self.creating = true;
-                $.ajax({
-                    url: '<?=$this->Html->url(array('controller'=>'map','action'=>'loadMap'))?>',
-                    type: 'post',
-                    data: {
-                        'data[id]': self.id
-                    },
-                    success: function (data) {
-                        data = $.parseJSON(data);
-                        if (data.success) {
-                            var map = data.map;
-                            self.success = true;
-                            $('#map-name-update').val(map.Map.name);
-                            $('#map-display-update').val(map.Map.display);
-                            $('#map-width-update').val(map.Map.width);
-                            $('#map-height-update').val(map.Map.height);
-                            $('#map-scroll-update').val(map.Map.scroll);
-                        }
-                    },
-                    complete: function () {
-                        if (self.success) {
-                            $('#map-update-modal').modal();
-                            self.success = false;
-                        }
-                        self.creating = false;
-                    }
-                });
-            }
-        },
-        expand: function (expand) {
-            var self = this;
-            if (!self.creating) {
-                self.creating = true;
-                $.ajax({
-                    url: '<?=$this->Html->url(array('controller'=>'map','action'=>'expand'))?>',
-                    type: 'post',
-                    data: {
-                        'data[id]': mapManager.id,
-                        'data[expand]': expand
-                    },
-                    complete: function () {
-                        self.creating = false;
-                    }
-                });
-            }
-        },
-        showError: function () {
-            $('#create-map-warning').hide();
-            $('#create-map-error').show();
-        },
-        showUpdateError: function () {
-            $('#update-map-warning').hide();
-            $('#update-map-error').show();
-        },
-        showWarnings: function () {
-            $('#create-map-error').hide();
-            $('#create-map-warning').show();
-        },
-        showUpdateWarnings: function () {
-            $('#update-map-error').hide();
-            $('#update-map-warning').show();
-        },
-        closeAlerts: function () {
-            $('#create-map-error').hide();
-            $('#create-map-warning').hide();
-        },
-        closeUpdateAlerts: function () {
-            $('#update-map-error').hide();
-            $('#update-map-warning').hide();
-        },
-        setWarningMessage: function (message) {
-            $('#create-map-warning').html(message);
-        },
-        setUpdateWarningMessage: function (message) {
-            $('#create-update-warning').html(message);
-        },
-        closeModal: function () {
-            newMapModal.close();
-            this.closeAlerts();
-        },
-        closeUpdateModal: function () {
-            updateMapModal.close();
-            this.closeUpdateAlerts();
-        }
-    };
 
     var nomeMapa = /^[A-Za-z]+[A-Za-z0-9]+$/;
 
@@ -549,18 +166,24 @@ $(document).ready(function () {
             rules: 'required|greater_than[-1]|less_than[4]'
         }
     ], function (errors, event) {
-        if (errors.length > 0) {
-            var message = '';
-            for (var i = 0; i < errors.length; i++) {
-                message += '* ' + errors[i].message + '<br>';
+        try{
+            if (errors.length > 0) {
+                var message = '';
+                for (var i = 0; i < errors.length; i++) {
+                    message += '* ' + errors[i].message + '<br>';
+                }
+                mapManager.setWarningMessage(message);
+                mapManager.showWarnings();
             }
-            mapManager.setWarningMessage(message);
-            mapManager.showWarnings();
+            else {
+                mapManager.closeAlerts();
+                newMapModal.create();
+            }
         }
-        else {
-            mapManager.closeAlerts();
-            mapManager.createMap();
+        catch(ex){
+            console.log(ex);
         }
+
         event.preventDefault();
     });
 
@@ -663,8 +286,6 @@ $(document).ready(function () {
             }
         }
     };
-
-
 });
 </script>
 <div class="modal" id="resources-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
