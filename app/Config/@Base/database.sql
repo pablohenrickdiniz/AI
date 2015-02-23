@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: 02-Fev-2015 às 00:43
+-- Generation Time: 23-Fev-2015 às 15:17
 -- Versão do servidor: 5.6.16
 -- PHP Version: 5.5.9
 
@@ -45,9 +45,9 @@ CREATE TABLE IF NOT EXISTS `map` (
   `bgm` int(11) DEFAULT NULL,
   `expand` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  KEY `map_ibfk_1` (`project_id`),
-  KEY `map_ibfk_2` (`parent_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=177 ;
+  UNIQUE KEY `parent_id` (`parent_id`,`name`),
+  UNIQUE KEY `project_id` (`project_id`,`name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=168 ;
 
 -- --------------------------------------------------------
 
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `project` (
   `expand` tinyint(1) NOT NULL DEFAULT '0',
   `selected_list` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=91 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=142 ;
 
 -- --------------------------------------------------------
 
@@ -110,6 +110,36 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `user_access`
+--
+
+CREATE TABLE IF NOT EXISTS `user_access` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `ip` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `hits` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`,`ip`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `user_activity`
+--
+
+CREATE TABLE IF NOT EXISTS `user_activity` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `last_login` datetime DEFAULT NULL,
+  `last_ip` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
 --
 -- Constraints for dumped tables
 --
@@ -124,8 +154,8 @@ ADD CONSTRAINT `config_ibfk_1` FOREIGN KEY (`last_project_id`) REFERENCES `proje
 -- Limitadores para a tabela `map`
 --
 ALTER TABLE `map`
-ADD CONSTRAINT `map_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `map_ibfk_2` FOREIGN KEY (`parent_id`) REFERENCES `map` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ADD CONSTRAINT `map_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`),
+ADD CONSTRAINT `map_ibfk_2` FOREIGN KEY (`parent_id`) REFERENCES `map` (`id`);
 
 --
 -- Limitadores para a tabela `project_resource`
@@ -133,3 +163,15 @@ ADD CONSTRAINT `map_ibfk_2` FOREIGN KEY (`parent_id`) REFERENCES `map` (`id`) ON
 ALTER TABLE `project_resource`
 ADD CONSTRAINT `project_resource_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`),
 ADD CONSTRAINT `project_resource_ibfk_2` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`);
+
+--
+-- Limitadores para a tabela `user_access`
+--
+ALTER TABLE `user_access`
+ADD CONSTRAINT `user_access_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
+-- Limitadores para a tabela `user_activity`
+--
+ALTER TABLE `user_activity`
+ADD CONSTRAINT `user_activity_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
