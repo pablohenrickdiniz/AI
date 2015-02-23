@@ -68,17 +68,6 @@ MapWindow.paste = function(){
     }
 };
 
-
-
-function count(obj){
-    var count = 0;
-    for(var index in obj){
-        count++;
-    }
-    return count;
-}
-
-
 MapWindow.edit = {
     loading:false,
     modal:null,
@@ -781,7 +770,7 @@ MapWindow.create = {
             self.modal.onclose(function(){
                 self.getWarning().hide();
                 self.getInputName().val('');
-                self.getInputWidth().val('');
+                self.getInputDisplay().val('');
                 self.getInputWidth().val('');
                 self.getInputHeight().val('');
                 self.getSelectScroll().val(0);

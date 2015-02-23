@@ -134,7 +134,7 @@ class MapController extends AppController
         }
     }
 
-    private function copyRecursive($map){
+    private function copyRecursive(&$map){
         $children = $map['Children'];
         unset($map['Children']);
         unset($map['Map']['id']);
@@ -142,6 +142,7 @@ class MapController extends AppController
         $continue = $this->Map->save($map);
         if($continue){
             $parent_id = $this->Map->getLastInsertId();
+            $map['Map']['id'] = $parent_id;
             for($i=0;$i<count($children);$i++){
                 if($continue){
                     $children[$i]['Map']['parent_id'] = $parent_id;
