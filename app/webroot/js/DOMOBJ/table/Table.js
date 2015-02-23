@@ -6,11 +6,28 @@ function Table(){
     self.rows = [];
 }
 
+Table.prototype.clearTds = function(){
+    var self = this;
+    var rows = self.rows;
+    for(var i = 0; i < rows.length;i++){
+        var row = rows[i];
+        var cols = row.getCols();
+        for(var j = 0; j < cols.length;j++){
+            if(cols[i].getType() == 'td'){
+                rows[i].remove();
+                rows.splice(i,1);
+                i--;
+                break;
+            }
+        }
+    }
+};
+
 Table.prototype.add = function(row){
     var self = this;
     if(row instanceof Row){
         self.rows.push(row);
-        $(self.getDOM()).append(row);
+        $(self.getDOM()).append(row.getDOM());
     }
     return self;
 };

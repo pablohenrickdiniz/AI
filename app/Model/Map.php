@@ -13,23 +13,29 @@ class Map extends AppModel
         'name' => array(
             'rule' => '/^[A-Za-z0-9]+$/i',
             'required' => true,
-            'allowEmpty' => false
+            'allowEmpty' => false,
+            'message' => 'O nome do mapa deve conter somente letras ou números'
         ),
         'display' => array(
             'rule' => 'notEmpty',
+            'message' => 'O nome de exibição deve ser informado',
             'required' => true
         ),
         'width' => array(
             'rule' => '/^([0-9]{2,3}|1000)$/i',
-            'required' => true
+            'required' => true,
+            'message' => 'A largura do mapa deve ser de no mínimo 10 e no máximo 1000 (quadrados de 32px)'
         ),
         'height' => array(
             'rule' => '/^([0-9]{2,3}|1000)$/i',
-            'required' => true
+            'required' => true,
+            'message' => 'A altura do mapa deve ser de no mínimo 10 e no máximo 1000 (quadrados de 32px)'
         ),
         'scroll' => array(
-            'rule' => '/^[0-3]$/i',
-            'required' => true
+            'regra' => array(
+                'rule' => '/^[0-9]$/',
+                'message' => 'O tipo de rolagem de mapa informado não existe'
+            )
         )
     );
 
@@ -82,6 +88,8 @@ class Map extends AppModel
             )
         ));
 
+
+
         for ($i = 0; $i < count($maps); $i++) {
             $this->id = $maps[$i]['Map']['id'];
             $root['children'][$i] = $this->getTree();
@@ -89,13 +97,70 @@ class Map extends AppModel
         return $root;
     }
 
-    public function beforeDelete($cascade = false)
+    public function getRecursive($id){
+        $map = $this->findById($id);
+        if(!empty($map)){
+            $map['Children'] = $this->getChildrenRecursive($map);
+        }
+        return $map;
+    }
+
+    private function getChildrenRecursive($map){
+        $children = $this->getChildren($map['Map']['id']);
+        for($i=0;$i<count($children);$i++){
+            $children[$i]['Children'] = $this->getChildrenRecursive($children[$i]);
+        }
+        return $children;
+    }
+
+    public function beforeDelete($cascade = true)
     {
-        $deleted = $this->deleteAll(array(
-            'Map.parent_id' => $this->id
-        ));
+        $id = $this->id;
+        $children = $this->getChildrenID();
+        $deleted = false;
+        $this->begin();
+        try{
+            $deleted = true;
+            for($i = 0; $i<count($children);$i++){
+                if($deleted){
+                    $deleted = $this->delete($children);
+                }
+                else{
+                    break;
+                }
+            }
+        }
+        catch(Exception $ex){
+
+        }
+        if($deleted){
+            $this->commit();
+        }
+        else{
+            $this->rollback();
+        }
+        $this->id = $id;
         return $deleted;
     }
 
+    public function getChildren($id){
+        $children = $this->find('all',array(
+            'conditions' => array(
+                'Map.parent_id' => $id
+            )
+        ));
+        return $children;
+    }
 
+    public function getChildrenID(){
+        $children = $this->find('list',array(
+            'fields' => array(
+                'Map.id'
+            ),
+            'conditions' => array(
+                'Map.parent_id' => $this->id
+            )
+        ));
+        return $children;
+    }
 } 

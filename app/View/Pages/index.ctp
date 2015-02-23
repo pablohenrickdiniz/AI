@@ -1,77 +1,37 @@
 <?=$this->Import->script('DOMOBJ',true)?>
 <script type="text/javascript">
-    Global = {
-        projectAddAction:'<?=$this->Html->url(array('controller'=>'project','action'=>'addAjax'))?>',
-        projectExpand:'<?=$this->Html->url(array('controller'=>'project','action'=>'expand'))?>',
-        projectGetAll:'<?=$this->Html->url(array('controller'=>'project','action'=>'getAll'))?>',
-        projectGetMapTree:'<?=$this->Html->url(array('controller'=>'project','action'=>'getMapTree'))?>',
-        mapAddAction:'<?=$this->Html->url(array('controller'=>'map','action'=>'add'))?>',
-        mapEditAction:'<?=$this->Html->url(array('controller'=>'map','action'=>'edit'))?>',
-        mapDeleteAction:'<?=$this->Html->url(array('controller'=>'map','action'=>'delete'))?>',
-        mapLoadMap:'<?=$this->Html->url(array('controller'=>'map','action'=>'loadMap'))?>',
-        mapExpand:'<?=$this->Html->url(array('controller'=>'map','action'=>'expand'))?>',
-        projectId:<?=$project_id?>
+    var Global = {
+        project:{
+            id:<?=$project_id?>,
+            add:'<?=$this->Html->url(array('controller'=>'project','action'=>'addAjax'))?>',
+            expand:'<?=$this->Html->url(array('controller'=>'project','action'=>'expand'))?>',
+            all:'<?=$this->Html->url(array('controller'=>'project','action'=>'getAll'))?>',
+            mapTree:'<?=$this->Html->url(array('controller'=>'project','action'=>'getMapTree'))?>',
+            exists:'<?=$this->Html->url(array('controller'=>'project','action'=>'exists'))?>'
+        },
+        map:{
+            add:'<?=$this->Html->url(array('controller'=>'map','action'=>'add'))?>',
+            edit:'<?=$this->Html->url(array('controller'=>'map','action'=>'edit'))?>',
+            delete:'<?=$this->Html->url(array('controller'=>'map','action'=>'delete'))?>',
+            load:'<?=$this->Html->url(array('controller'=>'map','action'=>'load'))?>',
+            expand:'<?=$this->Html->url(array('controller'=>'map','action'=>'expand'))?>',
+            paste:'<?=$this->Html->url(array('controller'=>'map','action'=>'paste'))?>'
+        }
     };
+
 </script>
 <?=$this->Html->script('InterfaceElements')?>
 <script type="text/javascript">
 $(document).ready(function () {
-    var validator = {
-        checking: false,
-        checkinglist: [],
-        nameExp: /^[a-zA-z]+[0-9a-zA-z]+$/,
-        validateProjectName: function (name) {
-            this.checkinglist.push(name);
-            if (!this.checking) {
-                this.checking = true;
-                this.checkName();
-            }
-        },
-        checkName: function () {
-            var name = this.checkinglist.pop();
-            this.checkinglist = [];
-            this.checking = true;
-            var self = this;
-            $.ajax({
-                url: '<?=$this->Html->url(array('controller'=>'project','action'=>'exists'))?>',
-                type: 'post',
-                data: {
-                    'data[name]': name
-                },
-                success: function (data) {
-                    data = $.parseJSON(data);
-                    if (data.exists) {
-                        $('#alert-project-exists').html('Já existe um projeto com este nome!');
-                        $('#alert-project-exists').show();
-                    }
-                    else {
-                        $('#alert-project-exists').hide();
-                    }
-                    $('#create-new-project').attr('disabled', data.exists);
-                },
-                complete: function () {
-                    if (self.checkinglist.length > 0) {
-                        self.checkName();
-                    }
-                    else {
-                        self.checking = false;
-                    }
-                }
-            });
-        }
-    };
-
-
-    ProjectWindow.projectManager.loadProject();
+    ProjectWindow.load();
 
     $("#new-project").click(function () {
-        $("#new-project-modal").modal();
-        $('#new-project-name').val('');
+        ProjectWindow.create.getModal().open();
     });
 
     $('#open-project').click(function () {
-        ProjectWindow.projectManager.loadProjects(function () {
-            $('#open-project-modal').modal();
+        ProjectWindow.loadProjects(function () {
+            ProjectWindow.open.getModal().open();
         });
     });
 
@@ -83,128 +43,41 @@ $(document).ready(function () {
         if (event.which == 3) {
             var id = $(this).parent().prop('id');
             id = id.split(':')[1];
-            mapManager.id = id;
-            mapManager.node = $(this).parent();
+            FolderWindow.id = id;
             if ($(this).hasClass('map')) {
-                mapManager.type = 'map';
+                FolderWindow.type = 'map';
             }
             else if ($(this).hasClass('project')) {
-                mapManager.type = 'project';
+                FolderWindow.type = 'project';
             }
         }
     });
-
 
     var nomeMapa = /^[A-Za-z]+[A-Za-z0-9]+$/;
-
-    var updateMapValidator = new FormValidator('map-update-form', [
-        {
-            name: 'map-name-update',
-            display: 'O nome do mapa é obrigatório',
-            rules: 'required|nomeMapa'
-        },
-        {
-            name: 'map-display-update',
-            display: 'O nome de apresentação é obrigatório',
-            rules: 'required|nomeMapa'
-        },
-        {
-            name: 'map-height-update',
-            display: 'A altura do mapa deve ser um inteiro entre 10 e 1000',
-            rules: 'required|integer|greater_than[9]|less_than[1001]'
-        },
-        {
-            name: 'map-width-update',
-            display: 'A largura do mapa deve ser um inteiro entre 10 e 1000',
-            rules: 'required|integer|greater_than[9]|less_than[1001]'
-        },
-        {
-            name: 'map-scroll-update',
-            display: 'loop do mapa',
-            rules: 'required|greater_than[-1]|less_than[4]'
-        }
-    ], function (errors, event) {
-        if (errors.length > 0) {
-            var message = '';
-            for (var i = 0; i < errors.length; i++) {
-                message += '* ' + errors[i].message + '<br>';
-            }
-            mapManager.setUpdateWarningMessage(message);
-            mapManager.showUpdateWarnings();
-        }
-        else {
-            mapManager.closeUpdateAlerts();
-            mapManager.updateMap();
-        }
-        event.preventDefault();
-    });
-
-    var createMapValidator = new FormValidator('map-create-form', [
-        {
-            name: 'map-name-create',
-            display: 'O nome do mapa é obrigatório',
-            rules: 'required|nomeMapa'
-        },
-        {
-            name: 'map-display-create',
-            display: 'O nome de apresentação é obrigatório',
-            rules: 'required|nomeMapa'
-        },
-        {
-            name: 'map-height-create',
-            display: 'A altura do mapa deve ser um inteiro entre 10 e 1000',
-            rules: 'required|integer|greater_than[9]|less_than[1001]'
-        },
-        {
-            name: 'map-width-create',
-            display: 'A largura do mapa deve ser um inteiro entre 10 e 1000',
-            rules: 'required|integer|greater_than[9]|less_than[1001]'
-        },
-        {
-            name: 'map-scroll-create',
-            display: 'loop do mapa',
-            rules: 'required|greater_than[-1]|less_than[4]'
-        }
-    ], function (errors, event) {
-        try{
-            if (errors.length > 0) {
-                var message = '';
-                for (var i = 0; i < errors.length; i++) {
-                    message += '* ' + errors[i].message + '<br>';
-                }
-                mapManager.setWarningMessage(message);
-                mapManager.showWarnings();
-            }
-            else {
-                mapManager.closeAlerts();
-                newMapModal.create();
-            }
-        }
-        catch(ex){
-            console.log(ex);
-        }
-
-        event.preventDefault();
-    });
-
 
     $.contextMenu({
         selector: '.map',
         callback: function (key, options) {
             if (key == 'new') {
-                $('#create-map-modal').modal();
+                MapWindow.create.getModal().open();
             }
             else if (key == 'edit') {
-                mapManager.loadEdit();
+                MapWindow.edit.load(function(){
+                    var self = this;
+                    self.getModal().open();
+                });
             }
             else if (key == 'delete') {
-                mapManager.deleteMap();
+                MapWindow.delete();
             }
             else if (key == 'copy') {
-                mapManager.copy = mapManager.id;
+                MapWindow.copy();
+            }
+            else if(key == 'cut'){
+                MapWindow.cut();
             }
             else if (key == 'paste') {
-                mapManager.paste();
+                MapWindow.paste();
             }
         },
         items: {
@@ -213,6 +86,7 @@ $(document).ready(function () {
             'new': {name: 'Novo Mapa', icon: "add"},
             'sp2': '-----------',
             "copy": {name: "Copiar", icon: "copy"},
+            "cut":{name:"Recortar",icon:"cut"},
             "paste": {name: "Colar", icon: "paste"},
             "delete": {name: "Apagar", icon: "delete"}
         }
@@ -222,15 +96,16 @@ $(document).ready(function () {
         selector: '.project',
         callback: function (key, options) {
             if (key == 'new') {
-                $('#create-map-modal').modal();
+               MapWindow.create.getModal().open();
+            }
+            else if(key == 'paste'){
+               MapWindow.paste();
             }
         },
         items: {
             'new': {name: 'Novo Mapa', icon: "add"},
             'sp2': '-----------',
-            "copy": {name: "Copiar", icon: "copy"},
-            "paste": {name: "Colar", icon: "paste"},
-            "delete": {name: "Apagar", icon: "delete"}
+            "paste": {name: "Colar", icon: "paste"}
         }
     });
 

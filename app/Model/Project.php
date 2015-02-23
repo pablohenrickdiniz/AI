@@ -10,6 +10,18 @@ App::import('Model','Map');
 
 class Project extends AppModel{
     public $useTable = 'project';
+    public $validate = array(
+        'name' => array(
+            'uniqueRule' => array(
+                'rule' => 'isUnique',
+                'message' => 'Já existe um projeto com este nome'
+            ),
+            'letras' => array(
+                'rule' => '/^[A-Za-z]+$/',
+                'message' => 'O nome do projeto deve conter somente letras de A a Z'
+            )
+        )
+    );
 
     public function getTree(){
         $Map = Map::getInstance();

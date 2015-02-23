@@ -5,6 +5,7 @@ function ModalDialog(){
     Tag.call(self,'div');
     self.addClass('modal-dialog');
     self.content = null;
+    self.add(self.getContent());
 }
 
 ModalDialog.prototype.getContent = function(){

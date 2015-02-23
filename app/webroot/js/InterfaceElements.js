@@ -1,214 +1,128 @@
 function ProjectWindow() {}
+function MapWindow(){}
+function FolderWindow(){}
+FolderWindow.id = Global.project.id;
+FolderWindow.type = 'project';
+ProjectWindow.loading = false;
+MapWindow.loading =false;
+MapWindow.clipboard = {
+    type:'copy',
+    value:null
+};
 
-ProjectWindow.mapManager = {
-    id: 0,
-    type: '',
-    creating: false,
-    node: null,
-    success: false,
-    copy: 0,
-    updateMap: function () {
+
+MapWindow.copy = function(){
+    var self = this;
+    self.clipboard.value = FolderWindow.id;
+    self.clipboard.type = 'copy';
+};
+
+MapWindow.cut = function(){
+    var self = this;
+    self.clipboard.value = FolderWindow.id;
+    self.clipboard.type = 'cut';
+};
+
+MapWindow.paste = function(){
+    var self = this;
+    if(!self.loading){
+        self.loading = true;
+        var data = {
+            'data[id]':self.clipboard.value,
+            'data[type]':self.clipboard.type
+        };
+        var type = FolderWindow.type;
+        if(type == 'project'){
+            data['data[project_id]'] = FolderWindow.id;
+        }
+        else{
+            data['data[parent_id]'] = FolderWindow.id;
+        }
+
+        $.ajax({
+            url:Global.map.paste,
+            type:'post',
+            data:data,
+            dataType:'json',
+            success:function(data){
+                if(data.success){
+                    var parent = FolderWindow.id;
+                    var tree = $('#tree').dynatree('getTree');
+                    var node = tree.getNodeByKey(parent);
+                    if(node != null){
+                        if(MapWindow.clipboard.type == 'cut'){
+                            var old = tree.getNodeByKey(data.node.key);
+                            if(old != null){
+                                old.remove();
+                            }
+                        }
+                        var child = data.node;
+                        node.addChild(child);
+                    }
+                }
+            },
+            complete:function(){
+                self.loading = false;
+            }
+        });
+    }
+};
+
+
+
+function count(obj){
+    var count = 0;
+    for(var index in obj){
+        count++;
+    }
+    return count;
+}
+
+
+MapWindow.edit = {
+    loading:false,
+    modal:null,
+    inputName:null,
+    inputDisplay:null,
+    inputWidth:null,
+    inputHeight:null,
+    selectScroll:null,
+    send:function(){
         var self = this;
-        if (!self.creating) {
-            self.creating = true;
+        if(!self.loading){
+            self.loading = true;
             $.ajax({
-                url: Global.mapEditAction,
+                url: Global.map.edit,
                 type: 'post',
                 data: {
-                    'data[Map][id]': self.id,
-                    'data[Map][name]': $('#map-name-update').val(),
-                    'data[Map][display]': $('#map-display-update').val(),
-                    'data[Map][width]': $('#map-width-update').val(),
-                    'data[Map][height]': $('#map-height-update').val(),
-                    'data[Map][scroll]': $('#map-scroll-update').val()
+                    'data[Map][id]': FolderWindow.id,
+                    'data[Map][name]': self.getInputName().val(),
+                    'data[Map][display]': self.getInputDisplay().val(),
+                    'data[Map][width]': self.getInputWidth().val(),
+                    'data[Map][height]':self.getInputHeight().val(),
+                    'data[Map][scroll]': self.getSelectScroll().val()
                 },
+                dataType:'json',
                 success: function (data) {
-                    data = $.parseJSON(data);
                     if (data.success) {
-                        self.closeUpdateModal();
+                        self.getModal().close();
+                        self.getWarning().hide();
                         var tree = $('#tree').dynatree('getTree');
-                        var node = tree.getNodeByKey(self.id);
+                        var node = tree.getNodeByKey(FolderWindow.id);
                         if (node != null) {
                             node.data.title = data.map.name;
                             node.render();
                         }
                     }
                     else {
-                        self.showUpdateError();
-                    }
-                },
-                complete: function () {
-                    self.creating = false;
-                }
-            });
-        }
-    },
-    deleteMap: function () {
-        var self = this;
-        if (!self.creating) {
-            self.creating = true;
-            $.ajax({
-                url: Global.mapDeleteAction,
-                type: 'post',
-                data: {
-                    'data[id]': self.id
-                },
-                success: function (data) {
-                    data = $.parseJSON(data);
-                    if (data.success) {
-                        var tree = $('#tree').dynatree('getTree');
-                        var node = tree.getNodeByKey(self.mapManager.id);
-                        if (node != null) {
-                            node.remove();
+                        var errors = data.errors;
+                        var message = '';
+                        for(var index in errors){
+                            message += '* '+errors[index]+'<br>';
                         }
-
+                        self.getWarning().setMessage(message);
+                        self.getWarning().show();
                     }
-                },
-                complete: function () {
-                    self.creating = false;
-                }
-            });
-        }
-    },
-    loadEdit: function () {
-        var self = this;
-        if (!self.creating) {
-            self.creating = true;
-            $.ajax({
-                url: Global.mapLoadMap,
-                type: 'post',
-                data: {
-                    'data[id]': self.id
-                },
-                success: function (data) {
-                    data = $.parseJSON(data);
-                    if (data.success) {
-                        var map = data.map;
-                        self.success = true;
-                        $('#map-name-update').val(map.Map.name);
-                        $('#map-display-update').val(map.Map.display);
-                        $('#map-width-update').val(map.Map.width);
-                        $('#map-height-update').val(map.Map.height);
-                        $('#map-scroll-update').val(map.Map.scroll);
-                    }
-                },
-                complete: function () {
-                    if (self.success) {
-                        $('#map-update-modal').modal();
-                        self.success = false;
-                    }
-                    self.creating = false;
-                }
-            });
-        }
-    },
-    expand: function (expand) {
-        var self = this;
-        if (!self.creating) {
-            self.creating = true;
-            $.ajax({
-                url: Global.mapExpand,
-                type: 'post',
-                data: {
-                    'data[id]': self.mapManager.id,
-                    'data[expand]': expand
-                },
-                complete: function () {
-                    self.creating = false;
-                }
-            });
-        }
-    },
-    showError: function () {
-        $('#create-map-warning').hide();
-        $('#create-map-error').show();
-    },
-    showUpdateError: function () {
-        $('#update-map-warning').hide();
-        $('#update-map-error').show();
-    },
-    showWarnings: function () {
-        $('#create-map-error').hide();
-        $('#create-map-warning').show();
-    },
-    showUpdateWarnings: function () {
-        $('#update-map-error').hide();
-        $('#update-map-warning').show();
-    },
-    closeAlerts: function () {
-        $('#create-map-error').hide();
-        $('#create-map-warning').hide();
-    },
-    closeUpdateAlerts: function () {
-        $('#update-map-error').hide();
-        $('#update-map-warning').hide();
-    },
-    setWarningMessage: function (message) {
-        $('#create-map-warning').html(message);
-    },
-    setUpdateWarningMessage: function (message) {
-        $('#create-update-warning').html(message);
-    },
-    closeModal: function () {
-        self.create.modal.close();
-        this.closeAlerts();
-    },
-    closeUpdateModal: function () {
-        updateMapModal.close();
-        this.closeUpdateAlerts();
-    }
-};
-
-
-
-
-
-ProjectWindow.projectManager = {
-    project_id: Global.projectId,
-    loading: false,
-    treeLoaded: false,
-    loadProjects: function (callback) {
-        var self = this;
-        if (!self.loading) {
-            $.ajax({
-                url: Global.projectGetAll,
-                type: 'post',
-                success: function (data) {
-                    data = $.parseJSON(data);
-                    $('#open-project-select').find('tr > td').remove();
-                    for (var i = 0; i < data.Project.length; i++) {
-                        var project = data.Project[i];
-                        project = new Project(project.id,project.name);
-                        ProjectWindow.open.add(project);
-                    }
-                },
-                complete: function () {
-                    callback();
-                }
-            });
-        }
-    },
-    reload: function (callback) {
-        var self = this;
-        if (self.treeLoaded) {
-            self.clear();
-        }
-
-        self.loadProject(callback);
-    },
-    clear: function () {
-        $("#tree").dynatree("destroy");
-    },
-    expand: function (expand) {
-        var self = this;
-        if (!self.loading) {
-            self.loading = true;
-            $.ajax({
-                url: Global.projectExpand,
-                type: 'post',
-                data: {
-                    'data[id]': mapManager.id,
-                    'data[expand]': expand
                 },
                 complete: function () {
                     self.loading = false;
@@ -216,42 +130,286 @@ ProjectWindow.projectManager = {
             });
         }
     },
-    loadProject: function (callback) {
+    load:function(callback){
         var self = this;
-        if (self.project_id != 0) {
-            $("#tree").dynatree({
-                initAjax: {
-                    url: Global.projectGetMapTree,
-                    data: {
-                        'data[id]': self.project_id
-                    },
-                    type: 'post',
-                    complete: function () {
-                        self.treeLoaded = true;
-                        if (typeof callback == 'function') {
-                            callback();
+        if(!self.loading){
+            self.loading = true;
+            $.ajax({
+                url:Global.map.load,
+                type:'post',
+                dataType:'json',
+                data:{
+                    'data[id]':FolderWindow.id
+                },
+                success:function(data){
+                    if(data.success){
+                        var map = data.map;
+                        self.getInputName().val(map.name);
+                        self.getInputDisplay().val(map.display);
+                        self.getInputWidth().val(map.width);
+                        self.getInputHeight().val(map.height);
+                        self.getSelectScroll().val(map.scroll);
+                        if(typeof callback == 'function'){
+                            callback.apply(self);
                         }
                     }
                 },
-                debugLevel: 0,
-                persist: false,
-                generateIds: true,
-                idPrefix: 'data-id:',
-                onExpand: function (flag, dtnode) {
-                    var id = $(dtnode.li).prop('id');
-                    id = id.split(':')[1];
-                    mapManager.id = id;
-                    var span = $(dtnode.li).children()[0];
-                    var map = $(span).hasClass('map');
-                    if (map) {
-                        mapManager.expand(flag);
-                    }
-                    else {
-                        projectManager.expand(flag);
-                    }
+                error:function(){
+
+                },
+                complete:function(){
+                    self.loading = false;
                 }
             });
         }
+    },
+    getCancel:function(){
+        var self = this;
+        if(self.cancel == null){
+            self.cancel = new Button();
+            self.cancel.
+                addClass('btn btn-default').
+                val('Cancelar').
+                click(function(){
+                    self.getModal().close();
+                });
+        }
+        return self.cancel;
+    },
+    getConfirm:function(){
+        var self = this;
+        if(self.confirm == null){
+            self.confirm = new Button();
+            self.confirm.
+                addClass('btn btn-success').
+                val('Atualizar Mapa').
+                click(function(){
+                    self.send();
+                });
+        }
+        return self.confirm;
+    },
+    getInputName:function(){
+        var self = this;
+        if(self.inputName == null){
+            self.inputName = new Input('text');
+            self.inputName.placeholder('Nome').
+                addClass('form-control').
+                setAttribute('required',true);
+        }
+        return self.inputName;
+    },
+    getInputDisplay:function(){
+        var self = this;
+        if(self.inputDisplay == null){
+            self.inputDisplay = new Input('text');
+            self.inputDisplay.
+                placeholder('Nome de apresentação').
+                addClass('form-control').
+                setAttribute('required',true);
+        }
+        return self.inputDisplay;
+    },
+    getInputWidth:function(){
+        var self = this;
+        if(self.inputWidth == null){
+            self.inputWidth = new Input('number');
+            self.inputWidth.
+                placeholder('Largura').
+                addClass('form-control').
+                css('min',10).
+                css('max',1000).
+                setAttribute('required',true);
+        }
+        return self.inputWidth;
+    },
+    getInputHeight:function(){
+        var self = this;
+        if(self.inputHeight == null){
+            self.inputHeight = new Input('number');
+            self.inputHeight.
+                placeholder('Altura').
+                addClass('form-control').
+                css('min',10).
+                css('max',1000).
+                setAttribute('required',true);
+        }
+        return self.inputHeight;
+    },
+    getSelectScroll:function(){
+        var self = this;
+        if(self.scroll ==null){
+            self.scroll = new Select();
+            self.scroll.setOptions({
+                0:'Nenhum',
+                1:'Loop Vertical',
+                2:'Loop Horizontal',
+                3:'Loop Vertical e Horizontal'
+            }).addClass('form-control');
+        }
+        return self.scroll;
+    },
+    getWarning:function(){
+        var self =this;
+        if(self.warning ==null){
+            self.warning = new Alert(Alert.warning);
+            self.warning.hide();
+            return self.warning;
+        }
+        return self.warning;
+    },
+    getModal:function(){
+        var self = this;
+        if(self.modal == null){
+            self.modal = new Modal();
+            self.modal.setTitle('Editar Mapa');
+            var container = self.modal.getBody().addContainer('row','');
+            container.addContainer('form-group col-md-6',self.getInputName());
+            container.addContainer('form-group col-md-6',self.getInputDisplay());
+            container.addContainer('form-group col-md-6',self.getInputWidth());
+            container.addContainer('form-group col-md-6',self.getInputHeight());
+            container.addContainer('form-group col-md-12',self.getSelectScroll());
+            container.addContainer('form-group col-md-12',self.getWarning());
+            self.modal.getFooter().add(self.getCancel()).add(self.getConfirm());
+        }
+        return self.modal;
+    }
+};
+
+MapWindow.delete = function(){
+    if (!MapWindow.loading) {
+        MapWindow.loading = true;
+        $.ajax({
+            url: Global.map.delete,
+            type: 'post',
+            data: {
+                'data[id]': FolderWindow.id
+            },
+            dataType:'json',
+            success: function (data) {
+                if (data.success) {
+                    var tree = $('#tree').dynatree('getTree');
+                    var node = tree.getNodeByKey(FolderWindow.id);
+                    if (node != null) {
+                        node.remove();
+                    }
+                }
+            },
+            complete: function () {
+                MapWindow.loading = false;
+            }
+        });
+    }
+};
+
+MapWindow.expand = function(expand){
+    var self = this;
+    if (!self.loading) {
+        self.loading = true;
+        $.ajax({
+            url: Global.map.expand,
+            type: 'post',
+            data: {
+                'data[id]': FolderWindow.id,
+                'data[expand]': expand
+            },
+            complete: function () {
+                self.loading = false;
+            }
+        });
+    }
+};
+
+
+ProjectWindow.loadProjects = function(callback){
+    if (!ProjectWindow.loading) {
+        $.ajax({
+            url: Global.project.all,
+            type: 'post',
+            dataType:'json',
+            success: function (data) {
+                ProjectWindow.open.clearTable();
+                var projects = data.projects;
+                for (var i = 0; i < projects.length; i++) {
+                    var project = projects[i];
+                    project = new Project(project.id,project.name);
+                    ProjectWindow.open.add(project);
+                }
+                ProjectWindow.open.getModal().open();
+            },
+            complete: function () {
+                callback();
+            }
+        });
+    }
+};
+
+ProjectWindow.expand = function(expand){
+    var self = this;
+    if (!self.loading) {
+        self.loading = true;
+        $.ajax({
+            url: Global.project.expand,
+            type: 'post',
+            data: {
+                'data[id]': FolderWindow.id,
+                'data[expand]': expand
+            },
+            complete: function () {
+                self.loading = false;
+            }
+        });
+    }
+};
+
+ProjectWindow.treeLoaded = false;
+ProjectWindow.reload = function (callback) {
+    if (ProjectWindow.treeLoaded) {
+        ProjectWindow.clear();
+    }
+    ProjectWindow.load(callback);
+};
+
+ProjectWindow.clear = function () {
+    $("#tree").dynatree("destroy");
+};
+
+ProjectWindow.load = function (callback) {
+    if (FolderWindow.id != 0 && !ProjectWindow.loading) {
+        ProjectWindow.loading = true;
+        $("#tree").dynatree({
+            initAjax: {
+                url: Global.project.mapTree,
+                data: {
+                    'data[id]': FolderWindow.id
+                },
+                type: 'post',
+                complete: function () {
+                    ProjectWindow.treeLoaded = true;
+                    ProjectWindow.loading = false;
+                    if (typeof callback == 'function') {
+                        callback();
+                    }
+                }
+            },
+            debugLevel: 0,
+            persist: false,
+            generateIds: true,
+            idPrefix: 'data-id:',
+            onExpand: function (flag, dtnode) {
+                var id = $(dtnode.li).prop('id');
+                id = id.split(':')[1];
+                FolderWindow.id = id;
+                var span = $(dtnode.li).children()[0];
+                var map = $(span).hasClass('map');
+                if (map) {
+                    MapWindow.expand(flag);
+                }
+                else {
+                    ProjectWindow.expand(flag);
+                }
+            }
+        });
     }
 };
 
@@ -268,7 +426,7 @@ ProjectWindow.open = {
         if (self.modal == null) {
             self.modal = new Modal();
             self.modal.setTitle('Abrir Projeto');
-            self.modal.add(self.getTable());
+            self.modal.getBody().add(self.getTable()).css('overflow-x','hidden').css('height','300px');
             self.modal.getFooter().add(self.getConfirm());
             self.modal.getFooter().add(self.getCancel())
         }
@@ -283,13 +441,19 @@ ProjectWindow.open = {
                 setId('open-project-action').
                 val('Abrir').
                 click(function () {
-                    ProjectWindow.projectManager.project_id = self.getCheckedProjectId();
-                    ProjectWindow.projectManager.reload(function () {
+                    FolderWindow.id = self.getCheckedId();
+                    FolderWindow.type = 'project';
+                    ProjectWindow.reload(function () {
                         self.getModal().close();
                     });
                 });
         }
         return self.confirm;
+    },
+    clearTable:function(){
+        var self = this;
+        self.getTable().clearTds();
+        self.projects = [];
     },
     getTable: function () {
         var self = this;
@@ -300,8 +464,10 @@ ProjectWindow.open = {
                 addClass('table table-bordered');
             var tr = new Row();
             var th = new Col('header');
+            var th2 = new Col('header');
             th.val('Nome do projeto');
             tr.add(th);
+            tr.add(th2);
             self.table.add(tr);
         }
         return self.table;
@@ -310,16 +476,18 @@ ProjectWindow.open = {
         var self = this;
         if (project instanceof Project) {
             var table = self.getTable();
-            project.setParent(self);
-            table.add(project);
+            table.add(project.getRow());
             self.projects.push(project);
         }
     },
     getCheckedId: function () {
         var self = this;
-        for (var i = 0; i < self.projects.length; i++) {
-            if (self.projects[i].checked) {
-                return self.projects[i].id;
+        var projects = self.projects;
+        var size = projects.length;
+        for (var i = 0; i < size; i++) {
+            var project = projects[i];
+            if(project.isChecked()){
+                return project.id;
             }
         }
         return null;
@@ -332,7 +500,7 @@ ProjectWindow.open = {
                 addClass('btn btn-default').
                 prop('id', 'cancel-open-project').
                 val('Cancelar').
-                type('button').
+                setAttribute('type','button').
                 setAttribute('data-dismiss', 'modal').
                 click(function () {
                     self.getModal().close();
@@ -348,6 +516,67 @@ ProjectWindow.create = {
     cancel: null,
     inputName: null,
     warning: null,
+    send:function(){
+        var self = this;
+        var data = {
+            'data[Project][name]':self.getInputName().val()
+        };
+        $.ajax({
+            url:Global.project.add,
+            type:'post',
+            data:data,
+            dataType:'json',
+            success:function(data){
+                if(data.success){
+                    FolderWindow.id = data.id;
+                    FolderWindow.type = 'project';
+                    ProjectWindow.reload(function () {
+                        self.getModal().close();
+                        self.getWarning().hide();
+                    });
+                }
+                else{
+                    var msg = '';
+                    for(var index in data.errors){
+                        msg += '* '+data.errors[index]+'<br>';
+                    }
+                    self.getWarning().setMessage(msg).show();
+                }
+            },
+            error:function(data){
+
+            }
+        });
+    },
+    getCancel:function(){
+        var self = this;
+        if(self.cancel == null){
+            self.cancel = new Button();
+            self.cancel.
+                addClass('btn btn-default').
+                prop('id', 'cancel-create-project').
+                val('Cancelar').
+                setAttribute('type','button').
+                setAttribute('data-dismiss','modal').
+                click(function(){
+                    self.getModal().close();
+                });
+        }
+        return self.cancel;
+    },
+    getConfirm:function(){
+        var self = this;
+        if(self.confirm == null){
+            self.confirm = new Button();
+            self.confirm.
+                addClass('btn btn-success').
+                val('Concluir').
+                click(function(){
+                    self.send();
+                });
+        }
+        return self.confirm;
+    },
     getInputName: function () {
         var self = this;
         if (self.inputName == null) {
@@ -361,44 +590,203 @@ ProjectWindow.create = {
         }
         return self.inputName;
     },
-    checkName: function () {
-        var self = this;
-        var name = self.getInputName().val();
-        var warning = self.getAlertWarning();
-        var confirm = self.getConfirm();
-        if (name != '') {
-            if (self.validator.nameExp.test(name)) {
-                self.validator.validateProjectName(name);
-            }
-            else {
-                $(warning).html('Esse nome de projeto é inválido');
-                $(warning).show();
-                $(confirm).attr('disabled', true);
-            }
-        }
-        else {
-            $(warning).html('O nome do projeto não pode ser vazio');
-            $(warning).show();
-            $(confirm).attr('disabled', true);
-        }
-    },
     getModal: function () {
         var self = this;
         if (self.modal == null) {
             self.modal = new Modal();
             self.modal.setTitle('Novo Projeto');
+            self.modal.getBody().add(self.getInputName()).add(self.getWarning());
+            self.modal.getFooter().add(self.getCancel()).add(self.getConfirm());
+            self.modal.onclose(function(){
+                self.getWarning().hide();
+            });
         }
         return self.modal;
     },
     getWarning: function () {
         var self = this;
         if (self.warning == null) {
-            self.warning = new Tag('div');
-            self.warning.
-                addClass('col-md-12 form-group alert alert-warning').
-                prop('id', 'alert-project-exists').
-                hide();
+            self.warning = new Alert(Alert.warning);
+            self.warning.hide();
         }
         return self.warning;
+    }
+};
+
+
+
+MapWindow.id = 0;
+MapWindow.create = {
+    modal:null,
+    inputName:null,
+    inputDisplay:null,
+    inputWidth:null,
+    inputHeight:null,
+    inputScroll:null,
+    cancel:null,
+    confirm:null,
+    warning:null,
+    send:function(){
+        var self = this;
+        var data ={
+            'data[Map][name]':self.getInputName().val(),
+            'data[Map][display]':self.getInputDisplay().val(),
+            'data[Map][width]':self.getInputWidth().val(),
+            'data[Map][height]':self.getInputHeight().val(),
+            'data[Map][scroll]':self.getSelectScroll().val()
+        };
+
+        if(FolderWindow.type == 'map'){
+            data['data[Map][parent_id]'] = FolderWindow.id;
+        }
+        else{
+            data['data[Map][project_id]'] = FolderWindow.id;
+        }
+
+        $.ajax({
+            url:Global.map.add,
+            type:'post',
+            dataType:'json',
+            data:data,
+            success:function(data){
+                if(data.success){
+                    self.getModal().close();
+                    self.getWarning().hide();
+                    var tree = $('#tree').dynatree('getTree');
+                    var node = tree.getNodeByKey(FolderWindow.id);
+                    if (node != null) {
+                        node.addChild(data.node);
+                    }
+                }
+                else{
+                    var errors = data.errors;
+                    var message = '';
+                    for(var index in errors){
+                        message += '* '+errors[index]+'<br>';
+                    }
+                    self.getWarning().setMessage(message);
+                    self.getWarning().show();
+                }
+            }
+        });
+    },
+    getCancel:function(){
+        var self = this;
+        if(self.cancel == null){
+            self.cancel = new Button();
+            self.cancel.
+                addClass('btn btn-default').
+                val('Cancelar').
+                click(function(){
+                    self.getModal().close();
+                });
+        }
+        return self.cancel;
+    },
+    getConfirm:function(){
+        var self = this;
+        if(self.confirm == null){
+            self.confirm = new Button();
+            self.confirm.
+                addClass('btn btn-success').
+                val('Criar Mapa').
+                click(function(){
+                    MapWindow.create.send();
+                });
+        }
+        return self.confirm;
+    },
+    getInputName:function(){
+        var self = this;
+        if(self.inputName == null){
+            self.inputName = new Input('text');
+            self.inputName.placeholder('Nome').
+                addClass('form-control').
+                setAttribute('required',true);
+        }
+        return self.inputName;
+    },
+    getInputDisplay:function(){
+        var self = this;
+        if(self.inputDisplay == null){
+            self.inputDisplay = new Input('text');
+            self.inputDisplay.
+                placeholder('Nome de apresentação').
+                addClass('form-control').
+                setAttribute('required',true);
+        }
+        return self.inputDisplay;
+    },
+    getInputWidth:function(){
+        var self = this;
+        if(self.inputWidth == null){
+            self.inputWidth = new Input('number');
+            self.inputWidth.
+                placeholder('Largura').
+                addClass('form-control').
+                css('min',10).
+                css('max',1000).
+                setAttribute('required',true);
+        }
+        return self.inputWidth;
+    },
+    getInputHeight:function(){
+        var self = this;
+        if(self.inputHeight == null){
+            self.inputHeight = new Input('number');
+            self.inputHeight.
+                placeholder('Altura').
+                addClass('form-control').
+                css('min',10).
+                css('max',1000).
+                setAttribute('required',true);
+        }
+        return self.inputHeight;
+    },
+    getSelectScroll:function(){
+        var self = this;
+        if(self.scroll ==null){
+            self.scroll = new Select();
+            self.scroll.setOptions({
+               0:'Nenhum',
+               1:'Loop Vertical',
+               2:'Loop Horizontal',
+               3:'Loop Vertical e Horizontal'
+            }).addClass('form-control');
+        }
+        return self.scroll;
+    },
+    getWarning:function(){
+        var self =this;
+        if(self.warning ==null){
+            self.warning = new Alert(Alert.warning);
+            self.warning.hide();
+            return self.warning;
+        }
+        return self.warning;
+    },
+    getModal:function(){
+        var self = this;
+        if(self.modal == null){
+            self.modal = new Modal();
+            self.modal.setTitle('Novo Mapa');
+            var container = self.modal.getBody().addContainer('row','');
+            container.addContainer('form-group col-md-6',self.getInputName());
+            container.addContainer('form-group col-md-6',self.getInputDisplay());
+            container.addContainer('form-group col-md-6',self.getInputWidth());
+            container.addContainer('form-group col-md-6',self.getInputHeight());
+            container.addContainer('form-group col-md-12',self.getSelectScroll());
+            container.addContainer('form-group col-md-12',self.getWarning());
+            self.modal.getFooter().add(self.getCancel()).add(self.getConfirm());
+            self.modal.onclose(function(){
+                self.getWarning().hide();
+                self.getInputName().val('');
+                self.getInputWidth().val('');
+                self.getInputWidth().val('');
+                self.getInputHeight().val('');
+                self.getSelectScroll().val(0);
+            });
+        }
+        return self.modal;
     }
 };

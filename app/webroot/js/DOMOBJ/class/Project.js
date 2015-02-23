@@ -1,29 +1,30 @@
-
 function Project(id,name){
     var self = this;
     self.id = id;
     self.name = name;
-    self.checked = false;
     self.row = null;
     self.radio = null;
-    self.parent = null;
 }
 
-Project.prototype.setParent = function(parent){
-    var self =this;
-    self.parent = parent;
+Project.prototype.isChecked = function(){
+    var self = this;
+    return self.getRadio().isChecked();
 };
 
 Project.prototype.getRadio = function(){
     var self = this;
     if(self.radio == null){
-        self.radio = new Radio();
-        self.radio.type('radio').setAttribute('name','project').val(self.id);
+        self.radio = new Radio('project',self.id);
     }
     return self.radio;
 };
 
-Project.prototype.toDOM = function(){
+Project.prototype.toString = function(){
+    var self = this;
+    return 'Project:{id:'+self.id+', name:'+self.name+'};'
+};
+
+Project.prototype.getRow = function(){
     var self = this;
     if(self.row == null){
         self.row = new Row();
@@ -34,18 +35,7 @@ Project.prototype.toDOM = function(){
         td.val(self.name);
         self.row.add(td).add(td2).addClass('project-list-item');
         self.row.click(function(){
-            radio.prop('checked',true);
-            self.checked = true;
-            self.parent.projects.forEach(function(project){
-                if(project != self){
-                    project.checked = false;
-                }
-            });
-        });
-
-        self.radio.change(function(){
-            var tmp = this;
-            self.checked = $(tmp.getDOM()).is(':checked');
+            radio.check();
         });
     }
     return self.row;

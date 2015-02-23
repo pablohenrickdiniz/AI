@@ -9,35 +9,32 @@
 class ProjectController extends AppController
 {
     public $model = 'Project';
-    public $uses = array('Project','Config');
+    public $uses = array('Project', 'Config');
 
     public function addAjax()
     {
         $this->autoRender = false;
         if ($this->request->is('ajax') && $this->request->is('post')) {
             $response['success'] = false;
-            if (isset($this->request->data['name'])) {
-                $nome = trim($this->request->data['name']);
-                $conditions = array('Project.name' => $nome);
-
-                if (!empty($nome) && !$this->Project->hasAny($conditions)) {
-                    $project['Project'] = array('name' => $nome);
-                    try {
-                        if ($this->Project->save($project)) {
-                            $id =  $this->Project->getLastInsertID();
-                            $response['success'] = true;
-                            $response['id'] = $id;
-                            $this->Config->setLastProjectId($id);
-                        }
-                    } catch (Exception $ex) {
-                        echo $ex;
+            if (isset($this->request->data['Project']['name'])) {
+                $nome = trim($this->request->data['Project']['name']);
+                $project['Project'] = array('name' => $nome);
+                try {
+                    if ($this->Project->save($project)) {
+                        $id = $this->Project->getLastInsertID();
+                        $response['success'] = true;
+                        $response['id'] = $id;
+                        $this->Config->setLastProjectId($id);
                     }
+                } catch (Exception $ex) {
+
                 }
             }
-
+            $response['errors'] = $this->Project->validationErrors;
             echo json_encode($response);
         }
     }
+
 
     public function exists()
     {
@@ -55,9 +52,9 @@ class ProjectController extends AppController
         $this->autoRender = false;
         if ($this->request->is('ajax') && $this->request->is('post')) {
             $projects = $this->Project->find('all');
-            $aux['Project'] = [];
+            $aux['projects'] = [];
             foreach ($projects as $project) {
-                $aux['Project'][] = array(
+                $aux['projects'][] = array(
                     'id' => $project['Project']['id'],
                     'name' => $project['Project']['name']
                 );
@@ -114,18 +111,20 @@ class ProjectController extends AppController
     }
 
 
-    public function setSelectedList(){
+    public
+    function setSelectedList()
+    {
         $this->autoRender = false;
-        if($this->request->is('post') && $this->request->is('ajax')){
+        if ($this->request->is('post') && $this->request->is('ajax')) {
             $result['success'] = false;
-            if(isset($this->request->data['id']) && isset($this->request->data['listindex'])){
+            if (isset($this->request->data['id']) && isset($this->request->data['listindex'])) {
                 $id = $this->request->data['id'];
                 $list = $this->request->data['listindex'];
                 $updated = $this->Project->updateAll(
                     array('Project.selected_list' => $list),
                     array('Project.id' => $id)
                 );
-                if($updated){
+                if ($updated) {
                     $result['success'] = true;
                 }
             }

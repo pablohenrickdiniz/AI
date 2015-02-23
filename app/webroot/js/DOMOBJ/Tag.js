@@ -12,6 +12,13 @@ Tag.prototype.setClass = function(className){
 Tag.prototype.addClass = function(className){
     var self = this;
     $(self.getDOM()).addClass(className);
+    return self;
+};
+
+Tag.prototype.css = function(attr,val){
+    var self = this;
+    $(self.getDOM()).css(attr,val);
+    return self;
 };
 
 Tag.prototype.getDOM = function(){
@@ -33,6 +40,14 @@ Tag.prototype.prop = function(){
     return self;
 };
 
+Tag.prototype.addContainer = function(className,element){
+    var self = this;
+    var container = new Tag('div');
+    container.addClass(className);
+    container.add(element);
+    self.add(container);
+    return container;
+};
 
 Tag.prototype.add = function(element){
     var self = this;
@@ -42,6 +57,7 @@ Tag.prototype.add = function(element){
     else{
         $(self.getDOM()).append(element);
     }
+    return self;
 };
 
 Tag.prototype.find = function(query){
@@ -92,40 +108,72 @@ Tag.prototype.remove = function(){
 Tag.prototype.click = function(func){
     var self = this;
     $(self.getDOM()).click(function(){
-        func.apply(self,arguments);
+        if(typeof func == 'function'){
+            func.apply(self,arguments);
+        }
     });
+    return self;
+};
+
+Tag.prototype.focus = function(func){
+    var self = this;
+    $(self.getDOM()).focus(function(){
+        if(typeof func == 'function'){
+            func.apply(self,arguments);
+        }
+    });
+    return self;
 };
 
 Tag.prototype.hover = function(func){
     var self = this;
     $(self.getDOM()).hover(function(){
-        func.apply(self,arguments);
+        if(typeof func == 'function'){
+            func.apply(self,arguments);
+        }
     });
+    return self;
 };
 
 Tag.prototype.dbclick = function(func){
     var self = this;
     $(self.getDOM()).dbclick(function(){
-        func.apply(self,arguments);
+        if(typeof func == 'function'){
+            func.apply(self,arguments);
+        }
     });
+    return self;
 };
 
 Tag.prototype.change = function(func){
     var self = this;
     $(self.getDOM()).change(function(){
-        func.apply(self,arguments);
+        if(typeof func == 'function'){
+            func.apply(self,arguments);
+        }
     });
+    return self;
 };
 
 Tag.prototype.keyup = function(func){
     var self = this;
     $(self.getDOM()).keyup(function(){
-        func.apply(self,arguments);
+        if(typeof func == 'function'){
+            func.apply(self,arguments);
+        }
     });
+    return self;
 };
 
 Tag.prototype.hide = function(){
+    var self = this;
     $(self.getDOM()).hide();
+    return self;
 };
 
+Tag.prototype.show = function(){
+    var self = this;
+    $(self.getDOM()).show();
+    return self;
+};
 

@@ -3,6 +3,7 @@ Button.prototype = new Tag();
 function Button(){
     var self = this;
     Tag.call(self,'button');
+    $(self.getDOM()).attr('type','button');
 }
 
 Button.prototype.val = function(){

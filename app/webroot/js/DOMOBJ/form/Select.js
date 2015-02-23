@@ -17,6 +17,34 @@ Select.prototype.add = function(option){
     return self;
 };
 
+Select.prototype.val = function(){
+    var self = this;
+    if(arguments.length == 0){
+        return $(self.getDOM()).val();
+    }
+    else{
+        $(self.getDOM()).val(arguments[0]);
+    }
+    return self;
+};
+
+Select.prototype.clear = function(){
+    var self = this;
+    Tag.prototype.clear.apply(self);
+    self.options = [];
+};
+
+Select.prototype.setOptions = function(options){
+    var self =this;
+    self.clear();
+    for(var index in options){
+        var option = new Option();
+        option.val(index).text(options[index]);
+        self.add(option);
+    }
+    return self;
+};
+
 Select.prototype.remove = function(){
     var self = this;
     if(arguments.length == 0){

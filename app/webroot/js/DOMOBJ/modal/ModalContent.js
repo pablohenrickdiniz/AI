@@ -7,6 +7,7 @@ function ModalContent(){
     self.header = null;
     self.body = null;
     self.footer = null;
+    self.add(self.getHeader()).add(self.getBody()).add(self.getFooter());
 }
 
 ModalContent.prototype.getHeader = function(){
@@ -28,7 +29,7 @@ ModalContent.prototype.getBody = function(){
 ModalContent.prototype.getFooter = function(){
     var self = this;
     if(self.footer == null){
-        self.fgoter = new ModalFooter();
+        self.footer = new ModalFooter();
     }
     return self.footer;
 };

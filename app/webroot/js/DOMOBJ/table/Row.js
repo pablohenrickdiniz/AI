@@ -6,6 +6,11 @@ function Row(){
     self.cols = [];
 }
 
+Row.prototype.getCols = function(){
+    var self = this;
+    return self.cols;
+};
+
 Row.prototype.add = function(col){
     var self = this;
     if(col instanceof Col){

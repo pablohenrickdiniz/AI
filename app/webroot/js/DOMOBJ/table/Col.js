@@ -11,7 +11,13 @@ function Col(type){
             type = 'td';
     }
     Tag.call(self,type);
+    self.type = type;
 }
+
+Col.prototype.getType = function(){
+    var self = this;
+    return self.type;
+};
 
 Col.prototype.val = function(){
     var self = this;
