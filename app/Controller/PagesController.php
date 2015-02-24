@@ -4,12 +4,12 @@
 class PagesController extends AppController {
 	public $uses = array('Config','Map','Resource','Project');
     public $layout = 'painel';
-
-    public function beforeFilter(){
-        parent::beforeFilter();
-        $this->Auth->allow('index');
-    }
-
+    public $user = array('index');
+    public $authorization = array(
+        'user' => array(
+            'index'
+        )
+    );
 
 
     public function admin(){

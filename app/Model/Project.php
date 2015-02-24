@@ -23,6 +23,10 @@ class Project extends AppModel{
         )
     );
 
+    public function beforeSave($options=array()){
+        $this->data['Project']['user_id'] = AuthComponent::user('id');
+    }
+
     public function getTree(){
         $Map = Map::getInstance();
         $project = $this->read(array('id','name','expand'));

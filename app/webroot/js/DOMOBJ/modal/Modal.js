@@ -11,6 +11,7 @@ function Modal(){
         self.close();
     });
     self.closeActions = [];
+    self.openActions = [];
 }
 
 Modal.prototype.getDialog = function(){
@@ -29,6 +30,10 @@ Modal.prototype.setTitle = function(title){
 Modal.prototype.open = function(){
     var self = this;
     $(self.getDOM()).modal();
+    for(var i = 0; i < self.openActions.length;i++){
+        self.openActions[i]();
+    }
+    return self;
 };
 
 Modal.prototype.close = function(){
@@ -37,12 +42,20 @@ Modal.prototype.close = function(){
     for(var i = 0; i < self.closeActions.length;i++){
         self.closeActions[i]();
     }
+    return self;
 };
 
 Modal.prototype.onclose = function(func){
     if(typeof func == 'function'){
         var self = this;
         self.closeActions.push(func);
+    }
+};
+
+Modal.prototype.onopen = function(func){
+    if(typeof func == 'function'){
+        var self = this;
+        self.openActions.push(func);
     }
 };
 

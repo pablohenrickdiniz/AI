@@ -63,6 +63,9 @@ class Map extends AppModel
             }
             $count = $this->find('count', $options);
             $continue = $count == 0;
+            if($continue){
+                $this->data['Map']['user_id'] = AuthComponent::user('id');
+            }
         }
 
         return $continue;

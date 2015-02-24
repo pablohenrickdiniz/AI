@@ -27,6 +27,7 @@
 	Router::connect('/', array('controller' => 'pages', 'action' => 'index'));
     Router::connect('/editor',array('controller' => 'pages','action' => 'index'));
     Router::connect('/conteudo',array('controller' => 'resource','action' => 'index'));
+    Router::connect('/logout',array('controller' =>'users','action' =>'logout'));
 /**
  * ...and connect the rest of 'Pages' controller's URLs.
  */

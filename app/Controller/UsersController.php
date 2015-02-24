@@ -6,11 +6,19 @@ App::uses('CakeEmail', 'Network/Email');
 class UsersController extends AppController {
     public $name = 'User';
     public $layout = "admin";
-    
-    public function beforeFilter() {
-        $this->Auth->allow('logout','recover', 'recoverpassword','checkLogin','checkEmail');
-    }
-
+    public $authorization = array(
+        'public' => array(
+            'recover',
+            'recoverpassword',
+            'checkLogin',
+            'checkEmail',
+            'login',
+            'add'
+        ),
+        'user' => array(
+            'logout'
+        )
+    );
 
     public function view($id) {
         if($this->request->is('get')){
@@ -21,7 +29,12 @@ class UsersController extends AppController {
     }
 
     public function login() {
-
+        if ($this->request->is('post')) {
+            if ($this->Auth->login()) {
+                $this->redirect($this->Auth->redirect());
+                exit();
+            }
+        }
     }
     
     public function disable($id){
@@ -39,7 +52,8 @@ class UsersController extends AppController {
     }
 
     public function logout() {
-
+        $this->redirect($this->Auth->logout());
+        exit();
     }
 
     public function delete($id = null){
@@ -72,6 +86,7 @@ class UsersController extends AppController {
     public function add(){
         if($this->request->is('post')) {
             $this->request->data['User']['active'] = 1;
+            $this->request->data['User']['role'] = 'user';
             if ($this->User->saveAll($this->request->data)) {
                 $this->Session->setFlash(__('Usuario cadastrado com sucesso!'), 'sucesso');
                 $this->redirect(array('controller' => 'users','action' => 'all'));

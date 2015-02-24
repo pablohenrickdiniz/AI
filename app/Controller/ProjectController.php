@@ -10,6 +10,14 @@ class ProjectController extends AppController
 {
     public $model = 'Project';
     public $uses = array('Project', 'Config');
+    public $authorization = array(
+        'user' => array(
+            'addAjax',
+            'getAll',
+            'expand',
+            'getMapTree'
+        )
+    );
 
     public function addAjax()
     {
@@ -35,28 +43,18 @@ class ProjectController extends AppController
         }
     }
 
-
-    public function exists()
-    {
-        $this->autoRender = false;
-        if ($this->request->is('ajax') && $this->request->is('post')) {
-            $nome = trim($this->request->data['name']);
-            $conditions = array('Project.name' => $nome);
-            $response['exists'] = $this->Project->hasAny($conditions);
-            echo json_encode($response);
-        }
-    }
-
     public function getAll()
     {
         $this->autoRender = false;
         if ($this->request->is('ajax') && $this->request->is('post')) {
             $projects = $this->Project->find('all');
             $aux['projects'] = [];
+            $user_id = AuthComponent::user('id');
             foreach ($projects as $project) {
                 $aux['projects'][] = array(
                     'id' => $project['Project']['id'],
-                    'name' => $project['Project']['name']
+                    'name' => $project['Project']['name'],
+                    'user_id' => $user_id
                 );
             }
             echo json_encode($aux);
@@ -72,12 +70,14 @@ class ProjectController extends AppController
                 $expand = $this->request->data['expand'];
                 $id = $this->request->data['id'];
                 if ($this->Project->exists($id)) {
+                    $user_id = AuthComponent::user('id');
                     $updated = $this->Project->updateAll(
                         array(
                             'Project.expand' => $expand
                         ),
                         array(
-                            'Project.id' => $id
+                            'Project.id' => $id,
+                            'Project.user_id' => $user_id
                         )
                     );
 
@@ -98,21 +98,23 @@ class ProjectController extends AppController
             $result = [];
             if ($this->Project->exists($id)) {
                 $this->Project->id = $id;
-                try {
-                    $tree = $this->Project->getTree();
-                    $result = $tree;
-                    $this->Config->setLastProjectId($id);
-                } catch (Exception $ex) {
+                $user_id = AuthComponent::user('id');
+                $owner_id = $this->Project->field('user_id');
+                if($user_id == $owner_id){
+                    try {
+                        $tree = $this->Project->getTree();
+                        $result = $tree;
+                        $this->Config->setLastProjectId($id);
+                    } catch (Exception $ex) {
 
+                    }
                 }
             }
             echo json_encode($result);
         }
     }
 
-
-    public
-    function setSelectedList()
+    public function setSelectedList()
     {
         $this->autoRender = false;
         if ($this->request->is('post') && $this->request->is('ajax')) {
@@ -120,9 +122,10 @@ class ProjectController extends AppController
             if (isset($this->request->data['id']) && isset($this->request->data['listindex'])) {
                 $id = $this->request->data['id'];
                 $list = $this->request->data['listindex'];
+                $user_id = AuthComponent::user('id');
                 $updated = $this->Project->updateAll(
                     array('Project.selected_list' => $list),
-                    array('Project.id' => $id)
+                    array('Project.id' => $id,'Project.user_id' => $user_id)
                 );
                 if ($updated) {
                     $result['success'] = true;

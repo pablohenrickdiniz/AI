@@ -58,7 +58,7 @@
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="#"><span class="fa fa-gear"></span>&nbsp;&nbsp;Configurações</a></li>
                         <li class="divider"></li>
-                        <li><a href="#"><span class="fa fa-sign-out"></span>&nbsp;&nbsp;Sair</a></li>
+                        <li><a href="<?=$this->Html->url(array('controller'=>'users','action' =>'logout'))?>"><span class="fa fa-sign-out"></span>&nbsp;&nbsp;Sair</a></li>
                     </ul>
                 </li>
             </ul>

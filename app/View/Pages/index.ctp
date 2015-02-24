@@ -23,61 +23,59 @@
 <?=$this->Html->script('InterfaceElements')?>
 <script type="text/javascript">
 $(document).ready(function () {
-    ProjectWindow.load();
+    ProjectManager.load();
 
     $("#new-project").click(function () {
-        ProjectWindow.create.getModal().open();
+        ProjectManager.create.getModal().open();
     });
 
     $('#open-project').click(function () {
-        ProjectWindow.loadProjects(function () {
-            ProjectWindow.open.getModal().open();
+        ProjectManager.loadProjects(function () {
+            ProjectManager.open.getModal().open();
         });
     });
 
-    $('#resources').click(function () {
-        resourcesManager.openModal();
+    $('#resources').click(function(){
+        ResourcesManager.main.getModal().open();
     });
 
     $(document).on('mousedown', '.dynatree-node', function (event) {
         if (event.which == 3) {
             var id = $(this).parent().prop('id');
             id = id.split(':')[1];
-            FolderWindow.id = id;
+            FolderManager.id = id;
             if ($(this).hasClass('map')) {
-                FolderWindow.type = 'map';
+                FolderManager.type = 'map';
             }
             else if ($(this).hasClass('project')) {
-                FolderWindow.type = 'project';
+                FolderManager.type = 'project';
             }
         }
     });
-
-    var nomeMapa = /^[A-Za-z]+[A-Za-z0-9]+$/;
 
     $.contextMenu({
         selector: '.map',
         callback: function (key, options) {
             if (key == 'new') {
-                MapWindow.create.getModal().open();
+                MapManager.create.getModal().open();
             }
             else if (key == 'edit') {
-                MapWindow.edit.load(function(){
+                MapManager.edit.load(function(){
                     var self = this;
                     self.getModal().open();
                 });
             }
             else if (key == 'delete') {
-                MapWindow.delete();
+                MapManager.delete();
             }
             else if (key == 'copy') {
-                MapWindow.copy();
+                MapManager.copy();
             }
             else if(key == 'cut'){
-                MapWindow.cut();
+                MapManager.cut();
             }
             else if (key == 'paste') {
-                MapWindow.paste();
+                MapManager.paste();
             }
         },
         items: {
@@ -96,10 +94,10 @@ $(document).ready(function () {
         selector: '.project',
         callback: function (key, options) {
             if (key == 'new') {
-               MapWindow.create.getModal().open();
+               MapManager.create.getModal().open();
             }
             else if(key == 'paste'){
-               MapWindow.paste();
+               MapManager.paste();
             }
         },
         items: {
@@ -109,138 +107,8 @@ $(document).ready(function () {
         }
     });
 
-    $('.categoria-item').click(function () {
-        var id = $(this).attr('categoria-id');
-        resourcesManager.selectedList = id;
-        resourcesManager.updateSelectedList();
-        $('.categoria-item').removeClass('active');
-        $(this).addClass('active');
-    });
-
-
-    $('#import-resource').click(function () {
-        resourcesManager.openImport();
-    });
-
-    var resourcesManager = {
-        updating: false,
-        selectedList:<?=$selected_list?>,
-        loadResources: function () {
-
-        },
-        openImport: function () {
-            $('#resource-create-modal').modal();
-        },
-        openModal: function () {
-            $('#resources-modal').modal();
-        },
-        closeModal: function () {
-            $('#resources-modal').modal('hide');
-        },
-        updateSelectedList: function () {
-            var self = this;
-            if (!self.updating) {
-                self.updating = true;
-                $.ajax({
-                    url: '<?=$this->Html->url(array('controller'=>'project','action'=>'setSelectedList'))?>',
-                    type: 'post',
-                    data: {
-                        'data[id]': projectManager.project_id,
-                        'data[listindex]': self.selectedList
-                    },
-                    success: function (data) {
-                        data = $.parseJSON(data)
-                        if (data.success) {
-
-                        }
-                    },
-                    complete: function () {
-                        self.updating = false;
-                    }
-                });
-            }
-        }
-    };
 });
 </script>
-<div class="modal" id="resources-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">Recursos</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <table class="table table-bordered" id="table-resources">
-                            <?php foreach ($categorias as $key => $categoria): ?>
-                                <tr>
-                                    <th class="categoria-item <?= $key == $selected_list ? 'active' : '' ?>"
-                                        categoria-id="<?= $key ?>"><?= $categoria ?></th>
-                                </tr>
-                            <?php endforeach; ?>
-                        </table>
-                    </div>
-                    <div class="col-md-5" id="resources-list">
-                        <table class="table table-bordered">
-
-                        </table>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <input id="import-resource" type="button" value="Importar"
-                                   class="form-control btn btn-default"/>
-                        </div>
-                        <div class="form-group">
-                            <input id="delete-resurce" type="button" value="Apagar"
-                                   class="form-control btn btn-default"/>
-                        </div>
-                        <div class="form-group">
-                            <input id="view-resource" type="button" value="Pré-visualização"
-                                   class="form-control btn btn-default"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal" id="resource-create-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog">
-        <form action="#" id="resource-create-form" name="resource-create-form">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Novo Recurso</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="form-group col-md-12">
-                            <input type="text" name="resource-name" id="resource-create-name" class="form-control"
-                                   required="true"/>
-                        </div>
-                        <div class="form-group col-md-12">
-                            <input type="file" name="resource-file" id="resource-create-file" class="form-control"
-                                   required="true"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button id="resource-create-action" type="button" class="btn btn-default">Próximo
-                    </button>
-                    <button id="resource-cancel-action" type="button" class="btn btn-primary" data-dismiss="modal">
-                        Cancelar
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
 <nav class="navbar navbar-default" id="navbar-editor">
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->

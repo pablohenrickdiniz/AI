@@ -36,7 +36,7 @@ class AppController extends Controller {
         'Session',
         'Auth' => array(
             'loginRedirect' => array('controller' => 'pages', 'action' => 'index'),
-            'logoutRedirect' => array('controller' => 'pages', 'action' => 'index'),
+            'logoutRedirect' => array('controller' => 'users', 'action' => 'login'),
             'loginError' => "<div class='alert alert-danger'>Usuário e/ou senha incorreto(s)</div>",
             'authError' => "<div class='alert alert-warning'>Você precisa estar <b>autenticado</b> para acessar esta página</div>",
             'authorize' => array('Controller') // Adicionamos essa linha
@@ -71,13 +71,24 @@ class AppController extends Controller {
         )
     );
     public $uses = array('Disponible');
+    public $authorization = array();
 
     public function beforeFilter(){
-        $this->Auth->allow($this->action);
+        if(isset($this->authorization['public'])){
+            $this->Auth->allow($this->authorization['public']);
+        }
     }
 
+
     public function isAuthorized($user){
-        return true;
+        if(isset($user['role'])){
+            if(isset($this->authorization[$user['role']])){
+                $authorization = $this->authorization[$user['role']];
+                return in_array($this->action,$authorization);
+            }
+
+        }
+        return false;
     }
 
     public function add(){

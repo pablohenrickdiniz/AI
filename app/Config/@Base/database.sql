@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: 23-Fev-2015 às 15:17
+-- Generation Time: 24-Fev-2015 às 14:41
 -- Versão do servidor: 5.6.16
 -- PHP Version: 5.5.9
 
@@ -44,10 +44,12 @@ CREATE TABLE IF NOT EXISTS `map` (
   `scroll` int(11) DEFAULT '0',
   `bgm` int(11) DEFAULT NULL,
   `expand` tinyint(1) NOT NULL DEFAULT '0',
+  `user_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `parent_id` (`parent_id`,`name`),
-  UNIQUE KEY `project_id` (`project_id`,`name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=168 ;
+  UNIQUE KEY `project_id` (`project_id`,`name`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=15 ;
 
 -- --------------------------------------------------------
 
@@ -60,8 +62,11 @@ CREATE TABLE IF NOT EXISTS `project` (
   `name` varchar(512) COLLATE utf8_unicode_ci NOT NULL,
   `expand` tinyint(1) NOT NULL DEFAULT '0',
   `selected_list` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=142 ;
+  `user_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`,`user_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=154 ;
 
 -- --------------------------------------------------------
 
@@ -106,9 +111,11 @@ CREATE TABLE IF NOT EXISTS `users` (
   `username` varchar(128) COLLATE utf8_unicode_ci DEFAULT NULL,
   `password` varchar(40) COLLATE utf8_unicode_ci DEFAULT NULL,
   `role` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=6 ;
 
 -- --------------------------------------------------------
 
@@ -154,8 +161,15 @@ ADD CONSTRAINT `config_ibfk_1` FOREIGN KEY (`last_project_id`) REFERENCES `proje
 -- Limitadores para a tabela `map`
 --
 ALTER TABLE `map`
+ADD CONSTRAINT `map_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
 ADD CONSTRAINT `map_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`),
 ADD CONSTRAINT `map_ibfk_2` FOREIGN KEY (`parent_id`) REFERENCES `map` (`id`);
+
+--
+-- Limitadores para a tabela `project`
+--
+ALTER TABLE `project`
+ADD CONSTRAINT `project_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
 -- Limitadores para a tabela `project_resource`
