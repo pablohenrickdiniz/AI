@@ -54,4 +54,12 @@ class User extends AppModel{
     public function beforeSave($options=array()){
         $this->data['User']['password'] = AuthComponent::password($this->data['User']['password']);
     }
+
+    public static function getPath(){
+        $user_folder_path = WWW_ROOT.'/userdata/'.AuthComponent::user('username');
+        if(!file_exists($user_folder_path)){
+            mkdir($user_folder_path,777,true);
+        }
+        return $user_folder_path;
+    }
 } 

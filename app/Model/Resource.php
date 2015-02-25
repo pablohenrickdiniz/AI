@@ -8,7 +8,7 @@
 
 class Resource extends AppModel{
     public $useTable = 'resource';
-    public $category = array(
+    public static $category = array(
         0 => 'Animation',
         1 => 'Battleback',
         2 => 'Battler',
@@ -24,4 +24,8 @@ class Resource extends AppModel{
         12 => 'ME',
         13 => 'SE'
     );
+
+    public static function getCategories(){
+        return self::$category;
+    }
 } 
