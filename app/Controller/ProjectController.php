@@ -15,7 +15,8 @@ class ProjectController extends AppController
             'addAjax',
             'getAll',
             'expand',
-            'getMapTree'
+            'getMapTree',
+            'getChildren'
         )
     );
 
@@ -90,6 +91,29 @@ class ProjectController extends AppController
         }
     }
 
+
+    public function getChildren(){
+        $this->autoRender = false;
+        if(isset($this->request->data['id'])){
+            $id = $this->request->data['id'];
+            $result = [];
+            if ($this->Project->exists($id)) {
+                $this->Project->id = $id;
+                $user_id = AuthComponent::user('id');
+                $owner_id = $this->Project->field('user_id');
+                if($user_id == $owner_id){
+                    try {
+                        $children = $this->Project->getChildrenNodes();
+                        $result = $children;
+                    } catch (Exception $ex) {
+
+                    }
+                }
+            }
+            echo json_encode($result);
+        }
+    }
+
     public function getMapTree()
     {
         $this->autoRender = false;
@@ -102,7 +126,7 @@ class ProjectController extends AppController
                 $owner_id = $this->Project->field('user_id');
                 if($user_id == $owner_id){
                     try {
-                        $tree = $this->Project->getTree();
+                        $tree = $this->Project->getNode();
                         $result = $tree;
                         $this->Config->setLastProjectId($id);
                     } catch (Exception $ex) {

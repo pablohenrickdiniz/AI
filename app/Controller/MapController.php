@@ -20,7 +20,8 @@ class MapController extends AppController
             'load',
             'edit',
             'expand',
-            'delete'
+            'delete',
+            'getChildren'
         )
     );
 
@@ -31,7 +32,7 @@ class MapController extends AppController
 
             if ($this->Map->save($this->request->data)) {
                 $this->Map->id = $this->Map->getLastInsertID();
-                $response['node'] = $this->Map->getTree();
+                $response['node'] = $this->Map->getNode();
                 $response['success'] = true;
             }
 
@@ -127,7 +128,7 @@ class MapController extends AppController
                                         if ($continue) {
                                             $response['success'] = true;
                                             $this->Map->id = $map['Map']['id'];
-                                            $node = $this->Map->getTree();
+                                            $node = $this->Map->getNode();
                                             $response['node'] = $node;
                                         }
                                     }
@@ -267,6 +268,28 @@ class MapController extends AppController
                         } catch (Exception $ex) {
                             $result['errors']['exception'] = $ex->getMessage();
                         }
+                    }
+                }
+            }
+            echo json_encode($result);
+        }
+    }
+
+    public function getChildren(){
+        $this->autoRender = false;
+        if(isset($this->request->data['id'])){
+            $id = $this->request->data['id'];
+            $result = [];
+            if ($this->Map->exists($id)) {
+                $this->Map->id = $id;
+                $user_id = AuthComponent::user('id');
+                $owner_id = $this->Map->field('user_id');
+                if($user_id == $owner_id){
+                    try {
+                        $children = $this->Map->getChildrenNodes();
+                        $result = $children;
+                    } catch (Exception $ex) {
+
                     }
                 }
             }

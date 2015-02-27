@@ -7,7 +7,8 @@
             expand:'<?=$this->Html->url(array('controller'=>'project','action'=>'expand'))?>',
             all:'<?=$this->Html->url(array('controller'=>'project','action'=>'getAll'))?>',
             mapTree:'<?=$this->Html->url(array('controller'=>'project','action'=>'getMapTree'))?>',
-            exists:'<?=$this->Html->url(array('controller'=>'project','action'=>'exists'))?>'
+            exists:'<?=$this->Html->url(array('controller'=>'project','action'=>'exists'))?>',
+            children:'<?=$this->Html->url(array('controller'=>'project','action'=>'getChildren'))?>'
         },
         map:{
             add:'<?=$this->Html->url(array('controller'=>'map','action'=>'add'))?>',
@@ -15,7 +16,8 @@
             delete:'<?=$this->Html->url(array('controller'=>'map','action'=>'delete'))?>',
             load:'<?=$this->Html->url(array('controller'=>'map','action'=>'load'))?>',
             expand:'<?=$this->Html->url(array('controller'=>'map','action'=>'expand'))?>',
-            paste:'<?=$this->Html->url(array('controller'=>'map','action'=>'paste'))?>'
+            paste:'<?=$this->Html->url(array('controller'=>'map','action'=>'paste'))?>',
+            children:'<?=$this->Html->url(array('controller'=>'map','action'=>'getChildren'))?>'
         }
     };
 

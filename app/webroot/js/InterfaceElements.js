@@ -92,6 +92,24 @@ ProjectManager.load = function (callback) {
             persist: false,
             generateIds: true,
             idPrefix: 'data-id:',
+            onLazyRead:function(node){
+                var span = node.span;
+                var action = '';
+
+                if($(span).hasClass('project')){
+                    action = Global.project.children;
+                }
+                else if($(span).hasClass('map')){
+                    action = Global.map.children;
+                }
+                node.appendAjax({
+                    url:action,
+                    type:'post',
+                    data:{
+                        'data[id]':node.data.key
+                    }
+                });
+            }/*,
             onExpand: function (flag, dtnode) {
                 var id = $(dtnode.li).prop('id');
                 id = id.split(':')[1];
@@ -104,7 +122,7 @@ ProjectManager.load = function (callback) {
                 else {
                     self.expand(flag);
                 }
-            }
+            }*/
         });
     }
 };
@@ -796,6 +814,7 @@ MapManager.delete = function(){
 
 ResourcesManager.main = {
     modal:null,
+    tree:null,
     getModal:function(){
         var self = this;
         if(self.modal == null){
@@ -803,5 +822,12 @@ ResourcesManager.main = {
             self.modal.setTitle('Recursos');
         }
         return self.modal;
+    },
+    getTree:function(){
+        var self = this;
+        if(self.tree == null){
+            self.tree = new Tag('div');
+        }
+        return self.tree;
     }
 };

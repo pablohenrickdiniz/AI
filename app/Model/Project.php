@@ -69,33 +69,48 @@ class Project extends AppModel{
         return $root;
     }
 
-    public function getTree(){
-        $Map = Map::getInstance();
-        $project = $this->read(array('id','name','expand'));
-        $root['title'] = $project['Project']['name'];
-        $root['key'] = $project['Project']['id'];
-        $root['expand'] = $project['Project']['expand'];
-        $root['isFolder'] = true;
-        $root['addClass'] = 'project';
 
-        $maps = $Map->find('all',array(
-            'fields' => array(
-                'Map.id'
-            ),
+    public function getNode(){
+        $project = $this->read(array('id', 'name', 'expand', 'isLazy'));
+        $node = array(
+            'key' => $project['Project']['id'],
+            'title' => $project['Project']['name'],
+            'expand' => $project['Project']['expand'],
+            'addClass' => 'project',
+            'isLazy' => $project['Project']['isLazy']
+        );
+        return $node;
+    }
+
+    public function getChildrenNodes()
+    {
+        $Map = Map::getInstance();
+        $maps = $Map->find('all', array(
             'conditions' => array(
-                'Map.project_id' => $project['Project']['id']
+                'Map.project_id' => $this->id
             ),
             'order' => array(
                 'Map.name' => 'ASC'
             )
         ));
+        $children = [];
 
-        for($i=0;$i<count($maps);$i++){
-            $Map->id = $maps[$i]['Map']['id'];
-            $root['children'][$i] = $Map->getTree();
+        if(empty($maps)){
+            $this->saveField('isLazy',false);
         }
-        return $root;
+
+        foreach ($maps as $map) {
+            $children[] = array(
+                'title' => $map['Map']['name'],
+                'key' => $map['Map']['id'],
+                'expand' => $map['Map']['expand'],
+                'addClass' => 'map',
+                'isLazy' => $map['Map']['isLazy']
+            );
+        }
+        return $children;
     }
+
 
     public function beforeDelete($cascade = false){
         $Map = Map::getInstance();
