@@ -19,6 +19,7 @@ class UsersController extends AppController {
             'logout'
         )
     );
+    public $uses = array('UserActivity','UserAccess','User');
 
     public function view($id) {
         if($this->request->is('get')){
@@ -28,10 +29,60 @@ class UsersController extends AppController {
         }
     }
 
+
+    private function saveLog($status){
+        $user_id = AuthComponent::user('id');
+        $user_ip = $this->request->clientIp();
+
+        $saved = false;
+
+        try{
+            if($status){
+                $activity = $this->UserActivity->findByUserId($user_id);
+                $activity['UserActivity']['user_id'] = $user_id;
+                $activity['UserActivity']['last_ip'] = $user_ip;
+                $saved = $this->UserActivity->save($activity);
+            }
+            else{
+                $saved = true;
+            }
+
+            if($saved){
+                $access['UserAccess'] = array(
+                    'user_id' => $user_id,
+                    'ip' => $user_ip,
+                    'status' => $status
+                );
+                $this->UserAccess->create();
+                $saved = $this->UserAccess->save($access);
+            }
+        }
+        catch(Exception $ex){
+            echo $ex;
+        }
+
+        if($saved){
+            $this->UserAccess->commit();
+            $this->UserActivity->commit();
+        }
+        else{
+            $this->UserAccess->rollback();
+            $this->UserActivity->rollback();
+        }
+
+        return $saved;
+    }
+
     public function login() {
         if ($this->request->is('post')) {
             if ($this->Auth->login()) {
-                $this->redirect($this->Auth->redirect());
+                $saved = $this->saveLog(true);
+                if($saved){
+                    $this->redirect($this->Auth->redirect());
+                }
+                else{
+                    $this->redirect($this->Auth->logout());
+                }
                 exit();
             }
         }
@@ -52,6 +103,7 @@ class UsersController extends AppController {
     }
 
     public function logout() {
+        $this->saveLog(false);
         $this->redirect($this->Auth->logout());
         exit();
     }

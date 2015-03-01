@@ -8,6 +8,7 @@
 App::import('Model','Map');
 App::import('Model','User');
 App::import('Model','Resource');
+App::import('Model','Config');
 
 
 class Project extends AppModel{
@@ -38,37 +39,6 @@ class Project extends AppModel{
         }
         return $project_path;
     }
-
-    public function getResourcesFolder(){
-        $project_path = self::getPath();
-        $resources_folder = $project_path.'/resources';
-        if(!file_exists($resources_folder)){
-            mkdir($resources_folder,777,true);
-        }
-        return $resources_folder;
-    }
-
-    public function getResourcesTree(){
-        $root['title'] = 'resources';
-        $root['isFolder'] = true;
-        $root['addClass'] = 'resources';
-        $root['children'] = [];
-        $categories = Resource::getCategories();
-        foreach($categories as $key => $category){
-            $root['children'][] = array(
-                'title' => $category,
-                'addClass' => 'resource',
-                'key' => $key
-            );
-            $resources_folder = self::getResourcesFolder();
-            $category_folder = $resources_folder.'/'.$category;
-            if(!file_exists($category_folder)){
-                mkdir($category_folder,777,true);
-            }
-        }
-        return $root;
-    }
-
 
     public function getNode(){
         $project = $this->read(array('id', 'name', 'expand', 'isLazy'));
@@ -119,4 +89,5 @@ class Project extends AppModel{
         ));
         return $deleted;
     }
+
 } 

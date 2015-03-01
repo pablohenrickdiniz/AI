@@ -30,11 +30,14 @@ Project.prototype.getRow = function(){
         self.row = new Row();
         var td = new Col();
         var td2 = new Col();
+        td2.hide();
         var radio = self.getRadio();
         td2.add(radio);
         td.val(self.name);
         self.row.add(td).add(td2).addClass('project-list-item');
         self.row.click(function(){
+            $('.project-list-item').removeClass('active');
+            this.addClass('active');
             radio.check();
         });
     }

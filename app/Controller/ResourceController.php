@@ -7,20 +7,12 @@
  */
 
 class ResourceController extends AppController{
-    public $layout = 'painel';
-    public $result = 'resource';
-    public $results = 'resources';
-
-
-
-    public function index(){
-        $this->paginate = array(
-            'limit' => 20,
-            'order' => array(
-                'Resource.name'
-            )
-        );
-        $resources = $this->paginate('Resource');
-        $this->set('resources',$resources);
+    public function getResourcesTree()
+    {
+        $result['success'] = false;
+        if (isset($this->request->data['id'])) {
+           $result = $this->Resource->getTree();
+        }
+        echo json_encode($result);
     }
 } 

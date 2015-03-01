@@ -41,4 +41,9 @@ class AppModel extends Model {
         return self::$instances[$class];
     }
 
+    public function isAuthorized(){
+        $user_id = AuthComponent::user('id');
+        $owner = $this->field('user_id');
+        return $user_id === $owner;
+    }
 }

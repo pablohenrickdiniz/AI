@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: 24-Fev-2015 às 14:41
+-- Generation Time: 01-Mar-2015 às 01:13
 -- Versão do servidor: 5.6.16
 -- PHP Version: 5.5.9
 
@@ -17,15 +17,29 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `config`
+-- Estrutura da tabela `banned_user`
 --
 
-CREATE TABLE IF NOT EXISTS `config` (
+CREATE TABLE IF NOT EXISTS `banned_user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `last_project_id` int(11) DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
+  `ban_start` datetime NOT NULL,
+  `ban_end` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `config_ibfk_1` (`last_project_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `general_config`
+--
+
+CREATE TABLE IF NOT EXISTS `general_config` (
+  `id` int(11) NOT NULL,
+  `log_expiration_time` int(11) NOT NULL DEFAULT '180',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -45,11 +59,12 @@ CREATE TABLE IF NOT EXISTS `map` (
   `bgm` int(11) DEFAULT NULL,
   `expand` tinyint(1) NOT NULL DEFAULT '0',
   `user_id` int(11) NOT NULL,
+  `isLazy` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `parent_id` (`parent_id`,`name`),
   UNIQUE KEY `project_id` (`project_id`,`name`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=15 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=20 ;
 
 -- --------------------------------------------------------
 
@@ -61,8 +76,8 @@ CREATE TABLE IF NOT EXISTS `project` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(512) COLLATE utf8_unicode_ci NOT NULL,
   `expand` tinyint(1) NOT NULL DEFAULT '0',
-  `selected_list` int(11) NOT NULL DEFAULT '0',
   `user_id` int(11) NOT NULL,
+  `isLazy` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`,`user_id`),
   KEY `user_id` (`user_id`)
@@ -92,11 +107,12 @@ CREATE TABLE IF NOT EXISTS `project_resource` (
 CREATE TABLE IF NOT EXISTS `resource` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `category` int(11) NOT NULL,
-  `visibilit` tinyint(1) DEFAULT '0',
   `type` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   `path` varchar(512) COLLATE utf8_unicode_ci NOT NULL,
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`)
+  `user_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -112,6 +128,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password` varchar(40) COLLATE utf8_unicode_ci DEFAULT NULL,
   `role` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
   `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `reputation` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `username` (`username`)
@@ -120,17 +137,18 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `user_access`
+-- Estrutura da tabela `user_access_log`
 --
 
-CREATE TABLE IF NOT EXISTS `user_access` (
+CREATE TABLE IF NOT EXISTS `user_access_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
-  `ip` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `hits` int(11) NOT NULL DEFAULT '0',
+  `date` datetime NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT '0',
+  `ip` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `user_id` (`user_id`,`ip`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+  KEY `user_id_2` (`user_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=19 ;
 
 -- --------------------------------------------------------
 
@@ -144,26 +162,41 @@ CREATE TABLE IF NOT EXISTS `user_activity` (
   `last_login` datetime DEFAULT NULL,
   `last_ip` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+  UNIQUE KEY `user_id` (`user_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=6 ;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `user_config`
+--
+
+CREATE TABLE IF NOT EXISTS `user_config` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `last_project_id` int(11) DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`),
+  KEY `config_ibfk_1` (`last_project_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=5 ;
 
 --
 -- Constraints for dumped tables
 --
 
 --
--- Limitadores para a tabela `config`
+-- Limitadores para a tabela `banned_user`
 --
-ALTER TABLE `config`
-ADD CONSTRAINT `config_ibfk_1` FOREIGN KEY (`last_project_id`) REFERENCES `project` (`id`) ON DELETE SET NULL ON UPDATE SET NULL;
+ALTER TABLE `banned_user`
+ADD CONSTRAINT `banned_user_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
 -- Limitadores para a tabela `map`
 --
 ALTER TABLE `map`
-ADD CONSTRAINT `map_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-ADD CONSTRAINT `map_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`),
-ADD CONSTRAINT `map_ibfk_2` FOREIGN KEY (`parent_id`) REFERENCES `map` (`id`);
+ADD CONSTRAINT `map_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `map_ibfk_2` FOREIGN KEY (`parent_id`) REFERENCES `map` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `map_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
 -- Limitadores para a tabela `project`
@@ -179,13 +212,26 @@ ADD CONSTRAINT `project_resource_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `
 ADD CONSTRAINT `project_resource_ibfk_2` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`);
 
 --
--- Limitadores para a tabela `user_access`
+-- Limitadores para a tabela `resource`
 --
-ALTER TABLE `user_access`
-ADD CONSTRAINT `user_access_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE `resource`
+ADD CONSTRAINT `resource_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
+-- Limitadores para a tabela `user_access_log`
+--
+ALTER TABLE `user_access_log`
+ADD CONSTRAINT `user_access_log_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
 -- Limitadores para a tabela `user_activity`
 --
 ALTER TABLE `user_activity`
 ADD CONSTRAINT `user_activity_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
+-- Limitadores para a tabela `user_config`
+--
+ALTER TABLE `user_config`
+ADD CONSTRAINT `user_config_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+ADD CONSTRAINT `user_config_ibfk_1` FOREIGN KEY (`last_project_id`) REFERENCES `project` (`id`) ON DELETE SET NULL ON UPDATE SET NULL;

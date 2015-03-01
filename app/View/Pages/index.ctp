@@ -1,6 +1,9 @@
 <?=$this->Import->script('DOMOBJ',true)?>
 <script type="text/javascript">
     var Global = {
+        resources:{
+            children:'<?=$this->Html->url(array('controller'=>'project','action'=>'getResourcesTree'))?>'
+        },
         project:{
             id:<?=$project_id?>,
             add:'<?=$this->Html->url(array('controller'=>'project','action'=>'addAjax'))?>',
@@ -8,7 +11,7 @@
             all:'<?=$this->Html->url(array('controller'=>'project','action'=>'getAll'))?>',
             mapTree:'<?=$this->Html->url(array('controller'=>'project','action'=>'getMapTree'))?>',
             exists:'<?=$this->Html->url(array('controller'=>'project','action'=>'exists'))?>',
-            children:'<?=$this->Html->url(array('controller'=>'project','action'=>'getChildren'))?>'
+            children:'<?=$this->Html->url(array('controller'=>'project','action'=>'getChildren'))?>',
         },
         map:{
             add:'<?=$this->Html->url(array('controller'=>'map','action'=>'add'))?>',
@@ -116,7 +119,7 @@ $(document).ready(function () {
         <!-- Brand and toggle get grouped for better mobile display -->
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+            <button type="button" class="navbar-toggle" data-toggle="collapse"
                     data-target="#bs-example-navbar-collapse-2">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>

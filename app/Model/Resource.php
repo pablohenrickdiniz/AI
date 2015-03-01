@@ -6,9 +6,11 @@
  * Time: 14:16
  */
 
+App::import('Model','Project');
+
 class Resource extends AppModel{
     public $useTable = 'resource';
-    public static $category = array(
+    public $categories = array(
         0 => 'Animation',
         1 => 'Battleback',
         2 => 'Battler',
@@ -25,7 +27,38 @@ class Resource extends AppModel{
         13 => 'SE'
     );
 
-    public static function getCategories(){
-        return self::$category;
+    public function getCategories(){
+        return $this->$categories;
     }
+
+    public function getTree(){
+        $root['title'] = 'resources';
+        $root['isFolder'] = true;
+        $root['addClass'] = 'resources';
+        $root['children'] = [];
+        $categories = $this->categories;
+        foreach($categories as $key => $category){
+            $root['children'][] = array(
+                'title' => $category,
+                'addClass' => 'resource',
+                'key' => $key
+            );
+            $resources_folder = self::getPath();
+            $category_folder = $resources_folder.'/'.$category;
+            if(!file_exists($category_folder)){
+                mkdir($category_folder,777,true);
+            }
+        }
+        return $root;
+    }
+
+    public static function getPath(){
+        $project_path = Project::getPath();
+        $resources_folder = $project_path.'/resources';
+        if(!file_exists($resources_folder)){
+            mkdir($resources_folder,777,true);
+        }
+        return $resources_folder;
+    }
+
 } 

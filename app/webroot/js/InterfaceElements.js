@@ -185,10 +185,11 @@ ProjectManager.open = {
             self.table = new Table();
             self.table.
                 setId('open-project-select').
-                addClass('table table-bordered');
+                addClass('table table-default');
             var tr = new Row();
             var th = new Col('header');
             var th2 = new Col('header');
+            th2.hide();
             th.val('Nome do projeto');
             tr.add(th);
             tr.add(th2);
@@ -530,7 +531,6 @@ MapManager.expand = function(expand){
     }
 };
 
-
 MapManager.copy = function(){
     var self = this;
     self.clipboard.value = FolderManager.id;
@@ -815,11 +815,51 @@ MapManager.delete = function(){
 ResourcesManager.main = {
     modal:null,
     tree:null,
+    treeLoaded:false,
+    loading:false,
     getModal:function(){
         var self = this;
         if(self.modal == null){
             self.modal = new Modal();
             self.modal.setTitle('Recursos');
+            self.modal.getBody().add(self.getTree());
+            self.modal.onopen(function(){
+                $(self.getTree().getDOM()).dynatree({
+                    initAjax: {
+                        url: Global.project.resources,
+                        data: {
+                            'data[id]': Global.project.id
+                        },
+                        type: 'post',
+                        complete: function () {
+                            self.treeLoaded = true;
+                            self.loading = false;
+                        }
+                    },
+                    debugLevel: 0,
+                    persist: false,
+                    generateIds: true,
+                    idPrefix: 'resource-folder-id:',
+                    onLazyRead:function(node){
+                        var span = node.span;
+                        var action = '';
+
+                        if($(span).hasClass('project')){
+                            action = Global.project.children;
+                        }
+                        else if($(span).hasClass('map')){
+                            action = Global.map.children;
+                        }
+                        node.appendAjax({
+                            url:action,
+                            type:'post',
+                            data:{
+                                'data[id]':node.data.key
+                            }
+                        });
+                    }
+                });
+            });
         }
         return self.modal;
     },
