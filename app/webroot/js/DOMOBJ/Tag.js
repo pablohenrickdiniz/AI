@@ -15,6 +15,12 @@ Tag.prototype.addClass = function(className){
     return self;
 };
 
+Tag.prototype.removeClass = function(className){
+    var self = this;
+    $(self.getDOM()).removeClass(className);
+    return self;
+};
+
 Tag.prototype.css = function(attr,val){
     var self = this;
     $(self.getDOM()).css(attr,val);
@@ -186,5 +192,17 @@ Tag.prototype.html = function(){
         $(self.getDOM()).html(arguments[0]);
     }
     return self;
+};
+
+Tag.prototype.disable = function(){
+    var self = this;
+    $(self.getDOM()).attr('disabled',true);
+    return self;
+};
+
+
+Tag.prototype.enable = function(){
+    var self = this;
+    $(self.getDOM()).attr('disabled',false);
 };
 

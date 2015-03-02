@@ -813,6 +813,10 @@ MapManager.delete = function(){
     }
 };
 
+
+
+
+
 ResourcesManager.tileset = {
     modal:null,
     loading:false,
@@ -820,36 +824,91 @@ ResourcesManager.tileset = {
     tabGridItem:null,
     tabRegionItem:null,
     canvasImage:null,
+    canvasGrid:null,
     tabPaneImage:null,
+    tabPaneGrid:null,
+    tabPaneRegion:null,
     imageInput:null,
+    nextButton:null,
+    cancelButton:null,
+    allowedImages:[
+        'jpg',
+        'png',
+        'gif'
+    ],
+    passo:0,
+    image:null,
+    getFileExt:function(filename){
+        var index = filename.lastIndexOf('.');
+        var ext = '';
+        if(index != -1){
+            ext = filename.substring(index+1,filename.length).toLowerCase();
+        }
+        return ext;
+    },
     getImageInput:function(){
         var self = this;
         if(self.imageInput == null){
             self.imageInput = new Input('file');
             self.imageInput.addClass('form-control');
             self.imageInput.change(function(){
-                var canvas = self.getCanvasImage();
-                var ctx = canvas.getDOM().getContext('2d');
-                var img = new Image;
-                img.src = URL.createObjectURL(this.element.files[0]);
-                img.onload = function(){
-                    canvas.setAttribute('width',img.width+'px').setAttribute('height',img.height+'px');
-                    ctx.drawImage(img,0,0);
-                };
+                var filepath = $(this.element).val();
+                var ext = self.getFileExt(filepath);
+                if(self.allowedImages.indexOf(ext) != -1){
+                    self.image = null;
+                    var canvas = self.getCanvasImage();
+                    var ctx = canvas.getDOM().getContext('2d');
+                    var img = self.getImage();
+                    img.onload = function(){
+                        canvas.setAttribute('width',img.width+'px').setAttribute('height',img.height+'px');
+                        ctx.drawImage(img,0,0);
+                        self.getNextButton().enable();
+                    };
+                }
+                else{
+                    self.getNextButton().disable();
+                }
             });
         }
         return self.imageInput;
+    },
+    getImage:function(){
+        var self = this;
+        if(self.image == null){
+            self.image = new Image;
+            self.image.src = URL.createObjectURL(self.getImageInput().element.files[0]);
+        }
+        return self.image;
     },
     getTabPaneImage:function(){
         var self = this;
         if(self.tabPaneImage == null){
             self.tabPaneImage = new TabPane('resource-image');
             var container = self.tabPaneImage.addContainer('row','');
+            container.css('overflow','hidden').css('padding','20px');
             var canvasContainer = container.addContainer('col-md-12 form-group',self.getCanvasImage());
-            canvasContainer.css('width','598px').css('height','300px').css('border','1px dashed gray').css('overflow','scroll');
+            canvasContainer.css('width','100%').css('height','300px').css('border','1px dashed gray').css('overflow','scroll');
             container.addContainer('col-md-12 form-group',self.getImageInput());
         }
         return self.tabPaneImage;
+    },
+    getTabPaneGrid:function(){
+        var self = this;
+        if(self.tabPaneGrid == null){
+            self.tabPaneGrid = new TabPane('resource-grid');
+            var container = self.tabPaneGrid.addContainer('row');
+            container.css('overflow','hidden').css('padding','20px');
+             var canvasContainer = container.addContainer('col-md-12 form-group',self.getCanvasGrid());
+             canvasContainer.css('width','100%').css('height','300px').css('border','1px dashed gray').css('overflow','scroll');
+        }
+        return self.tabPaneGrid;
+    },
+    getTabPaneRegion:function(){
+        var self = this;
+        if(self.tabPaneRegion == null){
+            self.tabPaneRegion = new TabPane('resource-region');
+        }
+        return self.tabPaneRegion;
     },
     getCanvasImage:function(){
         var self = this;
@@ -859,12 +918,37 @@ ResourcesManager.tileset = {
         }
         return self.canvasImage;
     },
+    getCanvasGrid:function(){
+        var self = this;
+        if(self.canvasGrid == null){
+            self.canvasGrid = new Tag('canvas');
+            self.canvasGrid.setAttribute('width','550px').setAttribute('height','auto');
+        }
+        return self.canvasGrid;
+    },
     getModal:function(){
         var self = this;
         if(self.modal == null){
             self.modal = new Modal();
             self.modal.setTitle('Adicionar Tileset');
             self.modal.getBody().add(self.getTabPanel());
+            self.modal.getFooter().add(self.getNextButton()).add(self.getCancelButton());
+            self.modal.onopen(function(){
+                self.getTabItemImage().addClass('active');
+                self.getTabPaneImage().addClass('active');
+                var canvas = self.getCanvasImage();
+                var ctx = canvas.getDOM().getContext('2d');
+                ctx.clearRect(0,0,550,550);
+                canvas.setAttribute('width','550px').setAttribute('height','auto');
+                self.getImageInput().val('');
+                self.passo = 0;
+            });
+            self.modal.onclose(function(){
+                self.getTabPaneGrid().removeClass('active');
+                self.getTabItemGrid().removeClass('active');
+                self.getTabPaneRegion().removeClass('active');
+                self.getTabItemRegion().removeClass('active');
+            });
         }
         return self.modal;
     },
@@ -897,10 +981,45 @@ ResourcesManager.tileset = {
                 add(self.getTabItemImage()).
                 add(self.getTabItemGrid()).
                 add(self.getTabItemRegion());
-            self.tabPanel.getTabContent().
-                add(self.getTabPaneImage());
+            self.tabPanel.getTabContent().add(self.getTabPaneImage()).add(self.getTabPaneGrid());
         }
         return self.tabPanel;
+    },
+    getNextButton:function(){
+        var self = this;
+        if(self.nextButton == null){
+            self.nextButton = new Button();
+            self.nextButton.
+                val('Próximo').
+                addClass('btn btn-primary').
+                disable().click(function(){
+                    if(self.passo == 0){
+                        self.passo = 1;
+                        self.getTabItemImage().removeClass('active');
+                        self.getTabPaneImage().removeClass('active');
+                        self.getTabItemGrid().addClass('active');
+                        self.getTabPaneGrid().addClass('active');
+                        var image = self.getImage();
+                        self.getCanvasGrid().setAttribute('width',image.width+'px').setAttribute('height',image.height+'px');
+                        var ctx = self.getCanvasGrid().element.getContext('2d');
+                        ctx.drawImage(image,0,0);
+                    }
+                });
+        }
+        return self.nextButton;
+    },
+    getCancelButton:function(){
+        var self = this;
+        if(self.cancelButton == null){
+            self.cancelButton = new Button();
+            self.cancelButton.
+                val('Cancelar').
+                addClass('btn btn-default').
+                click(function(){
+                    self.getModal().close();
+                });
+        }
+        return self.cancelButton;
     }
 };
 

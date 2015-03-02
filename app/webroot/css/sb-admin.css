@@ -65,3 +65,15 @@ body{
    overflow-x:hidden;
     height:520px;
 }
+
+li>a[href=\#resource-grid]:hover,li>a[href=\#resource-region]:hover,li>a[href=\#resource-image]:hover{
+    background-color:white;
+    border-top-color:white;
+    border-right-color:white;
+    border-left-color:white;
+}
+
+li>a[href=\#resource-grid],li>a[href=\#resource-region],li>a[href=\#resource-image]{
+    color:gray;
+    pointer-events:none;
+}

@@ -6,3 +6,4 @@ function TabPane(id){
     Tag.call(self,'div');
     self.addClass('tab-pane').prop('id',id).setAttribute('role','tabpanel');
 }
+
