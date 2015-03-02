@@ -5,6 +5,7 @@ function ResourcesManager(){}
 
 FolderManager.id = Global.project.id;
 FolderManager.type = 'project';
+ResourcesManager.id = 0;
 ProjectManager.loading = false;
 ProjectManager.treeLoaded = false;
 MapManager.loading =false;
@@ -812,6 +813,98 @@ MapManager.delete = function(){
     }
 };
 
+ResourcesManager.tileset = {
+    modal:null,
+    loading:false,
+    tabPanel:null,
+    tabGridItem:null,
+    tabRegionItem:null,
+    canvasImage:null,
+    tabPaneImage:null,
+    imageInput:null,
+    getImageInput:function(){
+        var self = this;
+        if(self.imageInput == null){
+            self.imageInput = new Input('file');
+            self.imageInput.addClass('form-control');
+            self.imageInput.change(function(){
+                var canvas = self.getCanvasImage();
+                var ctx = canvas.getDOM().getContext('2d');
+                var img = new Image;
+                img.src = URL.createObjectURL(this.element.files[0]);
+                img.onload = function(){
+                    canvas.setAttribute('width',img.width+'px').setAttribute('height',img.height+'px');
+                    ctx.drawImage(img,0,0);
+                };
+            });
+        }
+        return self.imageInput;
+    },
+    getTabPaneImage:function(){
+        var self = this;
+        if(self.tabPaneImage == null){
+            self.tabPaneImage = new TabPane('resource-image');
+            var container = self.tabPaneImage.addContainer('row','');
+            var canvasContainer = container.addContainer('col-md-12 form-group',self.getCanvasImage());
+            canvasContainer.css('width','598px').css('height','300px').css('border','1px dashed gray').css('overflow','scroll');
+            container.addContainer('col-md-12 form-group',self.getImageInput());
+        }
+        return self.tabPaneImage;
+    },
+    getCanvasImage:function(){
+        var self = this;
+        if(self.canvasImage == null){
+            self.canvasImage = new Tag('canvas');
+            self.canvasImage.setAttribute('width','550px').setAttribute('height','auto');
+        }
+        return self.canvasImage;
+    },
+    getModal:function(){
+        var self = this;
+        if(self.modal == null){
+            self.modal = new Modal();
+            self.modal.setTitle('Adicionar Tileset');
+            self.modal.getBody().add(self.getTabPanel());
+        }
+        return self.modal;
+    },
+    getTabItemImage:function(){
+        var self = this;
+        if(self.tabItemImage == null){
+            self.tabItemImage = new TabListItem('#resource-image','Gráfico');
+        }
+        return self.tabItemImage;
+    },
+    getTabItemGrid:function(){
+        var self = this;
+        if(self.tabGridItem == null){
+            self.tabGridItem = new TabListItem('#resource-grid','Grid');
+        }
+        return self.tabGridItem;
+    },
+    getTabItemRegion:function(){
+        var self = this;
+        if(self.tabRegionItem == null){
+            self.tabRegionItem = new TabListItem('#resource-region','Região');
+        }
+        return self.tabRegionItem;
+    },
+    getTabPanel:function(){
+        var self = this;
+        if(self.tabPanel == null){
+            self.tabPanel = new TabPanel();
+            self.tabPanel.getTabList().
+                add(self.getTabItemImage()).
+                add(self.getTabItemGrid()).
+                add(self.getTabItemRegion());
+            self.tabPanel.getTabContent().
+                add(self.getTabPaneImage());
+        }
+        return self.tabPanel;
+    }
+};
+
+
 ResourcesManager.main = {
     modal:null,
     tree:null,
@@ -826,7 +919,7 @@ ResourcesManager.main = {
             self.modal.onopen(function(){
                 $(self.getTree().getDOM()).dynatree({
                     initAjax: {
-                        url: Global.project.resources,
+                        url: Global.resources.children,
                         data: {
                             'data[id]': Global.project.id
                         },

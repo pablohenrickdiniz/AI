@@ -2,7 +2,7 @@
 <script type="text/javascript">
     var Global = {
         resources:{
-            children:'<?=$this->Html->url(array('controller'=>'project','action'=>'getResourcesTree'))?>'
+            children:'<?=$this->Html->url(array('controller'=>'resource','action'=>'getResourcesTree'))?>'
         },
         project:{
             id:<?=$project_id?>,
@@ -21,6 +21,10 @@
             expand:'<?=$this->Html->url(array('controller'=>'map','action'=>'expand'))?>',
             paste:'<?=$this->Html->url(array('controller'=>'map','action'=>'paste'))?>',
             children:'<?=$this->Html->url(array('controller'=>'map','action'=>'getChildren'))?>'
+        },
+        pages:{
+            isOnline:'<?=$this->Html->url(array('controller'=>'pages','action'=>'isOnline'))?>',
+            index:'<?=$this->Html->url('/')?>'
         }
     };
 
@@ -44,7 +48,7 @@ $(document).ready(function () {
         ResourcesManager.main.getModal().open();
     });
 
-    $(document).on('mousedown', '.dynatree-node', function (event) {
+    $(document).on('mousedown', '.dynatree-node:not(.resource,.resources)', function (event) {
         if (event.which == 3) {
             var id = $(this).parent().prop('id');
             id = id.split(':')[1];
@@ -58,9 +62,32 @@ $(document).ready(function () {
         }
     });
 
+    $(document).on('mousedown','.dynatree-node.resource',function(event){
+        if(event.which == 3){
+            var id = $(this).parent().prop('id');
+            id = id.split(':')[1];
+            if(id == 8){
+                ResourcesManager.id = 8;
+            }
+        }
+    });
+
+
+    $.contextMenu({
+        selector:'.resource',
+        callback:function(key){
+            if(key == 'new'){
+                ResourcesManager.tileset.getModal().open();
+            }
+        },
+        items:{
+            "new":{'name':"Adicionar Recurso",'icon':'add'}
+        }
+    });
+
     $.contextMenu({
         selector: '.map',
-        callback: function (key, options) {
+        callback: function (key) {
             if (key == 'new') {
                 MapManager.create.getModal().open();
             }
@@ -97,7 +124,7 @@ $(document).ready(function () {
 
     $.contextMenu({
         selector: '.project',
-        callback: function (key, options) {
+        callback: function (key) {
             if (key == 'new') {
                MapManager.create.getModal().open();
             }

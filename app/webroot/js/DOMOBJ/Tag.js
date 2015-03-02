@@ -177,3 +177,14 @@ Tag.prototype.show = function(){
     return self;
 };
 
+Tag.prototype.html = function(){
+    var self = this;
+    if(arguments.length == 0){
+        return $(self.getDOM()).html();
+    }
+    else{
+        $(self.getDOM()).html(arguments[0]);
+    }
+    return self;
+};
+
