@@ -1,33 +1,37 @@
-function ProjectManager() {}
-function MapManager(){}
-function FolderManager(){}
-function ResourcesManager(){}
+function ProjectManager() {
+}
+function MapManager() {
+}
+function FolderManager() {
+}
+function ResourcesManager() {
+}
 
 FolderManager.id = Global.project.id;
 FolderManager.type = 'project';
 ResourcesManager.id = 0;
 ProjectManager.loading = false;
 ProjectManager.treeLoaded = false;
-MapManager.loading =false;
+MapManager.loading = false;
 MapManager.id = 0;
 MapManager.clipboard = {
-    type:'copy',
-    value:null
+    type: 'copy',
+    value: null
 };
 
-ProjectManager.loadProjects = function(callback){
+ProjectManager.loadProjects = function (callback) {
     var self = this;
     if (!self.loading) {
         $.ajax({
             url: Global.project.all,
             type: 'post',
-            dataType:'json',
+            dataType: 'json',
             success: function (data) {
                 self.open.clearTable();
                 var projects = data.projects;
                 for (var i = 0; i < projects.length; i++) {
                     var project = projects[i];
-                    project = new Project(project.id,project.name);
+                    project = new Project(project.id, project.name);
                     self.open.add(project);
                 }
                 self.open.getModal().open();
@@ -39,7 +43,7 @@ ProjectManager.loadProjects = function(callback){
     }
 };
 
-ProjectManager.expand = function(expand){
+ProjectManager.expand = function (expand) {
     var self = this;
     if (!self.loading) {
         self.loading = true;
@@ -61,7 +65,7 @@ ProjectManager.expand = function(expand){
 ProjectManager.reload = function (callback) {
     var self = this;
     if (self.treeLoaded) {
-      self.clear();
+        self.clear();
     }
     self.load(callback);
 };
@@ -93,37 +97,37 @@ ProjectManager.load = function (callback) {
             persist: false,
             generateIds: true,
             idPrefix: 'data-id:',
-            onLazyRead:function(node){
+            onLazyRead: function (node) {
                 var span = node.span;
                 var action = '';
 
-                if($(span).hasClass('project')){
+                if ($(span).hasClass('project')) {
                     action = Global.project.children;
                 }
-                else if($(span).hasClass('map')){
+                else if ($(span).hasClass('map')) {
                     action = Global.map.children;
                 }
                 node.appendAjax({
-                    url:action,
-                    type:'post',
-                    data:{
-                        'data[id]':node.data.key
+                    url: action,
+                    type: 'post',
+                    data: {
+                        'data[id]': node.data.key
                     }
                 });
             }/*,
-            onExpand: function (flag, dtnode) {
-                var id = $(dtnode.li).prop('id');
-                id = id.split(':')[1];
-                FolderManager.id = id;
-                var span = $(dtnode.li).children()[0];
-                var map = $(span).hasClass('map');
-                if (map) {
-                    MapManager.expand(flag);
-                }
-                else {
-                    self.expand(flag);
-                }
-            }*/
+             onExpand: function (flag, dtnode) {
+             var id = $(dtnode.li).prop('id');
+             id = id.split(':')[1];
+             FolderManager.id = id;
+             var span = $(dtnode.li).children()[0];
+             var map = $(span).hasClass('map');
+             if (map) {
+             MapManager.expand(flag);
+             }
+             else {
+             self.expand(flag);
+             }
+             }*/
         });
     }
 };
@@ -140,13 +144,13 @@ ProjectManager.open = {
         if (self.modal == null) {
             self.modal = new Modal();
             self.modal.setTitle('Abrir Projeto');
-            self.modal.getBody().add(self.getTable()).css('overflow-x','hidden').css('height','300px');
+            self.modal.getBody().add(self.getTable()).css('overflow-x', 'hidden').css('height', '300px');
             self.modal.getFooter().add(self.getConfirm());
             self.modal.getFooter().add(self.getCancel());
-            self.modal.onopen(function(){
-                for(var i = 0; i < self.projects.length;i++){
+            self.modal.onopen(function () {
+                for (var i = 0; i < self.projects.length; i++) {
                     var project = self.projects[i];
-                    if(project.id == Global.project.id){
+                    if (project.id == Global.project.id) {
                         project.getRadio().check();
                         break;
                     }
@@ -175,7 +179,7 @@ ProjectManager.open = {
         }
         return self.confirm;
     },
-    clearTable:function(){
+    clearTable: function () {
         var self = this;
         self.getTable().clearTds();
         self.projects = [];
@@ -212,7 +216,7 @@ ProjectManager.open = {
         var size = projects.length;
         for (var i = 0; i < size; i++) {
             var project = projects[i];
-            if(project.isChecked()){
+            if (project.isChecked()) {
                 return project.id;
             }
         }
@@ -226,7 +230,7 @@ ProjectManager.open = {
                 addClass('btn btn-default').
                 prop('id', 'cancel-open-project').
                 val('Cancelar').
-                setAttribute('type','button').
+                setAttribute('type', 'button').
                 setAttribute('data-dismiss', 'modal').
                 click(function () {
                     self.getModal().close();
@@ -242,18 +246,18 @@ ProjectManager.create = {
     cancel: null,
     inputName: null,
     warning: null,
-    send:function(){
+    send: function () {
         var self = this;
         var data = {
-            'data[Project][name]':self.getInputName().val()
+            'data[Project][name]': self.getInputName().val()
         };
         $.ajax({
-            url:Global.project.add,
-            type:'post',
-            data:data,
-            dataType:'json',
-            success:function(data){
-                if(data.success){
+            url: Global.project.add,
+            type: 'post',
+            data: data,
+            dataType: 'json',
+            success: function (data) {
+                if (data.success) {
                     FolderManager.id = data.id;
                     FolderManager.type = 'project';
                     ProjectManager.reload(function () {
@@ -261,43 +265,43 @@ ProjectManager.create = {
                         self.getWarning().hide();
                     });
                 }
-                else{
+                else {
                     var msg = '';
-                    for(var index in data.errors){
-                        msg += '* '+data.errors[index]+'<br>';
+                    for (var index in data.errors) {
+                        msg += '* ' + data.errors[index] + '<br>';
                     }
                     self.getWarning().setMessage(msg).show();
                 }
             },
-            error:function(data){
+            error: function (data) {
 
             }
         });
     },
-    getCancel:function(){
+    getCancel: function () {
         var self = this;
-        if(self.cancel == null){
+        if (self.cancel == null) {
             self.cancel = new Button();
             self.cancel.
                 addClass('btn btn-default').
                 prop('id', 'cancel-create-project').
                 val('Cancelar').
-                setAttribute('type','button').
-                setAttribute('data-dismiss','modal').
-                click(function(){
+                setAttribute('type', 'button').
+                setAttribute('data-dismiss', 'modal').
+                click(function () {
                     self.getModal().close();
                 });
         }
         return self.cancel;
     },
-    getConfirm:function(){
+    getConfirm: function () {
         var self = this;
-        if(self.confirm == null){
+        if (self.confirm == null) {
             self.confirm = new Button();
             self.confirm.
                 addClass('btn btn-success').
                 val('Concluir').
-                click(function(){
+                click(function () {
                     self.send();
                 });
         }
@@ -323,7 +327,7 @@ ProjectManager.create = {
             self.modal.setTitle('Novo Projeto');
             self.modal.getBody().add(self.getInputName()).add(self.getWarning());
             self.modal.getFooter().add(self.getCancel()).add(self.getConfirm());
-            self.modal.onclose(function(){
+            self.modal.onclose(function () {
                 self.getWarning().hide();
             });
         }
@@ -340,39 +344,39 @@ ProjectManager.create = {
 };
 
 MapManager.create = {
-    modal:null,
-    inputName:null,
-    inputDisplay:null,
-    inputWidth:null,
-    inputHeight:null,
-    inputScroll:null,
-    cancel:null,
-    confirm:null,
-    warning:null,
-    send:function(){
+    modal: null,
+    inputName: null,
+    inputDisplay: null,
+    inputWidth: null,
+    inputHeight: null,
+    inputScroll: null,
+    cancel: null,
+    confirm: null,
+    warning: null,
+    send: function () {
         var self = this;
-        var data ={
-            'data[Map][name]':self.getInputName().val(),
-            'data[Map][display]':self.getInputDisplay().val(),
-            'data[Map][width]':self.getInputWidth().val(),
-            'data[Map][height]':self.getInputHeight().val(),
-            'data[Map][scroll]':self.getSelectScroll().val()
+        var data = {
+            'data[Map][name]': self.getInputName().val(),
+            'data[Map][display]': self.getInputDisplay().val(),
+            'data[Map][width]': self.getInputWidth().val(),
+            'data[Map][height]': self.getInputHeight().val(),
+            'data[Map][scroll]': self.getSelectScroll().val()
         };
 
-        if(FolderManager.type == 'map'){
+        if (FolderManager.type == 'map') {
             data['data[Map][parent_id]'] = FolderManager.id;
         }
-        else{
+        else {
             data['data[Map][project_id]'] = FolderManager.id;
         }
 
         $.ajax({
-            url:Global.map.add,
-            type:'post',
-            dataType:'json',
-            data:data,
-            success:function(data){
-                if(data.success){
+            url: Global.map.add,
+            type: 'post',
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                if (data.success) {
                     self.getModal().close();
                     self.getWarning().hide();
                     var tree = $('#tree').dynatree('getTree');
@@ -381,11 +385,11 @@ MapManager.create = {
                         node.addChild(data.node);
                     }
                 }
-                else{
+                else {
                     var errors = data.errors;
                     var message = '';
-                    for(var index in errors){
-                        message += '* '+errors[index]+'<br>';
+                    for (var index in errors) {
+                        message += '* ' + errors[index] + '<br>';
                     }
                     self.getWarning().setMessage(message);
                     self.getWarning().show();
@@ -393,115 +397,115 @@ MapManager.create = {
             }
         });
     },
-    getCancel:function(){
+    getCancel: function () {
         var self = this;
-        if(self.cancel == null){
+        if (self.cancel == null) {
             self.cancel = new Button();
             self.cancel.
                 addClass('btn btn-default').
                 val('Cancelar').
-                click(function(){
+                click(function () {
                     self.getModal().close();
                 });
         }
         return self.cancel;
     },
-    getConfirm:function(){
+    getConfirm: function () {
         var self = this;
-        if(self.confirm == null){
+        if (self.confirm == null) {
             self.confirm = new Button();
             self.confirm.
                 addClass('btn btn-success').
                 val('Criar Mapa').
-                click(function(){
+                click(function () {
                     MapManager.create.send();
                 });
         }
         return self.confirm;
     },
-    getInputName:function(){
+    getInputName: function () {
         var self = this;
-        if(self.inputName == null){
+        if (self.inputName == null) {
             self.inputName = new Input('text');
             self.inputName.placeholder('Nome').
                 addClass('form-control').
-                setAttribute('required',true);
+                setAttribute('required', true);
         }
         return self.inputName;
     },
-    getInputDisplay:function(){
+    getInputDisplay: function () {
         var self = this;
-        if(self.inputDisplay == null){
+        if (self.inputDisplay == null) {
             self.inputDisplay = new Input('text');
             self.inputDisplay.
                 placeholder('Nome de apresentação').
                 addClass('form-control').
-                setAttribute('required',true);
+                setAttribute('required', true);
         }
         return self.inputDisplay;
     },
-    getInputWidth:function(){
+    getInputWidth: function () {
         var self = this;
-        if(self.inputWidth == null){
+        if (self.inputWidth == null) {
             self.inputWidth = new Input('number');
             self.inputWidth.
                 placeholder('Largura').
                 addClass('form-control').
-                css('min',10).
-                css('max',1000).
-                setAttribute('required',true);
+                css('min', 10).
+                css('max', 1000).
+                setAttribute('required', true);
         }
         return self.inputWidth;
     },
-    getInputHeight:function(){
+    getInputHeight: function () {
         var self = this;
-        if(self.inputHeight == null){
+        if (self.inputHeight == null) {
             self.inputHeight = new Input('number');
             self.inputHeight.
                 placeholder('Altura').
                 addClass('form-control').
-                css('min',10).
-                css('max',1000).
-                setAttribute('required',true);
+                css('min', 10).
+                css('max', 1000).
+                setAttribute('required', true);
         }
         return self.inputHeight;
     },
-    getSelectScroll:function(){
+    getSelectScroll: function () {
         var self = this;
-        if(self.scroll ==null){
+        if (self.scroll == null) {
             self.scroll = new Select();
             self.scroll.setOptions({
-               0:'Nenhum',
-               1:'Loop Vertical',
-               2:'Loop Horizontal',
-               3:'Loop Vertical e Horizontal'
+                0: 'Nenhum',
+                1: 'Loop Vertical',
+                2: 'Loop Horizontal',
+                3: 'Loop Vertical e Horizontal'
             }).addClass('form-control');
         }
         return self.scroll;
     },
-    getWarning:function(){
-        var self =this;
-        if(self.warning ==null){
+    getWarning: function () {
+        var self = this;
+        if (self.warning == null) {
             self.warning = new Alert(Alert.warning);
             self.warning.hide();
             return self.warning;
         }
         return self.warning;
     },
-    getModal:function(){
+    getModal: function () {
         var self = this;
-        if(self.modal == null){
+        if (self.modal == null) {
             self.modal = new Modal();
             self.modal.setTitle('Novo Mapa');
-            var container = self.modal.getBody().addContainer('row','');
-            container.addContainer('form-group col-md-6',self.getInputName());
-            container.addContainer('form-group col-md-6',self.getInputDisplay());
-            container.addContainer('form-group col-md-6',self.getInputWidth());
-            container.addContainer('form-group col-md-6',self.getInputHeight());
-            container.addContainer('form-group col-md-12',self.getSelectScroll());
-            container.addContainer('form-group col-md-12',self.getWarning());
+            var container = self.modal.getBody().addContainer('row', '');
+            container.addContainer('form-group col-md-6', self.getInputName());
+            container.addContainer('form-group col-md-6', self.getInputDisplay());
+            container.addContainer('form-group col-md-6', self.getInputWidth());
+            container.addContainer('form-group col-md-6', self.getInputHeight());
+            container.addContainer('form-group col-md-12', self.getSelectScroll());
+            container.addContainer('form-group col-md-12', self.getWarning());
             self.modal.getFooter().add(self.getCancel()).add(self.getConfirm());
-            self.modal.onclose(function(){
+            self.modal.onclose(function () {
                 self.getWarning().hide();
                 self.getInputName().val('');
                 self.getInputDisplay().val('');
@@ -514,7 +518,7 @@ MapManager.create = {
     }
 };
 
-MapManager.expand = function(expand){
+MapManager.expand = function (expand) {
     var self = this;
     if (!self.loading) {
         self.loading = true;
@@ -532,48 +536,48 @@ MapManager.expand = function(expand){
     }
 };
 
-MapManager.copy = function(){
+MapManager.copy = function () {
     var self = this;
     self.clipboard.value = FolderManager.id;
     self.clipboard.type = 'copy';
 };
 
-MapManager.cut = function(){
+MapManager.cut = function () {
     var self = this;
     self.clipboard.value = FolderManager.id;
     self.clipboard.type = 'cut';
 };
 
-MapManager.paste = function(){
+MapManager.paste = function () {
     var self = this;
-    if(!self.loading){
+    if (!self.loading) {
         self.loading = true;
         var data = {
-            'data[id]':self.clipboard.value,
-            'data[type]':self.clipboard.type
+            'data[id]': self.clipboard.value,
+            'data[type]': self.clipboard.type
         };
         var type = FolderManager.type;
-        if(type == 'project'){
+        if (type == 'project') {
             data['data[project_id]'] = FolderManager.id;
         }
-        else{
+        else {
             data['data[parent_id]'] = FolderManager.id;
         }
 
         $.ajax({
-            url:Global.map.paste,
-            type:'post',
-            data:data,
-            dataType:'json',
-            success:function(data){
-                if(data.success){
+            url: Global.map.paste,
+            type: 'post',
+            data: data,
+            dataType: 'json',
+            success: function (data) {
+                if (data.success) {
                     var parent = FolderManager.id;
                     var tree = $('#tree').dynatree('getTree');
                     var node = tree.getNodeByKey(parent);
-                    if(node != null){
-                        if(self.clipboard.type == 'cut'){
+                    if (node != null) {
+                        if (self.clipboard.type == 'cut') {
                             var old = tree.getNodeByKey(data.node.key);
-                            if(old != null){
+                            if (old != null) {
                                 old.remove();
                             }
                         }
@@ -582,7 +586,7 @@ MapManager.paste = function(){
                     }
                 }
             },
-            complete:function(){
+            complete: function () {
                 self.loading = false;
             }
         });
@@ -590,16 +594,16 @@ MapManager.paste = function(){
 };
 
 MapManager.edit = {
-    loading:false,
-    modal:null,
-    inputName:null,
-    inputDisplay:null,
-    inputWidth:null,
-    inputHeight:null,
-    selectScroll:null,
-    send:function(){
+    loading: false,
+    modal: null,
+    inputName: null,
+    inputDisplay: null,
+    inputWidth: null,
+    inputHeight: null,
+    selectScroll: null,
+    send: function () {
         var self = this;
-        if(!self.loading){
+        if (!self.loading) {
             self.loading = true;
             $.ajax({
                 url: Global.map.edit,
@@ -609,10 +613,10 @@ MapManager.edit = {
                     'data[Map][name]': self.getInputName().val(),
                     'data[Map][display]': self.getInputDisplay().val(),
                     'data[Map][width]': self.getInputWidth().val(),
-                    'data[Map][height]':self.getInputHeight().val(),
+                    'data[Map][height]': self.getInputHeight().val(),
                     'data[Map][scroll]': self.getSelectScroll().val()
                 },
-                dataType:'json',
+                dataType: 'json',
                 success: function (data) {
                     if (data.success) {
                         self.getModal().close();
@@ -627,8 +631,8 @@ MapManager.edit = {
                     else {
                         var errors = data.errors;
                         var message = '';
-                        for(var index in errors){
-                            message += '* '+errors[index]+'<br>';
+                        for (var index in errors) {
+                            message += '* ' + errors[index] + '<br>';
                         }
                         self.getWarning().setMessage(message);
                         self.getWarning().show();
@@ -640,153 +644,153 @@ MapManager.edit = {
             });
         }
     },
-    load:function(callback){
+    load: function (callback) {
         var self = this;
-        if(!self.loading){
+        if (!self.loading) {
             self.loading = true;
             $.ajax({
-                url:Global.map.load,
-                type:'post',
-                dataType:'json',
-                data:{
-                    'data[id]':FolderManager.id
+                url: Global.map.load,
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    'data[id]': FolderManager.id
                 },
-                success:function(data){
-                    if(data.success){
+                success: function (data) {
+                    if (data.success) {
                         var map = data.map;
                         self.getInputName().val(map.name);
                         self.getInputDisplay().val(map.display);
                         self.getInputWidth().val(map.width);
                         self.getInputHeight().val(map.height);
                         self.getSelectScroll().val(map.scroll);
-                        if(typeof callback == 'function'){
+                        if (typeof callback == 'function') {
                             callback.apply(self);
                         }
                     }
                 },
-                error:function(){
+                error: function () {
 
                 },
-                complete:function(){
+                complete: function () {
                     self.loading = false;
                 }
             });
         }
     },
-    getCancel:function(){
+    getCancel: function () {
         var self = this;
-        if(self.cancel == null){
+        if (self.cancel == null) {
             self.cancel = new Button();
             self.cancel.
                 addClass('btn btn-default').
                 val('Cancelar').
-                click(function(){
+                click(function () {
                     self.getModal().close();
                 });
         }
         return self.cancel;
     },
-    getConfirm:function(){
+    getConfirm: function () {
         var self = this;
-        if(self.confirm == null){
+        if (self.confirm == null) {
             self.confirm = new Button();
             self.confirm.
                 addClass('btn btn-success').
                 val('Atualizar Mapa').
-                click(function(){
+                click(function () {
                     self.send();
                 });
         }
         return self.confirm;
     },
-    getInputName:function(){
+    getInputName: function () {
         var self = this;
-        if(self.inputName == null){
+        if (self.inputName == null) {
             self.inputName = new Input('text');
             self.inputName.placeholder('Nome').
                 addClass('form-control').
-                setAttribute('required',true);
+                setAttribute('required', true);
         }
         return self.inputName;
     },
-    getInputDisplay:function(){
+    getInputDisplay: function () {
         var self = this;
-        if(self.inputDisplay == null){
+        if (self.inputDisplay == null) {
             self.inputDisplay = new Input('text');
             self.inputDisplay.
                 placeholder('Nome de apresentação').
                 addClass('form-control').
-                setAttribute('required',true);
+                setAttribute('required', true);
         }
         return self.inputDisplay;
     },
-    getInputWidth:function(){
+    getInputWidth: function () {
         var self = this;
-        if(self.inputWidth == null){
+        if (self.inputWidth == null) {
             self.inputWidth = new Input('number');
             self.inputWidth.
                 placeholder('Largura').
                 addClass('form-control').
-                css('min',10).
-                css('max',1000).
-                setAttribute('required',true);
+                css('min', 10).
+                css('max', 1000).
+                setAttribute('required', true);
         }
         return self.inputWidth;
     },
-    getInputHeight:function(){
+    getInputHeight: function () {
         var self = this;
-        if(self.inputHeight == null){
+        if (self.inputHeight == null) {
             self.inputHeight = new Input('number');
             self.inputHeight.
                 placeholder('Altura').
                 addClass('form-control').
-                css('min',10).
-                css('max',1000).
-                setAttribute('required',true);
+                css('min', 10).
+                css('max', 1000).
+                setAttribute('required', true);
         }
         return self.inputHeight;
     },
-    getSelectScroll:function(){
+    getSelectScroll: function () {
         var self = this;
-        if(self.scroll ==null){
+        if (self.scroll == null) {
             self.scroll = new Select();
             self.scroll.setOptions({
-                0:'Nenhum',
-                1:'Loop Vertical',
-                2:'Loop Horizontal',
-                3:'Loop Vertical e Horizontal'
+                0: 'Nenhum',
+                1: 'Loop Vertical',
+                2: 'Loop Horizontal',
+                3: 'Loop Vertical e Horizontal'
             }).addClass('form-control');
         }
         return self.scroll;
     },
-    getWarning:function(){
-        var self =this;
-        if(self.warning ==null){
+    getWarning: function () {
+        var self = this;
+        if (self.warning == null) {
             self.warning = new Alert(Alert.warning);
             self.warning.hide();
             return self.warning;
         }
         return self.warning;
     },
-    getModal:function(){
+    getModal: function () {
         var self = this;
-        if(self.modal == null){
+        if (self.modal == null) {
             self.modal = new Modal();
             self.modal.setTitle('Editar Mapa');
-            var container = self.modal.getBody().addContainer('row','');
-            container.addContainer('form-group col-md-6',self.getInputName());
-            container.addContainer('form-group col-md-6',self.getInputDisplay());
-            container.addContainer('form-group col-md-6',self.getInputWidth());
-            container.addContainer('form-group col-md-6',self.getInputHeight());
-            container.addContainer('form-group col-md-12',self.getSelectScroll());
-            container.addContainer('form-group col-md-12',self.getWarning());
+            var container = self.modal.getBody().addContainer('row', '');
+            container.addContainer('form-group col-md-6', self.getInputName());
+            container.addContainer('form-group col-md-6', self.getInputDisplay());
+            container.addContainer('form-group col-md-6', self.getInputWidth());
+            container.addContainer('form-group col-md-6', self.getInputHeight());
+            container.addContainer('form-group col-md-12', self.getSelectScroll());
+            container.addContainer('form-group col-md-12', self.getWarning());
             self.modal.getFooter().add(self.getCancel()).add(self.getConfirm());
         }
         return self.modal;
     }
 };
 
-MapManager.delete = function(){
+MapManager.delete = function () {
     var self = this;
     if (!self.loading) {
         self.loading = true;
@@ -796,7 +800,7 @@ MapManager.delete = function(){
             data: {
                 'data[id]': FolderManager.id
             },
-            dataType:'json',
+            dataType: 'json',
             success: function (data) {
                 if (data.success) {
                     var tree = $('#tree').dynatree('getTree');
@@ -814,136 +818,182 @@ MapManager.delete = function(){
 };
 
 
-
-
-
 ResourcesManager.tileset = {
-    modal:null,
-    loading:false,
-    tabPanel:null,
-    tabGridItem:null,
-    tabRegionItem:null,
-    canvasImage:null,
-    canvasGrid:null,
-    tabPaneImage:null,
-    tabPaneGrid:null,
-    tabPaneRegion:null,
-    imageInput:null,
-    nextButton:null,
-    cancelButton:null,
-    allowedImages:[
+    modal: null,
+    loading: false,
+    tabPanel: null,
+    tabGridItem: null,
+    tabRegionItem: null,
+    canvasImage: null,
+    canvasGrid: null,
+    canvasGridDraw: null,
+    gridContext: null,
+    tabPaneImage: null,
+    tabPaneGrid: null,
+    tabPaneRegion: null,
+    imageInput: null,
+    nextButton: null,
+    cancelButton: null,
+    rowInput: null,
+    colInput: null,
+    allowedImages: [
         'jpg',
         'png',
         'gif'
     ],
-    passo:0,
-    image:null,
-    getFileExt:function(filename){
+    passo: 0,
+    image: null,
+    getFileExt: function (filename) {
         var index = filename.lastIndexOf('.');
         var ext = '';
-        if(index != -1){
-            ext = filename.substring(index+1,filename.length).toLowerCase();
+        if (index != -1) {
+            ext = filename.substring(index + 1, filename.length).toLowerCase();
         }
         return ext;
     },
-    getImageInput:function(){
+    drawGrid: function () {
         var self = this;
-        if(self.imageInput == null){
+        var rows = self.getRowInput().val();
+        var cols = self.getColInput().val();
+        var image = self.getImage();
+        var w = image.width / cols;
+        var h = image.height / rows;
+        w = w < 16 ? 16 : w;
+        h = h < 16 ? 16 : h;
+        self.clearGrid();
+        var ctx = self.getGridContext();
+        ctx.setLineDash([2,2]);
+        for (var i = 0; i <= image.width; i += w) {
+            for (var j = 0; j <= image.height; j += h) {
+                ctx.strokeRect(i, j, w, h);
+            }
+        }
+
+    },
+    clearGrid: function () {
+        var self = this;
+        var ctx = self.getGridContext();
+        var image = self.getImage();
+        ctx.fillStyle = 'transparent';
+        ctx.clearRect(0, 0, image.width, image.height);
+    },
+    getGridContext: function () {
+        var self = this;
+        if (self.gridContext == null) {
+            var canvas = self.getCanvasGridDraw();
+            self.gridContext = canvas.element.getContext('2d');
+        }
+        return self.gridContext;
+    },
+    getImageInput: function () {
+        var self = this;
+        if (self.imageInput == null) {
             self.imageInput = new Input('file');
             self.imageInput.addClass('form-control');
-            self.imageInput.change(function(){
+            self.imageInput.change(function () {
                 var filepath = $(this.element).val();
                 var ext = self.getFileExt(filepath);
-                if(self.allowedImages.indexOf(ext) != -1){
+                if (self.allowedImages.indexOf(ext) != -1) {
                     self.image = null;
                     var canvas = self.getCanvasImage();
                     var ctx = canvas.getDOM().getContext('2d');
                     var img = self.getImage();
-                    img.onload = function(){
-                        canvas.setAttribute('width',img.width+'px').setAttribute('height',img.height+'px');
-                        ctx.drawImage(img,0,0);
+                    img.onload = function () {
+                        canvas.setAttribute('width', img.width + 'px').setAttribute('height', img.height + 'px');
+                        ctx.drawImage(img, 0, 0);
                         self.getNextButton().enable();
                     };
                 }
-                else{
+                else {
                     self.getNextButton().disable();
                 }
             });
         }
         return self.imageInput;
     },
-    getImage:function(){
+    getImage: function () {
         var self = this;
-        if(self.image == null){
+        if (self.image == null) {
             self.image = new Image;
             self.image.src = URL.createObjectURL(self.getImageInput().element.files[0]);
         }
         return self.image;
     },
-    getTabPaneImage:function(){
+    getTabPaneImage: function () {
         var self = this;
-        if(self.tabPaneImage == null){
+        if (self.tabPaneImage == null) {
             self.tabPaneImage = new TabPane('resource-image');
-            var container = self.tabPaneImage.addContainer('row','');
-            container.css('overflow','hidden').css('padding','20px');
-            var canvasContainer = container.addContainer('col-md-12 form-group',self.getCanvasImage());
-            canvasContainer.css('width','100%').css('height','300px').css('border','1px dashed gray').css('overflow','scroll');
-            container.addContainer('col-md-12 form-group',self.getImageInput());
+            var container = self.tabPaneImage.addContainer('row', '');
+            container.css('overflow', 'hidden').css('padding', '20px');
+            var canvasContainer = container.addContainer('col-md-12 form-group', self.getCanvasImage());
+            canvasContainer.css('width', '100%').css('height', '300px').css('border', '1px dashed gray').css('overflow', 'scroll');
+            container.addContainer('col-md-12 form-group', self.getImageInput());
         }
         return self.tabPaneImage;
     },
-    getTabPaneGrid:function(){
+    getTabPaneGrid: function () {
         var self = this;
-        if(self.tabPaneGrid == null){
+        if (self.tabPaneGrid == null) {
             self.tabPaneGrid = new TabPane('resource-grid');
             var container = self.tabPaneGrid.addContainer('row');
-            container.css('overflow','hidden').css('padding','20px');
-             var canvasContainer = container.addContainer('col-md-12 form-group',self.getCanvasGrid());
-             canvasContainer.css('width','100%').css('height','300px').css('border','1px dashed gray').css('overflow','scroll');
+            container.css('overflow', 'hidden').css('padding', '20px');
+            var canvasContainer = container.addContainer('col-md-12 form-group', self.getCanvasGrid());
+            canvasContainer.css('width', '100%').css('height', '300px').css('border', '1px dashed gray').css('overflow', 'scroll');
+            canvasContainer.add(self.getCanvasGridDraw());
+            container.addContainer('col-md-6 form-group', self.getRowInput());
+            container.addContainer('col-md-6 form-group', self.getColInput());
         }
         return self.tabPaneGrid;
     },
-    getTabPaneRegion:function(){
+    getTabPaneRegion: function () {
         var self = this;
-        if(self.tabPaneRegion == null){
+        if (self.tabPaneRegion == null) {
             self.tabPaneRegion = new TabPane('resource-region');
         }
         return self.tabPaneRegion;
     },
-    getCanvasImage:function(){
+    getCanvasImage: function () {
         var self = this;
-        if(self.canvasImage == null){
+        if (self.canvasImage == null) {
             self.canvasImage = new Tag('canvas');
-            self.canvasImage.setAttribute('width','550px').setAttribute('height','auto');
+            self.canvasImage.setAttribute('width', '550px').setAttribute('height', 'auto');
         }
         return self.canvasImage;
     },
-    getCanvasGrid:function(){
+    getCanvasGrid: function () {
         var self = this;
-        if(self.canvasGrid == null){
+        if (self.canvasGrid == null) {
             self.canvasGrid = new Tag('canvas');
-            self.canvasGrid.setAttribute('width','550px').setAttribute('height','auto');
+            self.canvasGrid.setAttribute('width', '550px').setAttribute('height', 'auto').css('position', 'absolute').css('z-index', 1);
         }
         return self.canvasGrid;
     },
-    getModal:function(){
+    getCanvasGridDraw: function () {
         var self = this;
-        if(self.modal == null){
+        if (self.canvasGridDraw == null) {
+            self.canvasGridDraw = new Tag('canvas');
+            self.canvasGridDraw.setAttribute('width', '550px').setAttribute('height', 'auto').css('position', 'absolute').css('z-index', 2);
+        }
+        return self.canvasGridDraw;
+    },
+    getModal: function () {
+        var self = this;
+        if (self.modal == null) {
             self.modal = new Modal();
             self.modal.setTitle('Adicionar Tileset');
             self.modal.getBody().add(self.getTabPanel());
             self.modal.getFooter().add(self.getNextButton()).add(self.getCancelButton());
-            self.modal.onopen(function(){
+            self.modal.onopen(function () {
                 self.getTabItemImage().addClass('active');
                 self.getTabPaneImage().addClass('active');
                 var canvas = self.getCanvasImage();
                 var ctx = canvas.getDOM().getContext('2d');
-                ctx.clearRect(0,0,550,550);
-                canvas.setAttribute('width','550px').setAttribute('height','auto');
+                ctx.clearRect(0, 0, 550, 550);
+                canvas.setAttribute('width', '550px').setAttribute('height', 'auto');
                 self.getImageInput().val('');
                 self.passo = 0;
             });
-            self.modal.onclose(function(){
+            self.modal.onclose(function () {
                 self.getTabPaneGrid().removeClass('active');
                 self.getTabItemGrid().removeClass('active');
                 self.getTabPaneRegion().removeClass('active');
@@ -952,30 +1002,30 @@ ResourcesManager.tileset = {
         }
         return self.modal;
     },
-    getTabItemImage:function(){
+    getTabItemImage: function () {
         var self = this;
-        if(self.tabItemImage == null){
-            self.tabItemImage = new TabListItem('#resource-image','Gráfico');
+        if (self.tabItemImage == null) {
+            self.tabItemImage = new TabListItem('#resource-image', 'Gráfico');
         }
         return self.tabItemImage;
     },
-    getTabItemGrid:function(){
+    getTabItemGrid: function () {
         var self = this;
-        if(self.tabGridItem == null){
-            self.tabGridItem = new TabListItem('#resource-grid','Grid');
+        if (self.tabGridItem == null) {
+            self.tabGridItem = new TabListItem('#resource-grid', 'Grid');
         }
         return self.tabGridItem;
     },
-    getTabItemRegion:function(){
+    getTabItemRegion: function () {
         var self = this;
-        if(self.tabRegionItem == null){
-            self.tabRegionItem = new TabListItem('#resource-region','Região');
+        if (self.tabRegionItem == null) {
+            self.tabRegionItem = new TabListItem('#resource-region', 'Região');
         }
         return self.tabRegionItem;
     },
-    getTabPanel:function(){
+    getTabPanel: function () {
         var self = this;
-        if(self.tabPanel == null){
+        if (self.tabPanel == null) {
             self.tabPanel = new TabPanel();
             self.tabPanel.getTabList().
                 add(self.getTabItemImage()).
@@ -985,57 +1035,89 @@ ResourcesManager.tileset = {
         }
         return self.tabPanel;
     },
-    getNextButton:function(){
+    getNextButton: function () {
         var self = this;
-        if(self.nextButton == null){
+        if (self.nextButton == null) {
             self.nextButton = new Button();
             self.nextButton.
                 val('Próximo').
                 addClass('btn btn-primary').
-                disable().click(function(){
-                    if(self.passo == 0){
+                disable().click(function () {
+                    if (self.passo == 0) {
                         self.passo = 1;
                         self.getTabItemImage().removeClass('active');
                         self.getTabPaneImage().removeClass('active');
                         self.getTabItemGrid().addClass('active');
                         self.getTabPaneGrid().addClass('active');
                         var image = self.getImage();
-                        self.getCanvasGrid().setAttribute('width',image.width+'px').setAttribute('height',image.height+'px');
+                        self.getCanvasGrid().setAttribute('width', image.width + 'px').setAttribute('height', image.height + 'px');
+                        self.getCanvasGridDraw().setAttribute('width', image.width + 'px').setAttribute('height', image.height + 'px');
                         var ctx = self.getCanvasGrid().element.getContext('2d');
-                        ctx.drawImage(image,0,0);
+                        ctx.drawImage(image, 0, 0);
+                        self.drawGrid();
                     }
                 });
         }
         return self.nextButton;
     },
-    getCancelButton:function(){
+    getCancelButton: function () {
         var self = this;
-        if(self.cancelButton == null){
+        if (self.cancelButton == null) {
             self.cancelButton = new Button();
             self.cancelButton.
                 val('Cancelar').
                 addClass('btn btn-default').
-                click(function(){
+                click(function () {
                     self.getModal().close();
                 });
         }
         return self.cancelButton;
+    },
+    getRowInput: function () {
+        var self = this;
+        if (self.rowInput == null) {
+            self.rowInput = new Input('number');
+            self.rowInput.
+                addClass('form-control').
+                placeholder('Linhas').
+                setAttribute('min', 1).
+                val(1).
+                change(function () {
+                    self.drawGrid();
+                });
+        }
+        return self.rowInput;
+    },
+    getColInput: function () {
+        var self = this;
+        if (self.colInput == null) {
+            self.colInput = new Input('number');
+            self.colInput.
+                addClass('form-control').
+                placeholder('Colunas').
+                setAttribute('min', 1).
+                val(1).
+                change(function () {
+                    self.drawGrid();
+                });
+        }
+        return self.colInput;
     }
 };
 
 
 ResourcesManager.main = {
-    modal:null,
-    tree:null,
-    treeLoaded:false,
-    loading:false,
-    getModal:function(){
+    modal: null,
+    tree: null,
+    treeLoaded: false,
+    loading: false,
+    getModal: function () {
         var self = this;
-        if(self.modal == null){
+        if (self.modal == null) {
             self.modal = new Modal();
             self.modal.setTitle('Recursos');
             self.modal.getBody().add(self.getTree());
-            self.modal.onopen(function(){
+            self.modal.onopen(function () {
                 $(self.getTree().getDOM()).dynatree({
                     initAjax: {
                         url: Global.resources.children,
@@ -1052,21 +1134,21 @@ ResourcesManager.main = {
                     persist: false,
                     generateIds: true,
                     idPrefix: 'resource-folder-id:',
-                    onLazyRead:function(node){
+                    onLazyRead: function (node) {
                         var span = node.span;
                         var action = '';
 
-                        if($(span).hasClass('project')){
+                        if ($(span).hasClass('project')) {
                             action = Global.project.children;
                         }
-                        else if($(span).hasClass('map')){
+                        else if ($(span).hasClass('map')) {
                             action = Global.map.children;
                         }
                         node.appendAjax({
-                            url:action,
-                            type:'post',
-                            data:{
-                                'data[id]':node.data.key
+                            url: action,
+                            type: 'post',
+                            data: {
+                                'data[id]': node.data.key
                             }
                         });
                     }
@@ -1075,9 +1157,9 @@ ResourcesManager.main = {
         }
         return self.modal;
     },
-    getTree:function(){
+    getTree: function () {
         var self = this;
-        if(self.tree == null){
+        if (self.tree == null) {
             self.tree = new Tag('div');
         }
         return self.tree;
