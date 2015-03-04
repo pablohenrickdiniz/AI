@@ -1,3 +1,11 @@
+Number.regex = {
+    int:/^[0-9]+$/
+};
+
+Number.isInt = function(number){
+    return this.regex.int.test(number+'');
+};
+
 function ProjectManager() {
 }
 function MapManager() {
@@ -827,8 +835,12 @@ ResourcesManager.tileset = {
     canvasImage: null,
     canvasGrid: null,
     canvasGridDraw: null,
+    canvasGridRegion:null,
+    canvasGridDrawRegion:null,
     canvasAligner:null,
+    canvasAlignerRegion:null,
     gridContext: null,
+    gridRegionContext:null,
     tabPaneImage: null,
     tabPaneGrid: null,
     tabPaneRegion: null,
@@ -844,6 +856,44 @@ ResourcesManager.tileset = {
     ],
     passo: 0,
     image: null,
+    rows:null,
+    cols:null,
+    gridMouseReader:null,
+    startPoint:null,
+    left:false,
+    getGridMouseReader:function(){
+        var self = this;
+        if(self.gridMouseReader == null){
+            self.gridMouseReader = new MouseReader(self.getCanvasGridDrawRegion().element);
+            self.gridMouseReader.start();
+            self.gridMouseReader.onmousemove(function(){
+                var reader = this;
+                if(reader.left && self.left){
+                    var vertexB = reader.vertex;
+                    var vertexA = self.startPoint;
+
+                    var x = vertexB[0] - vertexA[0];
+                    var y = vertexB[1] - vertexA[1];
+
+                    var dis = Math.sqrt(x*x+y*y);
+                    console.log(dis);
+                }
+            });
+            self.gridMouseReader.onmousedown(MouseReader.LEFT,function(){
+                self.startPoint = [this.vertex[0],this.vertex[1]];
+            });
+            self.gridMouseReader.onmouseup(MouseReader.LEFT,function(){
+                self.startPoint = [0,0];
+            });
+            $(document).on('mousedown',function(){
+                self.left = true;
+            });
+            $(document).on('mouseup',function(){
+                self.left = false;
+            });
+        }
+        return self.gridMouseReader;
+    },
     getFileExt: function (filename) {
         var index = filename.lastIndexOf('.');
         var ext = '';
@@ -856,24 +906,54 @@ ResourcesManager.tileset = {
         var self = this;
         var rows = self.getRowInput().val();
         var cols = self.getColInput().val();
-        var image = self.getImage();
-        var w = image.width / cols;
-        var h = image.height / rows;
-        w = w < 32 ? 32 : w;
-        h = h < 32 ? 32 : h;
-        self.clearGrid();
-        var ctx = self.getGridContext();
-        ctx.setLineDash([2,2]);
-        for (var i = 0; i <= image.width; i += w) {
-            for (var j = 0; j <= image.height; j += h) {
-                ctx.strokeRect(i, j, w, h);
+        if(Number.isInt(rows) && Number.isInt(cols) && rows > 0 && cols > 0){
+            self.rows = rows;
+            self.cols = cols;
+            var image = self.getImage();
+            var w = image.width / cols;
+            var h = image.height / rows;
+            w = w < 32 ? 32 : w;
+            h = h < 32 ? 32 : h;
+            self.clearGrid();
+            var ctx = self.getGridContext();
+            ctx.setLineDash([2,2]);
+            for (var i = 0; i <= image.width; i += w) {
+                for (var j = 0; j <= image.height; j += h) {
+                    ctx.strokeRect(i, j, w, h);
+                }
             }
         }
-
+    },
+    drawGridRegion: function () {
+        var self = this;
+        var rows = self.rows;
+        var cols = self.cols;
+        if(Number.isInt(rows) && Number.isInt(cols) && rows > 0 && cols > 0){
+            var image = self.getImage();
+            var w = image.width / cols;
+            var h = image.height / rows;
+            w = w < 32 ? 32 : w;
+            h = h < 32 ? 32 : h;
+            self.clearGrid();
+            var ctx = self.getGridRegionContext();
+            ctx.setLineDash([2,2]);
+            for (var i = 0; i <= image.width; i += w) {
+                for (var j = 0; j <= image.height; j += h) {
+                    ctx.strokeRect(i, j, w, h);
+                }
+            }
+        }
     },
     clearGrid: function () {
         var self = this;
         var ctx = self.getGridContext();
+        var image = self.getImage();
+        ctx.fillStyle = 'transparent';
+        ctx.clearRect(0, 0, image.width, image.height);
+    },
+    clearGridRegion:function(){
+        var self = this;
+        var ctx = self.getGridRegionContext();
         var image = self.getImage();
         ctx.fillStyle = 'transparent';
         ctx.clearRect(0, 0, image.width, image.height);
@@ -885,6 +965,14 @@ ResourcesManager.tileset = {
             self.gridContext = canvas.element.getContext('2d');
         }
         return self.gridContext;
+    },
+    getGridRegionContext: function () {
+        var self = this;
+        if (self.gridRegionContext == null) {
+            var canvas = self.getCanvasGridDrawRegion();
+            self.gridRegionContext = canvas.element.getContext('2d');
+        }
+        return self.gridRegionContext;
     },
     getImageInput: function () {
         var self = this;
@@ -952,6 +1040,13 @@ ResourcesManager.tileset = {
         var self = this;
         if (self.tabPaneRegion == null) {
             self.tabPaneRegion = new TabPane('resource-region');
+            var container = self.tabPaneRegion.addContainer('row');
+            container.css('overflow', 'hidden').css('padding', '20px');
+            var canvasContainer = container.addContainer('col-md-12 form-group', '');
+            self.canvasAlignerRegion = canvasContainer.addContainer('', self.getCanvasGridRegion());
+            self.canvasAlignerRegion.add(self.getCanvasGridDrawRegion());
+            self.canvasAlignerRegion.css('margin','auto');
+            canvasContainer.css('width', '100%').css('height', '300px').css('border', '1px dashed gray').css('overflow', 'scroll');
         }
         return self.tabPaneRegion;
     },
@@ -971,6 +1066,14 @@ ResourcesManager.tileset = {
         }
         return self.canvasGrid;
     },
+    getCanvasGridRegion:function(){
+        var self = this;
+        if (self.canvasGridRegion == null) {
+            self.canvasGridRegion = new Tag('canvas');
+            self.canvasGridRegion.setAttribute('width', '550px').setAttribute('height', 'auto').css('position', 'absolute').css('z-index', 1);
+        }
+        return self.canvasGridRegion;
+    },
     getCanvasGridDraw: function () {
         var self = this;
         if (self.canvasGridDraw == null) {
@@ -978,6 +1081,14 @@ ResourcesManager.tileset = {
             self.canvasGridDraw.setAttribute('width', '550px').setAttribute('height', 'auto').css('position', 'absolute').css('z-index', 2).css('margin','auto');
         }
         return self.canvasGridDraw;
+    },
+    getCanvasGridDrawRegion: function () {
+        var self = this;
+        if (self.canvasGridDrawRegion == null) {
+            self.canvasGridDrawRegion = new Tag('canvas');
+            self.canvasGridDrawRegion.setAttribute('width', '550px').setAttribute('height', 'auto').css('position', 'absolute').css('z-index', 2).css('margin','auto');
+        }
+        return self.canvasGridDrawRegion;
     },
     getModal: function () {
         var self = this;
@@ -1002,6 +1113,7 @@ ResourcesManager.tileset = {
                 self.getTabPaneRegion().removeClass('active');
                 self.getTabItemRegion().removeClass('active');
             });
+            self.getGridMouseReader();
         }
         return self.modal;
     },
@@ -1034,7 +1146,7 @@ ResourcesManager.tileset = {
                 add(self.getTabItemImage()).
                 add(self.getTabItemGrid()).
                 add(self.getTabItemRegion());
-            self.tabPanel.getTabContent().add(self.getTabPaneImage()).add(self.getTabPaneGrid());
+            self.tabPanel.getTabContent().add(self.getTabPaneImage()).add(self.getTabPaneGrid()).add(self.getTabPaneRegion());
         }
         return self.tabPanel;
     },
@@ -1046,21 +1158,37 @@ ResourcesManager.tileset = {
                 val('Próximo').
                 addClass('btn btn-primary').
                 disable().click(function () {
+                    var image = null;
+                    var ctx = null;
                     if (self.passo == 0) {
                         self.passo = 1;
                         self.getTabItemImage().removeClass('active');
                         self.getTabPaneImage().removeClass('active');
                         self.getTabItemGrid().addClass('active');
                         self.getTabPaneGrid().addClass('active');
-                        var image = self.getImage();
+                        image = self.getImage();
                         self.getCanvasGrid().setAttribute('width', image.width + 'px').setAttribute('height', image.height + 'px');
                         self.getCanvasGridDraw().setAttribute('width', image.width + 'px').setAttribute('height', image.height + 'px');
                         self.canvasAligner.css('width',image.width+'px').css('height',image.height+'px');
                         self.getRowInput().setAttribute('max',parseInt(Math.floor(image.height/32)));
                         self.getColInput().setAttribute('max',parseInt(Math.floor(image.width/32)));
-                        var ctx = self.getCanvasGrid().element.getContext('2d');
+                        ctx = self.getCanvasGrid().element.getContext('2d');
                         ctx.drawImage(image, 0, 0);
                         self.drawGrid();
+                    }
+                    else if(self.passo==1){
+                        self.passo = 2;
+                        self.getTabItemGrid().removeClass('active');
+                        self.getTabPaneGrid().removeClass('active');
+                        self.getTabItemRegion().addClass('active');
+                        self.getTabPaneRegion().addClass('active');
+                        image = self.getImage();
+                        self.getCanvasGridRegion().setAttribute('width', image.width + 'px').setAttribute('height', image.height + 'px');
+                        self.getCanvasGridDrawRegion().setAttribute('width', image.width + 'px').setAttribute('height', image.height + 'px');
+                        self.canvasAlignerRegion.css('width',image.width+'px').css('height',image.height+'px');
+                        ctx = self.getCanvasGridRegion().element.getContext('2d');
+                        ctx.drawImage(image, 0, 0);
+                        self.drawGridRegion();
                     }
                 });
         }
@@ -1083,14 +1211,17 @@ ResourcesManager.tileset = {
         var self = this;
         if (self.rowInput == null) {
             self.rowInput = new Input('number');
+            var func = function(){
+                self.drawGrid();
+            };
             self.rowInput.
                 addClass('form-control').
                 placeholder('Linhas').
                 setAttribute('min', 1).
                 val(1).
-                change(function () {
-                    self.drawGrid();
-                });
+                change(func).
+                keyup(func).
+                focus(func);
         }
         return self.rowInput;
     },
@@ -1098,14 +1229,17 @@ ResourcesManager.tileset = {
         var self = this;
         if (self.colInput == null) {
             self.colInput = new Input('number');
+            var func = function(){
+                self.drawGrid();
+            };
             self.colInput.
                 addClass('form-control').
                 placeholder('Colunas').
                 setAttribute('min', 1).
                 val(1).
-                change(function () {
-                    self.drawGrid();
-                });
+                change(func).
+                keyup(func).
+                focus(func);
         }
         return self.colInput;
     }

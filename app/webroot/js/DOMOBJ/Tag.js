@@ -205,4 +205,3 @@ Tag.prototype.enable = function(){
     var self = this;
     $(self.getDOM()).attr('disabled',false);
 };
-

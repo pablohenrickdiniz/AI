@@ -1,3 +1,5 @@
+<?=$this->Html->script('MouseReader')?>
+<?=$this->Html->script('jquery-mask')?>
 <?=$this->Import->script('DOMOBJ',true)?>
 <script type="text/javascript">
     var Global = {
