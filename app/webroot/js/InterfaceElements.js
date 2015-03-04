@@ -827,6 +827,7 @@ ResourcesManager.tileset = {
     canvasImage: null,
     canvasGrid: null,
     canvasGridDraw: null,
+    canvasAligner:null,
     gridContext: null,
     tabPaneImage: null,
     tabPaneGrid: null,
@@ -858,8 +859,8 @@ ResourcesManager.tileset = {
         var image = self.getImage();
         var w = image.width / cols;
         var h = image.height / rows;
-        w = w < 16 ? 16 : w;
-        h = h < 16 ? 16 : h;
+        w = w < 32 ? 32 : w;
+        h = h < 32 ? 32 : h;
         self.clearGrid();
         var ctx = self.getGridContext();
         ctx.setLineDash([2,2]);
@@ -937,9 +938,11 @@ ResourcesManager.tileset = {
             self.tabPaneGrid = new TabPane('resource-grid');
             var container = self.tabPaneGrid.addContainer('row');
             container.css('overflow', 'hidden').css('padding', '20px');
-            var canvasContainer = container.addContainer('col-md-12 form-group', self.getCanvasGrid());
+            var canvasContainer = container.addContainer('col-md-12 form-group', '');
+            self.canvasAligner = canvasContainer.addContainer('', self.getCanvasGrid());
+            self.canvasAligner.add(self.getCanvasGridDraw());
+            self.canvasAligner.css('margin','auto');
             canvasContainer.css('width', '100%').css('height', '300px').css('border', '1px dashed gray').css('overflow', 'scroll');
-            canvasContainer.add(self.getCanvasGridDraw());
             container.addContainer('col-md-6 form-group', self.getRowInput());
             container.addContainer('col-md-6 form-group', self.getColInput());
         }
@@ -972,7 +975,7 @@ ResourcesManager.tileset = {
         var self = this;
         if (self.canvasGridDraw == null) {
             self.canvasGridDraw = new Tag('canvas');
-            self.canvasGridDraw.setAttribute('width', '550px').setAttribute('height', 'auto').css('position', 'absolute').css('z-index', 2);
+            self.canvasGridDraw.setAttribute('width', '550px').setAttribute('height', 'auto').css('position', 'absolute').css('z-index', 2).css('margin','auto');
         }
         return self.canvasGridDraw;
     },
@@ -1052,6 +1055,9 @@ ResourcesManager.tileset = {
                         var image = self.getImage();
                         self.getCanvasGrid().setAttribute('width', image.width + 'px').setAttribute('height', image.height + 'px');
                         self.getCanvasGridDraw().setAttribute('width', image.width + 'px').setAttribute('height', image.height + 'px');
+                        self.canvasAligner.css('width',image.width+'px').css('height',image.height+'px');
+                        self.getRowInput().setAttribute('max',parseInt(Math.floor(image.height/32)));
+                        self.getColInput().setAttribute('max',parseInt(Math.floor(image.width/32)));
                         var ctx = self.getCanvasGrid().element.getContext('2d');
                         ctx.drawImage(image, 0, 0);
                         self.drawGrid();
