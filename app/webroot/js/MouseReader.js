@@ -17,16 +17,9 @@ function MouseReader(element) {
 MouseReader.prototype.start = function () {
     var self = this;
     $(self.element).mousemove(function (event) {
-        var vd = 0;
-        var hd = 0;
-        $(this).parents().each(function () {
-            vd += $(this).scrollTop();
-            hd += $(this).scrollLeft();
-        });
-        vd -= $(this).scrollTop();
-        hd -= $(this).scrollLeft();
-        self.vertex[0] = (event.pageX - ($(this)[0].offsetLeft - pageXOffset)) - hd;
-        self.vertex[1] = (event.pageY - ($(this)[0].offsetTop - pageYOffset)) - vd;
+        var x = (event.pageX - $(this).offset().left);
+        var y = (event.pageY - $(this).offset().top);
+        self.vertex = [x,y];
         self.mousemove.forEach(function(callback){
             callback.apply(self);
         });

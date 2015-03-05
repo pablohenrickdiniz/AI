@@ -1,9 +1,9 @@
 Number.regex = {
-    int:/^[0-9]+$/
+    int: /^[0-9]+$/
 };
 
-Number.isInt = function(number){
-    return this.regex.int.test(number+'');
+Number.isInt = function (number) {
+    return this.regex.int.test(number + '');
 };
 
 function ProjectManager() {
@@ -835,12 +835,12 @@ ResourcesManager.tileset = {
     canvasImage: null,
     canvasGrid: null,
     canvasGridDraw: null,
-    canvasGridRegion:null,
-    canvasGridDrawRegion:null,
-    canvasAligner:null,
-    canvasAlignerRegion:null,
+    canvasGridRegion: null,
+    canvasGridDrawRegion: null,
+    canvasAligner: null,
+    canvasAlignerRegion: null,
     gridContext: null,
-    gridRegionContext:null,
+    gridRegionContext: null,
     tabPaneImage: null,
     tabPaneGrid: null,
     tabPaneRegion: null,
@@ -856,39 +856,61 @@ ResourcesManager.tileset = {
     ],
     passo: 0,
     image: null,
-    rows:null,
-    cols:null,
-    gridMouseReader:null,
-    startPoint:null,
-    left:false,
-    getGridMouseReader:function(){
+    rows: null,
+    cols: null,
+    gridMouseReader: null,
+    startPoint: null,
+    left: false,
+    regions:[],
+    rects:[],
+    getGridMouseReader: function () {
         var self = this;
-        if(self.gridMouseReader == null){
+        if (self.gridMouseReader == null) {
             self.gridMouseReader = new MouseReader(self.getCanvasGridDrawRegion().element);
             self.gridMouseReader.start();
-            self.gridMouseReader.onmousemove(function(){
+            self.gridMouseReader.onmousemove(function () {
                 var reader = this;
-                if(reader.left && self.left){
+                if (reader.left && self.left) {
                     var vertexB = reader.vertex;
                     var vertexA = self.startPoint;
 
-                    var x = vertexB[0] - vertexA[0];
-                    var y = vertexB[1] - vertexA[1];
 
-                    var dis = Math.sqrt(x*x+y*y);
-                    console.log(dis);
+                    var w = vertexB[0] - vertexA[0];
+                    var h = vertexB[1] - vertexA[1];
+
+                    var rect = {
+                        x:vertexA[0]+(w<0?w:0),
+                        y:vertexA[1]+(h<0?h:0),
+                        w:Math.abs(w),
+                        h:Math.abs(h)
+                    };
+                    self.region.children = [];
+                    for(var i = 0; i < self.rects.length;i++){
+                        if(self.rects[i].colide(rect)){
+                            self.rects[i].checked = true;
+                            self.region.children.push(self.rects[i]);
+                        }
+                        else{
+                            self.rects[i].checked = false;
+                        }
+                    }
+
+
+                    self.clearGridRegion();
+                    self.drawGridRegion();
                 }
             });
-            self.gridMouseReader.onmousedown(MouseReader.LEFT,function(){
-                self.startPoint = [this.vertex[0],this.vertex[1]];
+            self.gridMouseReader.onmousedown(MouseReader.LEFT, function () {
+                self.startPoint = [this.vertex[0], this.vertex[1]];
             });
-            self.gridMouseReader.onmouseup(MouseReader.LEFT,function(){
-                self.startPoint = [0,0];
+            self.gridMouseReader.onmouseup(MouseReader.LEFT, function () {
+
             });
-            $(document).on('mousedown',function(){
+            $(document).on('mousedown', function () {
                 self.left = true;
+                self.region = new Region('',0,0,0,0);
             });
-            $(document).on('mouseup',function(){
+            $(document).on('mouseup', function () {
                 self.left = false;
             });
         }
@@ -906,7 +928,7 @@ ResourcesManager.tileset = {
         var self = this;
         var rows = self.getRowInput().val();
         var cols = self.getColInput().val();
-        if(Number.isInt(rows) && Number.isInt(cols) && rows > 0 && cols > 0){
+        if (Number.isInt(rows) && Number.isInt(cols) && rows > 0 && cols > 0) {
             self.rows = rows;
             self.cols = cols;
             var image = self.getImage();
@@ -916,7 +938,7 @@ ResourcesManager.tileset = {
             h = h < 32 ? 32 : h;
             self.clearGrid();
             var ctx = self.getGridContext();
-            ctx.setLineDash([2,2]);
+            ctx.setLineDash([2, 2]);
             for (var i = 0; i <= image.width; i += w) {
                 for (var j = 0; j <= image.height; j += h) {
                     ctx.strokeRect(i, j, w, h);
@@ -926,21 +948,31 @@ ResourcesManager.tileset = {
     },
     drawGridRegion: function () {
         var self = this;
+        var rects = self.rects;
+        var ctx = self.getGridRegionContext();
+        ctx.strokeStyle = '#00000';
+        ctx.fillStyle = 'rgba(180,0,0,0.5)';
+
+        for(var i = 0; i < rects.length;i++){
+            var rect = rects[i];
+            ctx.strokeRect(rect.x,rect.y,rect.w,rect.h);
+            if(rect.checked){
+                ctx.fillRect(rect.x,rect.y,rect.w,rect.h);
+            }
+        }
+    },
+    createGridRects:function(){
+        var self = this;
         var rows = self.rows;
         var cols = self.cols;
-        if(Number.isInt(rows) && Number.isInt(cols) && rows > 0 && cols > 0){
-            var image = self.getImage();
-            var w = image.width / cols;
-            var h = image.height / rows;
-            w = w < 32 ? 32 : w;
-            h = h < 32 ? 32 : h;
-            self.clearGrid();
-            var ctx = self.getGridRegionContext();
-            ctx.setLineDash([2,2]);
-            for (var i = 0; i <= image.width; i += w) {
-                for (var j = 0; j <= image.height; j += h) {
-                    ctx.strokeRect(i, j, w, h);
-                }
+        var image = self.getImage();
+        var w = image.width/cols;
+        var h = image.height/rows;
+        self.rects = [];
+        for (var i = 0; i <= image.width; i += w) {
+            for (var j = 0; j <= image.height; j += h) {
+                var rect = new Rect(i,j,w,h);
+                self.rects.push(rect);
             }
         }
     },
@@ -951,7 +983,7 @@ ResourcesManager.tileset = {
         ctx.fillStyle = 'transparent';
         ctx.clearRect(0, 0, image.width, image.height);
     },
-    clearGridRegion:function(){
+    clearGridRegion: function () {
         var self = this;
         var ctx = self.getGridRegionContext();
         var image = self.getImage();
@@ -1029,7 +1061,7 @@ ResourcesManager.tileset = {
             var canvasContainer = container.addContainer('col-md-12 form-group', '');
             self.canvasAligner = canvasContainer.addContainer('', self.getCanvasGrid());
             self.canvasAligner.add(self.getCanvasGridDraw());
-            self.canvasAligner.css('margin','auto');
+            self.canvasAligner.css('margin', 'auto');
             canvasContainer.css('width', '100%').css('height', '300px').css('border', '1px dashed gray').css('overflow', 'scroll');
             container.addContainer('col-md-6 form-group', self.getRowInput());
             container.addContainer('col-md-6 form-group', self.getColInput());
@@ -1045,7 +1077,7 @@ ResourcesManager.tileset = {
             var canvasContainer = container.addContainer('col-md-12 form-group', '');
             self.canvasAlignerRegion = canvasContainer.addContainer('', self.getCanvasGridRegion());
             self.canvasAlignerRegion.add(self.getCanvasGridDrawRegion());
-            self.canvasAlignerRegion.css('margin','auto');
+            self.canvasAlignerRegion.css('margin', 'auto');
             canvasContainer.css('width', '100%').css('height', '300px').css('border', '1px dashed gray').css('overflow', 'scroll');
         }
         return self.tabPaneRegion;
@@ -1066,7 +1098,7 @@ ResourcesManager.tileset = {
         }
         return self.canvasGrid;
     },
-    getCanvasGridRegion:function(){
+    getCanvasGridRegion: function () {
         var self = this;
         if (self.canvasGridRegion == null) {
             self.canvasGridRegion = new Tag('canvas');
@@ -1078,7 +1110,7 @@ ResourcesManager.tileset = {
         var self = this;
         if (self.canvasGridDraw == null) {
             self.canvasGridDraw = new Tag('canvas');
-            self.canvasGridDraw.setAttribute('width', '550px').setAttribute('height', 'auto').css('position', 'absolute').css('z-index', 2).css('margin','auto');
+            self.canvasGridDraw.setAttribute('width', '550px').setAttribute('height', 'auto').css('position', 'absolute').css('z-index', 2).css('margin', 'auto');
         }
         return self.canvasGridDraw;
     },
@@ -1086,7 +1118,7 @@ ResourcesManager.tileset = {
         var self = this;
         if (self.canvasGridDrawRegion == null) {
             self.canvasGridDrawRegion = new Tag('canvas');
-            self.canvasGridDrawRegion.setAttribute('width', '550px').setAttribute('height', 'auto').css('position', 'absolute').css('z-index', 2).css('margin','auto');
+            self.canvasGridDrawRegion.setAttribute('width', '550px').setAttribute('height', 'auto').css('position', 'absolute').css('z-index', 2).css('margin', 'auto');
         }
         return self.canvasGridDrawRegion;
     },
@@ -1106,6 +1138,7 @@ ResourcesManager.tileset = {
                 canvas.setAttribute('width', '550px').setAttribute('height', 'auto');
                 self.getImageInput().val('');
                 self.passo = 0;
+                self.regions = [];
             });
             self.modal.onclose(function () {
                 self.getTabPaneGrid().removeClass('active');
@@ -1169,15 +1202,16 @@ ResourcesManager.tileset = {
                         image = self.getImage();
                         self.getCanvasGrid().setAttribute('width', image.width + 'px').setAttribute('height', image.height + 'px');
                         self.getCanvasGridDraw().setAttribute('width', image.width + 'px').setAttribute('height', image.height + 'px');
-                        self.canvasAligner.css('width',image.width+'px').css('height',image.height+'px');
-                        self.getRowInput().setAttribute('max',parseInt(Math.floor(image.height/32)));
-                        self.getColInput().setAttribute('max',parseInt(Math.floor(image.width/32)));
+                        self.canvasAligner.css('width', image.width + 'px').css('height', image.height + 'px');
+                        self.getRowInput().setAttribute('max', parseInt(Math.floor(image.height / 32)));
+                        self.getColInput().setAttribute('max', parseInt(Math.floor(image.width / 32)));
                         ctx = self.getCanvasGrid().element.getContext('2d');
                         ctx.drawImage(image, 0, 0);
                         self.drawGrid();
                     }
-                    else if(self.passo==1){
+                    else if (self.passo == 1) {
                         self.passo = 2;
+                        self.createGridRects();
                         self.getTabItemGrid().removeClass('active');
                         self.getTabPaneGrid().removeClass('active');
                         self.getTabItemRegion().addClass('active');
@@ -1185,7 +1219,7 @@ ResourcesManager.tileset = {
                         image = self.getImage();
                         self.getCanvasGridRegion().setAttribute('width', image.width + 'px').setAttribute('height', image.height + 'px');
                         self.getCanvasGridDrawRegion().setAttribute('width', image.width + 'px').setAttribute('height', image.height + 'px');
-                        self.canvasAlignerRegion.css('width',image.width+'px').css('height',image.height+'px');
+                        self.canvasAlignerRegion.css('width', image.width + 'px').css('height', image.height + 'px');
                         ctx = self.getCanvasGridRegion().element.getContext('2d');
                         ctx.drawImage(image, 0, 0);
                         self.drawGridRegion();
@@ -1211,7 +1245,7 @@ ResourcesManager.tileset = {
         var self = this;
         if (self.rowInput == null) {
             self.rowInput = new Input('number');
-            var func = function(){
+            var func = function () {
                 self.drawGrid();
             };
             self.rowInput.
@@ -1229,7 +1263,7 @@ ResourcesManager.tileset = {
         var self = this;
         if (self.colInput == null) {
             self.colInput = new Input('number');
-            var func = function(){
+            var func = function () {
                 self.drawGrid();
             };
             self.colInput.
