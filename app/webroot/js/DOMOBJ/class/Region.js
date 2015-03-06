@@ -19,6 +19,23 @@ Region.prototype.object = function(){
     };
 };
 
+Region.prototype.clearChildren = function(){
+    var self = this;
+    for(var i = 0; i < self.children.length;i++){
+        self.children[i].inContact = false;
+        if(!self.children[i].inUse){
+            self.children[i].checked = false;
+        }
+    }
+};
+
+Region.prototype.updateInUse = function(){
+    var self = this;
+    for(var i = 0; i < self.children.length;i++){
+        self.children[i].inUse = true;
+    }
+};
+
 Region.prototype.updateSize = function(){
     var self = this;
     var x = null;

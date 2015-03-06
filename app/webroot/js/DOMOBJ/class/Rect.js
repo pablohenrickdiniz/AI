@@ -5,6 +5,8 @@ function Rect(x,y,w,h){
     self.w = w;
     self.h = h;
     self.checked = false;
+    self.inUse = false;
+    self.inContact = false;
 }
 
 Rect.prototype.colide = function(rect){

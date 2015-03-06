@@ -863,6 +863,8 @@ ResourcesManager.tileset = {
     left: false,
     regions:[],
     rects:[],
+    region:null,
+    blocked:false,
     getGridMouseReader: function () {
         var self = this;
         if (self.gridMouseReader == null) {
@@ -870,7 +872,7 @@ ResourcesManager.tileset = {
             self.gridMouseReader.start();
             self.gridMouseReader.onmousemove(function () {
                 var reader = this;
-                if (reader.left && self.left) {
+                if (reader.left && self.left && self.region != null) {
                     var vertexB = reader.vertex;
                     var vertexA = self.startPoint;
 
@@ -885,36 +887,66 @@ ResourcesManager.tileset = {
                         h:Math.abs(h)
                     };
                     self.region.children = [];
+                    var blocked = false;
                     for(var i = 0; i < self.rects.length;i++){
-                        if(self.rects[i].colide(rect)){
-                            self.rects[i].checked = true;
+                        var colide = self.rects[i].colide(rect);
+                        if(colide){
                             self.region.children.push(self.rects[i]);
+                            if(self.rects[i].inUse){
+                                self.rects[i].inContact = true;
+                                blocked = true;
+                            }
+                            else{
+                                self.rects[i].checked = true;
+                            }
                         }
-                        else{
-                            self.rects[i].checked = false;
+                        else {
+                            if(!self.rects[i].inUse){
+                                self.rects[i].checked = false;
+                            }
+                            self.rects[i].inContact = false;
                         }
                     }
 
-
-                    self.clearGridRegion();
-                    self.drawGridRegion();
+                    self.blocked = blocked;
+                    self.refreshDrawGridRegion();
                 }
             });
             self.gridMouseReader.onmousedown(MouseReader.LEFT, function () {
                 self.startPoint = [this.vertex[0], this.vertex[1]];
+                self.region = new Region('',0,0,0,0);
             });
             self.gridMouseReader.onmouseup(MouseReader.LEFT, function () {
+                if(self.region != null){
+                    if(!self.blocked){
+                        self.region.updateSize();
+                        self.regions.push(self.region);
+                        self.region.updateInUse();
+                    }
+                    else{
+                        self.region.clearChildren();
+                    }
+                    self.region = null;
+                }
 
+                self.left = false;
+                self.refreshDrawGridRegion();
             });
             $(document).on('mousedown', function () {
                 self.left = true;
-                self.region = new Region('',0,0,0,0);
             });
             $(document).on('mouseup', function () {
                 self.left = false;
+                self.region = null;
+                self.refreshDrawGridRegion();
             });
         }
         return self.gridMouseReader;
+    },
+    refreshDrawGridRegion:function(){
+        var self = this;
+        self.clearGridRegion();
+        self.drawGridRegion();
     },
     getFileExt: function (filename) {
         var index = filename.lastIndexOf('.');
@@ -951,12 +983,16 @@ ResourcesManager.tileset = {
         var rects = self.rects;
         var ctx = self.getGridRegionContext();
         ctx.strokeStyle = '#00000';
-        ctx.fillStyle = 'rgba(180,0,0,0.5)';
 
         for(var i = 0; i < rects.length;i++){
             var rect = rects[i];
             ctx.strokeRect(rect.x,rect.y,rect.w,rect.h);
-            if(rect.checked){
+            if(rect.checked && !rect.inContact){
+                ctx.fillStyle = 'rgba(0,0,180,0.5)';
+                ctx.fillRect(rect.x,rect.y,rect.w,rect.h);
+            }
+            else if(rect.inContact){
+                ctx.fillStyle = 'rgba(180,0,0,1)';
                 ctx.fillRect(rect.x,rect.y,rect.w,rect.h);
             }
         }
@@ -1036,7 +1072,9 @@ ResourcesManager.tileset = {
         var self = this;
         if (self.image == null) {
             self.image = new Image;
-            self.image.src = URL.createObjectURL(self.getImageInput().element.files[0]);
+            if(self.getImageInput().val() != ''){
+                self.image.src = URL.createObjectURL(self.getImageInput().element.files[0]);
+            }
         }
         return self.image;
     },
@@ -1130,25 +1168,79 @@ ResourcesManager.tileset = {
             self.modal.getBody().add(self.getTabPanel());
             self.modal.getFooter().add(self.getNextButton()).add(self.getCancelButton());
             self.modal.onopen(function () {
-                self.getTabItemImage().addClass('active');
-                self.getTabPaneImage().addClass('active');
-                var canvas = self.getCanvasImage();
-                var ctx = canvas.getDOM().getContext('2d');
-                ctx.clearRect(0, 0, 550, 550);
-                canvas.setAttribute('width', '550px').setAttribute('height', 'auto');
-                self.getImageInput().val('');
-                self.passo = 0;
-                self.regions = [];
+               self.clearData();
             });
             self.modal.onclose(function () {
-                self.getTabPaneGrid().removeClass('active');
-                self.getTabItemGrid().removeClass('active');
-                self.getTabPaneRegion().removeClass('active');
-                self.getTabItemRegion().removeClass('active');
+                self.clearData();
             });
             self.getGridMouseReader();
         }
         return self.modal;
+    },
+    clearVars:function(){
+        var self = this;
+        self.passo = 0;
+        self.image = null;
+        self.rows =  null;
+        self.cols = null;
+        self.start = false;
+        self.regions = [];
+        self.rects = [];
+        self.region = null;
+        self.loading  = false;
+    },
+    clearData:function(){
+        var self= this;
+        self.setTabsToDefault();
+        self.setInputsToDefault();
+        self.clearAllCanvas();
+        self.clearVars();
+    },
+    setInputsToDefault:function(){
+        var self = this;
+        var imageInput = self.getImageInput();
+        var rowInput = self.getRowInput();
+        var colInput = self.getColInput();
+        var next = self.getNextButton();
+        imageInput.val('');
+        rowInput.val(1);
+        colInput.val(1);
+        next.disable();
+    },
+    setTabsToDefault:function(){
+        var self = this;
+        self.getTabItemImage().addClass('active');
+        self.getTabPaneImage().addClass('active');
+        self.getTabPaneGrid().removeClass('active');
+        self.getTabItemGrid().removeClass('active');
+        self.getTabPaneRegion().removeClass('active');
+        self.getTabItemRegion().removeClass('active');
+    },
+    clearAllCanvas:function(){
+        var self = this;
+        var canvasImage = self.getCanvasImage();
+        var canvasGrid = self.getCanvasGrid();
+        var canvasGridDraw = self.getCanvasGridDraw();
+        var canvasGridDrawRegion = self.getCanvasGridDrawRegion();
+        var canvasGridRegion = self.getCanvasGridRegion();
+
+        var ctx1 = canvasImage.getDOM().getContext('2d');
+        var ctx2 = canvasGrid.getDOM().getContext('2d');
+        var ctx3 = canvasGridDraw.getDOM().getContext('2d');
+        var ctx4 = canvasGridDrawRegion.getDOM().getContext('2d');
+        var ctx5 = canvasGridRegion.getDOM().getContext('2d');
+
+        ctx1.clearRect(0, 0, 550, 550);
+        ctx2.clearRect(0, 0, 550, 550);
+        ctx3.clearRect(0, 0, 550, 550);
+        ctx4.clearRect(0, 0, 550, 550);
+        ctx5.clearRect(0, 0, 550, 550);
+
+        canvasImage.setAttribute('width', '550px').setAttribute('height', 'auto');
+        canvasGrid.setAttribute('width', '550px').setAttribute('height', 'auto');
+        canvasGridDraw.setAttribute('width', '550px').setAttribute('height', 'auto');
+        canvasGridDrawRegion.setAttribute('width', '550px').setAttribute('height', 'auto');
+        canvasGridRegion.setAttribute('width', '550px').setAttribute('height', 'auto');
     },
     getTabItemImage: function () {
         var self = this;
