@@ -94,11 +94,19 @@ class AppController extends Controller {
     public function add(){
         $model = $this->model;
         if($this->request->is('post')){
+            $this->$model->create();
             $success = $this->$model->save($this->request->data);
             if($this->messages['add']['show']){
                 $this->showMessage('add',$success);
             }
             return $success;
+        }
+        return false;
+    }
+
+    public function addAjax(){
+        if($this->request->is('ajax')){
+            return $this->add();
         }
         return false;
     }

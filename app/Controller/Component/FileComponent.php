@@ -8,23 +8,19 @@
 
 
 class FileComponent extends Component{
-    public $errors;
     const  READ_LEN = 4096;
-    public function upload(Array $arquivo, $name, Array $permitidos, $pasta){
-        $info = pathinfo($arquivo['name']);
-        $ext = isset($info['extension'])?$info['extension']:'';
+
+    public function upload(Array $arquivo, $nome, Array $permitidos, $destino){
+        $ext = pathinfo($arquivo['name'],PATHINFO_EXTENSION);
         if(empty($permitidos) || in_array($ext, $permitidos)){
-            $destination =  WWW_ROOT . '/files/' . $pasta . '/';
-            if (!file_exists($destination))
-                @mkdir($destination, 0777,true);
-            if(move_uploaded_file($arquivo['tmp_name'], $destination . $name . '.' . $ext)){
-                return $name . "." . $ext;
-            }else{
-                throw new Exception('Falha ao mover arquivo',0);
+            if (!file_exists($destino)){
+                @mkdir($destino, 0777,true);
             }
-        }else{
-            throw new InvalidExtensionException('Extensão '.$ext.' não é permitida',1);
+            if(@move_uploaded_file($arquivo['tmp_name'],$destino.$nome.'.'.$ext)){
+                return $nome.'.'.$ext;
+            }
         }
+        return null;
     }
 
     public function identical($file1, $file2){

@@ -1,20 +1,9 @@
-Number.regex = {
-    int: /^[0-9]+$/
-};
-
-Number.isInt = function (number) {
-    return this.regex.int.test(number + '');
-};
-
-function ProjectManager() {
-}
-function MapManager() {
-}
-function FolderManager() {
-}
-function ResourcesManager() {
-}
-
+Number.regex = {int: /^[0-9]+$/};
+Number.isInt = function (number) {return this.regex.int.test(number + '');};
+function ProjectManager() {}
+function MapManager() {}
+function FolderManager() {}
+function ResourcesManager() {}
 FolderManager.id = Global.project.id;
 FolderManager.type = 'project';
 ResourcesManager.id = 0;
@@ -26,7 +15,6 @@ MapManager.clipboard = {
     type: 'copy',
     value: null
 };
-
 ProjectManager.loadProjects = function (callback) {
     var self = this;
     if (!self.loading) {
@@ -68,7 +56,6 @@ ProjectManager.expand = function (expand) {
         });
     }
 };
-
 
 ProjectManager.reload = function (callback) {
     var self = this;
@@ -825,7 +812,6 @@ MapManager.delete = function () {
     }
 };
 
-
 ResourcesManager.tileset = {
     modal: null,
     loading: false,
@@ -864,7 +850,21 @@ ResourcesManager.tileset = {
     regions:[],
     rects:[],
     region:null,
+    selectedRegion:null,
     blocked:false,
+    contextMenuRegion:null,
+    contextMenuItemDelete:null,
+    contextMenuItemEdit:null,
+    deleteRegion:function(region){
+        var self = this;
+        for(var i = 0; i < self.regions.length;i++){
+            if(self.regions[i] == region){
+                self.regions[i].fullClear();
+                self.regions.splice(i,1);
+                break;
+            }
+        }
+    },
     getGridMouseReader: function () {
         var self = this;
         if (self.gridMouseReader == null) {
@@ -875,8 +875,6 @@ ResourcesManager.tileset = {
                 if (reader.left && self.left && self.region != null) {
                     var vertexB = reader.vertex;
                     var vertexA = self.startPoint;
-
-
                     var w = vertexB[0] - vertexA[0];
                     var h = vertexB[1] - vertexA[1];
 
@@ -915,7 +913,28 @@ ResourcesManager.tileset = {
             self.gridMouseReader.onmousedown(MouseReader.LEFT, function () {
                 self.startPoint = [this.vertex[0], this.vertex[1]];
                 self.region = new Region('',0,0,0,0);
+                self.getContextMenuRegion().css('display','none');
             });
+
+            self.gridMouseReader.onmousedown(MouseReader.RIGHT,function(e){
+                var region = null;
+                var vertex = this.vertex;
+                for(var i = 0; i < self.regions.length;i++){
+                    if(self.regions[i].pointColide(vertex)){
+                        region = self.regions[i];
+                        break;
+                    }
+                }
+                if(region != null){
+                    self.selectedRegion = region;
+                    self.getContextMenuRegion().css('left',vertex[0]+'px').css('top',vertex[1]+'px').css('display','table');
+                }
+                else{
+                    self.getContextMenuRegion().css('display','none');
+                    self.selectedRegion = null;
+                }
+            });
+
             self.gridMouseReader.onmouseup(MouseReader.LEFT, function () {
                 if(self.region != null){
                     if(!self.blocked){
@@ -931,6 +950,7 @@ ResourcesManager.tileset = {
 
                 self.left = false;
                 self.refreshDrawGridRegion();
+
             });
             $(document).on('mousedown', function () {
                 self.left = true;
@@ -1114,8 +1134,8 @@ ResourcesManager.tileset = {
             container.css('overflow', 'hidden').css('padding', '20px');
             var canvasContainer = container.addContainer('col-md-12 form-group', '');
             self.canvasAlignerRegion = canvasContainer.addContainer('', self.getCanvasGridRegion());
-            self.canvasAlignerRegion.add(self.getCanvasGridDrawRegion());
-            self.canvasAlignerRegion.css('margin', 'auto');
+            self.canvasAlignerRegion.add(self.getCanvasGridDrawRegion()).add(self.getContextMenuRegion());
+            self.canvasAlignerRegion.css('margin', 'auto').css('position','relative');
             canvasContainer.css('width', '100%').css('height', '300px').css('border', '1px dashed gray').css('overflow', 'scroll');
         }
         return self.tabPaneRegion;
@@ -1157,6 +1177,11 @@ ResourcesManager.tileset = {
         if (self.canvasGridDrawRegion == null) {
             self.canvasGridDrawRegion = new Tag('canvas');
             self.canvasGridDrawRegion.setAttribute('width', '550px').setAttribute('height', 'auto').css('position', 'absolute').css('z-index', 2).css('margin', 'auto');
+            self.canvasGridDrawRegion.prop('id','canvas-grid-draw-region');
+            $('body').on('contextmenu', '#canvas-grid-draw-region', function(e){
+                    return false;
+                }
+            );
         }
         return self.canvasGridDrawRegion;
     },
@@ -1368,9 +1393,47 @@ ResourcesManager.tileset = {
                 focus(func);
         }
         return self.colInput;
+    },
+    getContextMenuRegion:function(){
+        var self = this;
+        if(self.contextMenuRegion == null){
+            self.contextMenuRegion = new Tag('ul');
+            self.contextMenuRegion.
+                addClass('context-menu');
+            self.contextMenuRegion.
+                add(self.getContextMenuItemEdit()).
+                add(self.getContextMenuItemDelete());
+            self.contextMenuRegion.prop('id','region-context-menu');
+            $('body').on('contextmenu', '#region-context-menu', function(e){
+                    return false;
+                }
+            );
+        }
+        return self.contextMenuRegion;
+    },
+    getContextMenuItemDelete:function(){
+        var self = this;
+        if(self.contextMenuItemDelete == null){
+            self.contextMenuItemDelete = new Tag('li');
+            self.contextMenuItemDelete.add('<a href="#">Apagar</a>');
+            self.contextMenuItemDelete.click(function(){
+                self.deleteRegion(self.selectedRegion);
+                self.refreshDrawGridRegion();
+                self.getContextMenuRegion().css('display','none');
+            });
+
+        }
+        return self.contextMenuItemDelete;
+    },
+    getContextMenuItemEdit:function(){
+        var self = this;
+        if(self.contextMenuItemEdit == null){
+            self.contextMenuItemEdit = new Tag('li');
+            self.contextMenuItemEdit.add('<a href="#">Editar</a>');
+        }
+        return self.contextMenuItemEdit;
     }
 };
-
 
 ResourcesManager.main = {
     modal: null,

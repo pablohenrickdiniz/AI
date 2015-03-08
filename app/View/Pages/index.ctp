@@ -1,147 +1,149 @@
-<?=$this->Html->script('MouseReader')?>
-<?=$this->Html->script('jquery-mask')?>
-<?=$this->Import->script('DOMOBJ',true)?>
+<?= $this->Html->script('MouseReader') ?>
+<?= $this->Html->script('jquery-mask') ?>
+<?= $this->Import->script('DOMOBJ', true) ?>
+<?= $this->Html->css('index')?>
 <script type="text/javascript">
     var Global = {
-        resources:{
-            children:'<?=$this->Html->url(array('controller'=>'resource','action'=>'getResourcesTree'))?>'
+        resources: {
+            children: '<?=$this->Html->url(array('controller'=>'resource','action'=>'getResourcesTree'))?>'
         },
-        project:{
+        project: {
             id:<?=$project_id?>,
-            add:'<?=$this->Html->url(array('controller'=>'project','action'=>'addAjax'))?>',
-            expand:'<?=$this->Html->url(array('controller'=>'project','action'=>'expand'))?>',
-            all:'<?=$this->Html->url(array('controller'=>'project','action'=>'getAll'))?>',
-            mapTree:'<?=$this->Html->url(array('controller'=>'project','action'=>'getMapTree'))?>',
-            exists:'<?=$this->Html->url(array('controller'=>'project','action'=>'exists'))?>',
-            children:'<?=$this->Html->url(array('controller'=>'project','action'=>'getChildren'))?>',
+            add: '<?=$this->Html->url(array('controller'=>'project','action'=>'addAjax'))?>',
+            expand: '<?=$this->Html->url(array('controller'=>'project','action'=>'expand'))?>',
+            all: '<?=$this->Html->url(array('controller'=>'project','action'=>'getAll'))?>',
+            mapTree: '<?=$this->Html->url(array('controller'=>'project','action'=>'getMapTree'))?>',
+            exists: '<?=$this->Html->url(array('controller'=>'project','action'=>'exists'))?>',
+            children: '<?=$this->Html->url(array('controller'=>'project','action'=>'getChildren'))?>',
         },
-        map:{
-            add:'<?=$this->Html->url(array('controller'=>'map','action'=>'add'))?>',
-            edit:'<?=$this->Html->url(array('controller'=>'map','action'=>'edit'))?>',
-            delete:'<?=$this->Html->url(array('controller'=>'map','action'=>'delete'))?>',
-            load:'<?=$this->Html->url(array('controller'=>'map','action'=>'load'))?>',
-            expand:'<?=$this->Html->url(array('controller'=>'map','action'=>'expand'))?>',
-            paste:'<?=$this->Html->url(array('controller'=>'map','action'=>'paste'))?>',
-            children:'<?=$this->Html->url(array('controller'=>'map','action'=>'getChildren'))?>'
+        map: {
+            add: '<?=$this->Html->url(array('controller'=>'map','action'=>'add'))?>',
+            edit: '<?=$this->Html->url(array('controller'=>'map','action'=>'edit'))?>',
+            delete: '<?=$this->Html->url(array('controller'=>'map','action'=>'delete'))?>',
+            load: '<?=$this->Html->url(array('controller'=>'map','action'=>'load'))?>',
+            expand: '<?=$this->Html->url(array('controller'=>'map','action'=>'expand'))?>',
+            paste: '<?=$this->Html->url(array('controller'=>'map','action'=>'paste'))?>',
+            children: '<?=$this->Html->url(array('controller'=>'map','action'=>'getChildren'))?>'
         },
-        pages:{
-            isOnline:'<?=$this->Html->url(array('controller'=>'pages','action'=>'isOnline'))?>',
-            index:'<?=$this->Html->url('/')?>'
+        pages: {
+            isOnline: '<?=$this->Html->url(array('controller'=>'pages','action'=>'isOnline'))?>',
+            index: '<?=$this->Html->url('/')?>'
         }
     };
 
 </script>
-<?=$this->Html->script('InterfaceElements')?>
+<?= $this->Html->script('InterfaceElements') ?>
 <script type="text/javascript">
-$(document).ready(function () {
-    ProjectManager.load();
+    $(document).ready(function () {
 
-    $("#new-project").click(function () {
-        ProjectManager.create.getModal().open();
-    });
+        ProjectManager.load();
 
-    $('#open-project').click(function () {
-        ProjectManager.loadProjects(function () {
-            ProjectManager.open.getModal().open();
+        $("#new-project").click(function () {
+            ProjectManager.create.getModal().open();
         });
+
+        $('#open-project').click(function () {
+            ProjectManager.loadProjects(function () {
+                ProjectManager.open.getModal().open();
+            });
+        });
+
+        $('#resources').click(function () {
+            ResourcesManager.main.getModal().open();
+        });
+
+        $(document).on('mousedown', '.dynatree-node:not(.resource,.resources)', function (event) {
+            if (event.which == 3) {
+                var id = $(this).parent().prop('id');
+                id = id.split(':')[1];
+                FolderManager.id = id;
+                if ($(this).hasClass('map')) {
+                    FolderManager.type = 'map';
+                }
+                else if ($(this).hasClass('project')) {
+                    FolderManager.type = 'project';
+                }
+            }
+        });
+
+        $(document).on('mousedown', '.dynatree-node.resource', function (event) {
+            if (event.which == 3) {
+                var id = $(this).parent().prop('id');
+                id = id.split(':')[1];
+                if (id == 8) {
+                    ResourcesManager.id = 8;
+                }
+            }
+        });
+
+
+        $.contextMenu({
+            selector: '.resource',
+            callback: function (key) {
+                if (key == 'new') {
+                    ResourcesManager.tileset.getModal().open();
+                }
+            },
+            items: {
+                "new": {'name': "Adicionar Recurso", 'icon': 'add'}
+            }
+        });
+
+        $.contextMenu({
+            selector: '.map',
+            callback: function (key) {
+                if (key == 'new') {
+                    MapManager.create.getModal().open();
+                }
+                else if (key == 'edit') {
+                    MapManager.edit.load(function () {
+                        var self = this;
+                        self.getModal().open();
+                    });
+                }
+                else if (key == 'delete') {
+                    MapManager.delete();
+                }
+                else if (key == 'copy') {
+                    MapManager.copy();
+                }
+                else if (key == 'cut') {
+                    MapManager.cut();
+                }
+                else if (key == 'paste') {
+                    MapManager.paste();
+                }
+            },
+            items: {
+                "edit": {name: "Alterar propriedades", icon: "edit"},
+                'sp1': '-----------',
+                'new': {name: 'Novo Mapa', icon: "add"},
+                'sp2': '-----------',
+                "copy": {name: "Copiar", icon: "copy"},
+                "cut": {name: "Recortar", icon: "cut"},
+                "paste": {name: "Colar", icon: "paste"},
+                "delete": {name: "Apagar", icon: "delete"}
+            }
+        });
+
+        $.contextMenu({
+            selector: '.project',
+            callback: function (key) {
+                if (key == 'new') {
+                    MapManager.create.getModal().open();
+                }
+                else if (key == 'paste') {
+                    MapManager.paste();
+                }
+            },
+            items: {
+                'new': {name: 'Novo Mapa', icon: "add"},
+                'sp2': '-----------',
+                "paste": {name: "Colar", icon: "paste"}
+            }
+        });
+
     });
-
-    $('#resources').click(function(){
-        ResourcesManager.main.getModal().open();
-    });
-
-    $(document).on('mousedown', '.dynatree-node:not(.resource,.resources)', function (event) {
-        if (event.which == 3) {
-            var id = $(this).parent().prop('id');
-            id = id.split(':')[1];
-            FolderManager.id = id;
-            if ($(this).hasClass('map')) {
-                FolderManager.type = 'map';
-            }
-            else if ($(this).hasClass('project')) {
-                FolderManager.type = 'project';
-            }
-        }
-    });
-
-    $(document).on('mousedown','.dynatree-node.resource',function(event){
-        if(event.which == 3){
-            var id = $(this).parent().prop('id');
-            id = id.split(':')[1];
-            if(id == 8){
-                ResourcesManager.id = 8;
-            }
-        }
-    });
-
-
-    $.contextMenu({
-        selector:'.resource',
-        callback:function(key){
-            if(key == 'new'){
-                ResourcesManager.tileset.getModal().open();
-            }
-        },
-        items:{
-            "new":{'name':"Adicionar Recurso",'icon':'add'}
-        }
-    });
-
-    $.contextMenu({
-        selector: '.map',
-        callback: function (key) {
-            if (key == 'new') {
-                MapManager.create.getModal().open();
-            }
-            else if (key == 'edit') {
-                MapManager.edit.load(function(){
-                    var self = this;
-                    self.getModal().open();
-                });
-            }
-            else if (key == 'delete') {
-                MapManager.delete();
-            }
-            else if (key == 'copy') {
-                MapManager.copy();
-            }
-            else if(key == 'cut'){
-                MapManager.cut();
-            }
-            else if (key == 'paste') {
-                MapManager.paste();
-            }
-        },
-        items: {
-            "edit": {name: "Alterar propriedades", icon: "edit"},
-            'sp1': '-----------',
-            'new': {name: 'Novo Mapa', icon: "add"},
-            'sp2': '-----------',
-            "copy": {name: "Copiar", icon: "copy"},
-            "cut":{name:"Recortar",icon:"cut"},
-            "paste": {name: "Colar", icon: "paste"},
-            "delete": {name: "Apagar", icon: "delete"}
-        }
-    });
-
-    $.contextMenu({
-        selector: '.project',
-        callback: function (key) {
-            if (key == 'new') {
-               MapManager.create.getModal().open();
-            }
-            else if(key == 'paste'){
-               MapManager.paste();
-            }
-        },
-        items: {
-            'new': {name: 'Novo Mapa', icon: "add"},
-            'sp2': '-----------',
-            "paste": {name: "Colar", icon: "paste"}
-        }
-    });
-
-});
 </script>
 <nav class="navbar navbar-default" id="navbar-editor">
     <div class="container-fluid">

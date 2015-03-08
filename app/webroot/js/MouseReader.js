@@ -21,29 +21,28 @@ MouseReader.prototype.start = function () {
         var y = (event.pageY - $(this).offset().top);
         self.vertex = [x,y];
         self.mousemove.forEach(function(callback){
-            callback.apply(self);
+            callback.apply(self,[event]);
         });
     });
 
     $(self.element).mousedown(function (event) {
-
         switch (event.which) {
             case 1:
                 self.left = true;
                 self.leftdown.forEach(function (callback) {
-                    callback.apply(self);
+                    callback.apply(self,[event]);
                 });
                 break;
             case 2:
                 self.middle = true;
                 self.middledown.forEach(function (callback) {
-                    callback.apply(self);
+                    callback.apply(self,[event]);
                 });
                 break;
             case 3:
                 self.right = true;
                 self.rightdown.forEach(function (callback) {
-                    callback.apply(self);
+                    callback.apply(self,[event]);
                 });
         }
     });
@@ -53,19 +52,19 @@ MouseReader.prototype.start = function () {
             case 1:
                 self.left = false;
                 self.leftup.forEach(function (callback) {
-                    callback.apply(self);
+                    callback.apply(self,[event]);
                 });
                 break;
             case 2:
                 self.middle = false;
                 self.middleup.forEach(function (callback) {
-                    callback.apply(self);
+                    callback.apply(self,[event]);
                 });
                 break;
             case 3:
                 self.right = false;
                 self.rightup.forEach(function (callback) {
-                    callback.apply(self);
+                    callback.apply(self,[event]);
                 });
         }
     });
