@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: 01-Mar-2015 às 01:13
+-- Generation Time: 09-Mar-2015 às 15:25
 -- Versão do servidor: 5.6.16
 -- PHP Version: 5.5.9
 
@@ -27,6 +27,20 @@ CREATE TABLE IF NOT EXISTS `banned_user` (
   `ban_end` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `category`
+--
+
+CREATE TABLE IF NOT EXISTS `category` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  UNIQUE KEY `name_2` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -64,7 +78,7 @@ CREATE TABLE IF NOT EXISTS `map` (
   UNIQUE KEY `parent_id` (`parent_id`,`name`),
   UNIQUE KEY `project_id` (`project_id`,`name`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=20 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -107,12 +121,43 @@ CREATE TABLE IF NOT EXISTS `project_resource` (
 CREATE TABLE IF NOT EXISTS `resource` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `category` int(11) NOT NULL,
-  `type` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  `path` varchar(512) COLLATE utf8_unicode_ci NOT NULL,
+  `file` varchar(512) COLLATE utf8_unicode_ci NOT NULL,
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `user_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `resource_region`
+--
+
+CREATE TABLE IF NOT EXISTS `resource_region` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `x` int(11) NOT NULL DEFAULT '0',
+  `y` int(11) NOT NULL DEFAULT '0',
+  `w` int(11) NOT NULL DEFAULT '32',
+  `h` int(11) NOT NULL DEFAULT '32',
+  `resource_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `resource_id` (`resource_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `resource_region_category`
+--
+
+CREATE TABLE IF NOT EXISTS `resource_region_category` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `resource_region_id` int(11) NOT NULL,
+  `category_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `resource_region_id` (`resource_region_id`,`category_id`),
+  KEY `category_id` (`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -148,7 +193,7 @@ CREATE TABLE IF NOT EXISTS `user_access_log` (
   `ip` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id_2` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=19 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=41 ;
 
 -- --------------------------------------------------------
 
@@ -178,7 +223,7 @@ CREATE TABLE IF NOT EXISTS `user_config` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
   KEY `config_ibfk_1` (`last_project_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=5 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=3 ;
 
 --
 -- Constraints for dumped tables
@@ -218,6 +263,19 @@ ALTER TABLE `resource`
 ADD CONSTRAINT `resource_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
+-- Limitadores para a tabela `resource_region`
+--
+ALTER TABLE `resource_region`
+ADD CONSTRAINT `resource_region_ibfk_1` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`);
+
+--
+-- Limitadores para a tabela `resource_region_category`
+--
+ALTER TABLE `resource_region_category`
+ADD CONSTRAINT `resource_region_category_ibfk_1` FOREIGN KEY (`resource_region_id`) REFERENCES `resource_region` (`id`),
+ADD CONSTRAINT `resource_region_category_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`);
+
+--
 -- Limitadores para a tabela `user_access_log`
 --
 ALTER TABLE `user_access_log`
@@ -233,5 +291,5 @@ ADD CONSTRAINT `user_activity_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users`
 -- Limitadores para a tabela `user_config`
 --
 ALTER TABLE `user_config`
-ADD CONSTRAINT `user_config_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-ADD CONSTRAINT `user_config_ibfk_1` FOREIGN KEY (`last_project_id`) REFERENCES `project` (`id`) ON DELETE SET NULL ON UPDATE SET NULL;
+ADD CONSTRAINT `user_config_ibfk_1` FOREIGN KEY (`last_project_id`) REFERENCES `project` (`id`) ON DELETE SET NULL ON UPDATE SET NULL,
+ADD CONSTRAINT `user_config_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
