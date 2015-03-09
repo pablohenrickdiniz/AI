@@ -1,11 +1,12 @@
-function Region(label, x, y, w, h) {
+function Region(x, y, w, h) {
     var self = this;
-    self.label = label;
     self.x = x;
     self.y = y;
     self.w = w;
     self.h = h;
     self.children = [];
+    self.name = '';
+    self.category = ''
 }
 
 Region.prototype.object = function () {

@@ -55,14 +55,18 @@ Tag.prototype.addContainer = function(className,element){
     return container;
 };
 
-Tag.prototype.add = function(element){
+Tag.prototype.add = function(){
     var self = this;
-    if(element instanceof Tag){
-        $(self.getDOM()).append(element.getDOM());
+    for(var i = 0; i < arguments.length;i++){
+        var element = arguments[i];
+        if(element instanceof Tag){
+            $(self.getDOM()).append(element.getDOM());
+        }
+        else{
+            $(self.getDOM()).append(element);
+        }
     }
-    else{
-        $(self.getDOM()).append(element);
-    }
+
     return self;
 };
 

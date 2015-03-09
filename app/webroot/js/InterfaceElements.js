@@ -812,6 +812,65 @@ MapManager.delete = function () {
     }
 };
 
+ResourcesManager.category = {
+    modal:null,
+    inputCategory:null,
+    confirm:null,
+    cancel:null,
+    region:null,
+    getModal:function(){
+        var self = this;
+        if(self.modal == null){
+            self.modal = new Modal();
+            self.modal.setTitle('Propriedades da região');
+            var row = self.modal.getBody().addContainer('row','');
+            row.addContainer('col-md-12 form-group',self.getInputName());
+            row.addContainer('col-md-12 form-group',self.getInputCategory());
+            self.modal.getFooter().add(self.getConfirm(),self.getCancel);
+        }
+        return self.modal;
+    },
+    getInputCategory:function(){
+        var self = this;
+        if(self.inputCategory == null){
+            self.inputCategory = new Input();
+            self.inputCategory.addClass('form-control').placeholder('Categoria');
+        }
+        return self.inputCategory;
+    },
+    getInputName:function(){
+        var self = this;
+        if(self.inputName == null){
+            self.inputName = new Input();
+            self.inputName.addClass('form-control').placeholder('Nome');
+        }
+        return self.inputName;
+    },
+    getConfirm:function(){
+        var self = this;
+        if(self.confirm == null){
+            self.confirm = new Button();
+            self.confirm.addClass('btn btn-success').val('Confirmar');
+            self.confirm.click(function(){
+                var name = self.getInputName().val();
+                var category = self.getInputCategory().val();
+                self.region.name = name;
+                self.region.category = category;
+                self.getModal().close();
+            });
+        }
+        return self.confirm;
+    },
+    getCancel:function(){
+        var self = this;
+        if(self.cancel == null){
+            self.cancel = new Button();
+            self.cancel.addClass('btn btn-default').val('Cancelar');
+        }
+        return self.cancel;
+    }
+};
+
 ResourcesManager.tileset = {
     modal: null,
     loading: false,
@@ -941,6 +1000,8 @@ ResourcesManager.tileset = {
                         self.region.updateSize();
                         self.regions.push(self.region);
                         self.region.updateInUse();
+                        ResourcesManager.category.region = self.region;
+                        ResourcesManager.category.getModal().open();
                     }
                     else{
                         self.region.clearChildren();
