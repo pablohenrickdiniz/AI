@@ -15,6 +15,8 @@ MapManager.clipboard = {
     type: 'copy',
     value: null
 };
+
+
 ProjectManager.loadProjects = function (callback) {
     var self = this;
     if (!self.loading) {
@@ -818,6 +820,9 @@ ResourcesManager.category = {
     confirm:null,
     cancel:null,
     region:null,
+    warning:null,
+    inputName:null,
+    valid:false,
     getModal:function(){
         var self = this;
         if(self.modal == null){
@@ -826,7 +831,24 @@ ResourcesManager.category = {
             var row = self.modal.getBody().addContainer('row','');
             row.addContainer('col-md-12 form-group',self.getInputName());
             row.addContainer('col-md-12 form-group',self.getInputCategory());
-            self.modal.getFooter().add(self.getConfirm(),self.getCancel);
+            row.addContainer('col-md-12 form-group',self.getWarning());
+            self.modal.getFooter().add(self.getConfirm(),self.getCancel());
+            self.modal.onopen(function(){
+                self.getWarning().html('').hide();
+                self.getInputCategory().val('');
+                self.getInputName().val('');
+            });
+            self.modal.onclose(function(){
+                self.getWarning().html('').hide();
+                if(self.valid){
+                    self.valid = false;
+                }
+                else{
+                    ResourcesManager.tileset.deleteRegion(self.region);
+                    self.region = null;
+                    ResourcesManager.tileset.refreshDrawGridRegion();
+                }
+            });
         }
         return self.modal;
     },
@@ -846,6 +868,14 @@ ResourcesManager.category = {
         }
         return self.inputName;
     },
+    getWarning:function(){
+        var self = this;
+        if(self.warning == null){
+            self.warning = new Alert(Alert.warning);
+            self.warning.hide();
+        }
+        return self.warning;
+    },
     getConfirm:function(){
         var self = this;
         if(self.confirm == null){
@@ -854,9 +884,28 @@ ResourcesManager.category = {
             self.confirm.click(function(){
                 var name = self.getInputName().val();
                 var category = self.getInputCategory().val();
-                self.region.name = name;
-                self.region.category = category;
-                self.getModal().close();
+                var message = '';
+                var valid = true;
+
+                if(name.trim() == ''){
+                    message += '* O nome da região deve ser preenchido <br>';
+                    valid = false;
+                }
+
+                if(category.trim() == ''){
+                    message += '* A categoria deve ser informada';
+                    valid = false;
+                }
+
+                if(valid){
+                    self.valid = true;
+                    self.region.name = name;
+                    self.region.category = category;
+                    self.getModal().close();
+                }
+                else{
+                    self.getWarning().html(message).show();
+                }
             });
         }
         return self.confirm;
