@@ -822,6 +822,8 @@ ResourcesManager.category = {
     region:null,
     warning:null,
     inputName:null,
+    categoryContainer:null,
+    addCategory:null,
     valid:false,
     getModal:function(){
         var self = this;
@@ -830,7 +832,9 @@ ResourcesManager.category = {
             self.modal.setTitle('Propriedades da região');
             var row = self.modal.getBody().addContainer('row','');
             row.addContainer('col-md-12 form-group',self.getInputName());
-            row.addContainer('col-md-12 form-group',self.getInputCategory());
+            row.addContainer('col-md-8 form-group',self.getInputCategory());
+            row.addContainer('col-md-4 form-group',self.getAddCategory());
+            row.addContainer('col-md-12 form-group',self.getCategoryContainer());
             row.addContainer('col-md-12 form-group',self.getWarning());
             self.modal.getFooter().add(self.getConfirm(),self.getCancel());
             self.modal.onopen(function(){
@@ -851,6 +855,24 @@ ResourcesManager.category = {
             });
         }
         return self.modal;
+    },
+    getAddCategory:function(){
+        var self = this;
+        if(self.addCategory == null){
+               self.addCategory = new Button();
+               self.addCategory.val('Adicionar Categoria');
+               self.addCategory.addClass('btn btn-success');
+        }
+        return self.addCategory;
+    },
+    getCategoryContainer:function(){
+        var self = this;
+        if(self.categoryContainer == null){
+            self.categoryContainer = new Tag('div');
+            self.categoryContainer.addClass('category-container');
+            self.categoryContainer.css('min-height','100px');
+        }
+        return self.categoryContainer;
     },
     getInputCategory:function(){
         var self = this;
@@ -915,6 +937,9 @@ ResourcesManager.category = {
         if(self.cancel == null){
             self.cancel = new Button();
             self.cancel.addClass('btn btn-default').val('Cancelar');
+            self.cancel.click(function(){
+                self.getModal().close();
+            });
         }
         return self.cancel;
     }

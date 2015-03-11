@@ -12,7 +12,8 @@ function Region(x, y, w, h) {
 Region.prototype.object = function () {
     var self = this;
     return {
-        label: self.label,
+        name:self.name,
+        category:self.category,
         x: self.x,
         y: self.y,
         width: self.w,

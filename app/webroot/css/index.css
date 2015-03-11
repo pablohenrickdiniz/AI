@@ -33,3 +33,36 @@ ul.context-menu{
 .context-menu .divider{
     margin:0;
 }
+
+.category-container{
+    border:1px solid #029ae7;
+    padding:2px;
+    overflow:hidden;
+}
+
+.category{
+    border:1px solid #9dcbac;
+    background-color:#e9eade;
+    display:inline-block;
+    margin:2px 0 2px 0;
+    padding-top:2px;
+}
+
+.category:hover{
+    cursor:pointer;
+}
+
+.category:after{
+    display:block !important;
+    content:'\00d7';
+    float:right;
+    text-align:center;
+    height:auto;
+    padding-left:5px;
+    padding-right:5px;
+    font-weight: bolder;
+}
+
+.category:hover:after{
+    background-color:#fbd850;
+}

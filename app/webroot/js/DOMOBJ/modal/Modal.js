@@ -12,6 +12,13 @@ function Modal(){
     });
     self.closeActions = [];
     self.openActions = [];
+
+
+    $(self.getDOM()).on('hidden.bs.modal', function () {
+        for(var i = 0; i < self.closeActions.length;i++){
+            self.closeActions[i]();
+        }
+    });
 }
 
 Modal.prototype.getDialog = function(){
@@ -39,9 +46,6 @@ Modal.prototype.open = function(){
 Modal.prototype.close = function(){
     var self = this;
     $(self.getDOM()).modal('hide');
-    for(var i = 0; i < self.closeActions.length;i++){
-        self.closeActions[i]();
-    }
     return self;
 };
 
