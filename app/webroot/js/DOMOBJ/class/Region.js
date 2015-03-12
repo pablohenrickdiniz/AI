@@ -6,14 +6,14 @@ function Region(x, y, w, h) {
     self.h = h;
     self.children = [];
     self.name = '';
-    self.category = ''
+    self.categories = [];
 }
 
 Region.prototype.object = function () {
     var self = this;
     return {
         name:self.name,
-        category:self.category,
+        category:self.categories,
         x: self.x,
         y: self.y,
         width: self.w,

@@ -12,7 +12,7 @@ Button.prototype.val = function(){
         return $(self.getDOM()).html();
     }
     else{
-        $(self.getDOM()).append(arguments[0]);
+        $(self.getDOM()).html(arguments[0]);
     }
     return self;
 };

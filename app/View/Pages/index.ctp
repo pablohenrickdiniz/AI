@@ -5,7 +5,8 @@
 <script type="text/javascript">
     var Global = {
         resources: {
-            children: '<?=$this->Html->url(array('controller'=>'resource','action'=>'getResourcesTree'))?>'
+            children: '<?=$this->Html->url(array('controller'=>'resource','action'=>'getResourcesTree'))?>',
+            add:'<?=$this->Html->url(array('controller' => 'resource','action'=>'addAjax'))?>'
         },
         project: {
             id:<?=$project_id?>,

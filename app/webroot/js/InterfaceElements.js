@@ -825,6 +825,7 @@ ResourcesManager.category = {
     categoryContainer:null,
     addCategory:null,
     valid:false,
+    categories:[],
     getModal:function(){
         var self = this;
         if(self.modal == null){
@@ -852,9 +853,49 @@ ResourcesManager.category = {
                     self.region = null;
                     ResourcesManager.tileset.refreshDrawGridRegion();
                 }
+                self.getCategoryContainer().clear();
+                self.categories = [];
             });
         }
         return self.modal;
+    },
+    remove:function(category){
+        var self = this;
+        var index = self.categories.indexOf(category);
+        if(index != -1){
+            self.categories.splice(index,1);
+        }
+    },
+    add:function(){
+        var self = this;
+        var category = self.getInputCategory().val();
+        var valid = category.trim() != '';
+        var message = '';
+        if(valid){
+            valid = (self.categories.indexOf(category) == -1);
+            if(valid){
+                var cat = new Category(category);
+                cat.onclose(function(){
+                    self.remove(cat.name);
+                    this.remove();
+                });
+                self.getCategoryContainer().add(cat.getDOM());
+                self.categories.push(category);
+            }
+            else{
+                message = '* Essa categoria já foi adicionada';
+            }
+        }
+        else{
+            message = '* A categoria deve ser preenchida';
+        }
+
+        if(!valid){
+            self.getWarning().html(message).show();
+        }
+        else{
+            self.getWarning().hide();
+        }
     },
     getAddCategory:function(){
         var self = this;
@@ -862,6 +903,9 @@ ResourcesManager.category = {
                self.addCategory = new Button();
                self.addCategory.val('Adicionar Categoria');
                self.addCategory.addClass('btn btn-success');
+               self.addCategory.click(function(){
+                   self.add();
+               });
         }
         return self.addCategory;
     },
@@ -905,7 +949,6 @@ ResourcesManager.category = {
             self.confirm.addClass('btn btn-success').val('Confirmar');
             self.confirm.click(function(){
                 var name = self.getInputName().val();
-                var category = self.getInputCategory().val();
                 var message = '';
                 var valid = true;
 
@@ -914,15 +957,16 @@ ResourcesManager.category = {
                     valid = false;
                 }
 
-                if(category.trim() == ''){
-                    message += '* A categoria deve ser informada';
+                if(self.categories.length == 0){
+                    message += '* Informe pelo menos uma categoria';
                     valid = false;
                 }
 
                 if(valid){
                     self.valid = true;
                     self.region.name = name;
-                    self.region.category = category;
+                    self.region.categories = self.categories;
+                    self.categories = [];
                     self.getModal().close();
                 }
                 else{
@@ -1365,7 +1409,7 @@ ResourcesManager.tileset = {
         imageInput.val('');
         rowInput.val(1);
         colInput.val(1);
-        next.disable();
+        next.disable().removeClass('btn-success').addClass('btn-primary').val('Próximo');
     },
     setTabsToDefault:function(){
         var self = this;
@@ -1475,10 +1519,39 @@ ResourcesManager.tileset = {
                         ctx = self.getCanvasGridRegion().element.getContext('2d');
                         ctx.drawImage(image, 0, 0);
                         self.drawGridRegion();
+                        self.getNextButton().removeClass('btn-primary').addClass('btn-success').val('Concluir');
+                    }
+                    else if(self.passo == 2){
+                        self.getModal().close();
                     }
                 });
         }
         return self.nextButton;
+    },
+    getRegionsJson:function(){
+        var self = this;
+        var json = {regions:[]};
+        for(var i = 0; i < self.regions.length;i++){
+            json.regions.push(self.regions[i].object());
+        }
+        return json;
+    },
+    send:function(){
+        var self = this;
+        if(!self.loading){
+            self.loading = true;
+            var json = self.getRegionsJson();
+            $.ajax({
+                url:Global.resources.add,
+                dataType:'json',
+                success:function(){
+
+                },
+                complete:function(){
+                    self.loading = false;
+                }
+            });
+        }
     },
     getCancelButton: function () {
         var self = this;

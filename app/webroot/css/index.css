@@ -44,7 +44,7 @@ ul.context-menu{
     border:1px solid #9dcbac;
     background-color:#e9eade;
     display:inline-block;
-    margin:2px 0 2px 0;
+    margin:2px 2px 2px 2px;
     padding-top:2px;
 }
 
@@ -52,9 +52,8 @@ ul.context-menu{
     cursor:pointer;
 }
 
-.category:after{
+.category-close{
     display:block !important;
-    content:'\00d7';
     float:right;
     text-align:center;
     height:auto;
@@ -63,6 +62,6 @@ ul.context-menu{
     font-weight: bolder;
 }
 
-.category:hover:after{
+.category-close:hover{
     background-color:#fbd850;
 }
