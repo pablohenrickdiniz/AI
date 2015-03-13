@@ -1,9 +1,15 @@
 Number.regex = {int: /^[0-9]+$/};
-Number.isInt = function (number) {return this.regex.int.test(number + '');};
-function ProjectManager() {}
-function MapManager() {}
-function FolderManager() {}
-function ResourcesManager() {}
+Number.isInt = function (number) {
+    return this.regex.int.test(number + '');
+};
+function ProjectManager() {
+}
+function MapManager() {
+}
+function FolderManager() {
+}
+function ResourcesManager() {
+}
 FolderManager.id = Global.project.id;
 FolderManager.type = 'project';
 ResourcesManager.id = 0;
@@ -815,40 +821,40 @@ MapManager.delete = function () {
 };
 
 ResourcesManager.category = {
-    modal:null,
-    inputCategory:null,
-    confirm:null,
-    cancel:null,
-    region:null,
-    warning:null,
-    inputName:null,
-    categoryContainer:null,
-    addCategory:null,
-    valid:false,
-    categories:[],
-    getModal:function(){
+    modal: null,
+    inputCategory: null,
+    confirm: null,
+    cancel: null,
+    region: null,
+    warning: null,
+    inputName: null,
+    categoryContainer: null,
+    addCategory: null,
+    valid: false,
+    categories: [],
+    getModal: function () {
         var self = this;
-        if(self.modal == null){
+        if (self.modal == null) {
             self.modal = new Modal();
             self.modal.setTitle('Propriedades da região');
-            var row = self.modal.getBody().addContainer('row','');
-            row.addContainer('col-md-12 form-group',self.getInputName());
-            row.addContainer('col-md-8 form-group',self.getInputCategory());
-            row.addContainer('col-md-4 form-group',self.getAddCategory());
-            row.addContainer('col-md-12 form-group',self.getCategoryContainer());
-            row.addContainer('col-md-12 form-group',self.getWarning());
-            self.modal.getFooter().add(self.getConfirm(),self.getCancel());
-            self.modal.onopen(function(){
+            var row = self.modal.getBody().addContainer('row', '');
+            row.addContainer('col-md-12 form-group', self.getInputName());
+            row.addContainer('col-md-8 form-group', self.getInputCategory());
+            row.addContainer('col-md-4 form-group', self.getAddCategory());
+            row.addContainer('col-md-12 form-group', self.getCategoryContainer());
+            row.addContainer('col-md-12 form-group', self.getWarning());
+            self.modal.getFooter().add(self.getConfirm(), self.getCancel());
+            self.modal.onopen(function () {
                 self.getWarning().html('').hide();
                 self.getInputCategory().val('');
                 self.getInputName().val('');
             });
-            self.modal.onclose(function(){
+            self.modal.onclose(function () {
                 self.getWarning().html('').hide();
-                if(self.valid){
+                if (self.valid) {
                     self.valid = false;
                 }
-                else{
+                else {
                     ResourcesManager.tileset.deleteRegion(self.region);
                     self.region = null;
                     ResourcesManager.tileset.refreshDrawGridRegion();
@@ -859,129 +865,129 @@ ResourcesManager.category = {
         }
         return self.modal;
     },
-    remove:function(category){
+    remove: function (category) {
         var self = this;
         var index = self.categories.indexOf(category);
-        if(index != -1){
-            self.categories.splice(index,1);
+        if (index != -1) {
+            self.categories.splice(index, 1);
         }
     },
-    add:function(){
+    add: function () {
         var self = this;
         var category = self.getInputCategory().val();
         var valid = category.trim() != '';
         var message = '';
-        if(valid){
+        if (valid) {
             valid = (self.categories.indexOf(category) == -1);
-            if(valid){
+            if (valid) {
                 var cat = new Category(category);
-                cat.onclose(function(){
+                cat.onclose(function () {
                     self.remove(cat.name);
                     this.remove();
                 });
                 self.getCategoryContainer().add(cat.getDOM());
                 self.categories.push(category);
             }
-            else{
+            else {
                 message = '* Essa categoria já foi adicionada';
             }
         }
-        else{
+        else {
             message = '* A categoria deve ser preenchida';
         }
 
-        if(!valid){
+        if (!valid) {
             self.getWarning().html(message).show();
         }
-        else{
+        else {
             self.getWarning().hide();
         }
     },
-    getAddCategory:function(){
+    getAddCategory: function () {
         var self = this;
-        if(self.addCategory == null){
-               self.addCategory = new Button();
-               self.addCategory.val('Adicionar Categoria');
-               self.addCategory.addClass('btn btn-success');
-               self.addCategory.click(function(){
-                   self.add();
-               });
+        if (self.addCategory == null) {
+            self.addCategory = new Button();
+            self.addCategory.val('Adicionar Categoria');
+            self.addCategory.addClass('btn btn-success');
+            self.addCategory.click(function () {
+                self.add();
+            });
         }
         return self.addCategory;
     },
-    getCategoryContainer:function(){
+    getCategoryContainer: function () {
         var self = this;
-        if(self.categoryContainer == null){
+        if (self.categoryContainer == null) {
             self.categoryContainer = new Tag('div');
             self.categoryContainer.addClass('category-container');
-            self.categoryContainer.css('min-height','100px');
+            self.categoryContainer.css('min-height', '100px');
         }
         return self.categoryContainer;
     },
-    getInputCategory:function(){
+    getInputCategory: function () {
         var self = this;
-        if(self.inputCategory == null){
+        if (self.inputCategory == null) {
             self.inputCategory = new Input();
             self.inputCategory.addClass('form-control').placeholder('Categoria');
         }
         return self.inputCategory;
     },
-    getInputName:function(){
+    getInputName: function () {
         var self = this;
-        if(self.inputName == null){
+        if (self.inputName == null) {
             self.inputName = new Input();
             self.inputName.addClass('form-control').placeholder('Nome');
         }
         return self.inputName;
     },
-    getWarning:function(){
+    getWarning: function () {
         var self = this;
-        if(self.warning == null){
+        if (self.warning == null) {
             self.warning = new Alert(Alert.warning);
             self.warning.hide();
         }
         return self.warning;
     },
-    getConfirm:function(){
+    getConfirm: function () {
         var self = this;
-        if(self.confirm == null){
+        if (self.confirm == null) {
             self.confirm = new Button();
             self.confirm.addClass('btn btn-success').val('Confirmar');
-            self.confirm.click(function(){
+            self.confirm.click(function () {
                 var name = self.getInputName().val();
                 var message = '';
                 var valid = true;
 
-                if(name.trim() == ''){
+                if (name.trim() == '') {
                     message += '* O nome da região deve ser preenchido <br>';
                     valid = false;
                 }
 
-                if(self.categories.length == 0){
+                if (self.categories.length == 0) {
                     message += '* Informe pelo menos uma categoria';
                     valid = false;
                 }
 
-                if(valid){
+                if (valid) {
                     self.valid = true;
                     self.region.name = name;
                     self.region.categories = self.categories;
                     self.categories = [];
                     self.getModal().close();
                 }
-                else{
+                else {
                     self.getWarning().html(message).show();
                 }
             });
         }
         return self.confirm;
     },
-    getCancel:function(){
+    getCancel: function () {
         var self = this;
-        if(self.cancel == null){
+        if (self.cancel == null) {
             self.cancel = new Button();
             self.cancel.addClass('btn btn-default').val('Cancelar');
-            self.cancel.click(function(){
+            self.cancel.click(function () {
                 self.getModal().close();
             });
         }
@@ -1024,20 +1030,21 @@ ResourcesManager.tileset = {
     gridMouseReader: null,
     startPoint: null,
     left: false,
-    regions:[],
-    rects:[],
-    region:null,
-    selectedRegion:null,
-    blocked:false,
-    contextMenuRegion:null,
-    contextMenuItemDelete:null,
-    contextMenuItemEdit:null,
-    deleteRegion:function(region){
+    regions: [],
+    rects: [],
+    region: null,
+    selectedRegion: null,
+    blocked: false,
+    contextMenuRegion: null,
+    contextMenuItemDelete: null,
+    contextMenuItemEdit: null,
+    form:null,
+    deleteRegion: function (region) {
         var self = this;
-        for(var i = 0; i < self.regions.length;i++){
-            if(self.regions[i] == region){
+        for (var i = 0; i < self.regions.length; i++) {
+            if (self.regions[i] == region) {
                 self.regions[i].fullClear();
-                self.regions.splice(i,1);
+                self.regions.splice(i, 1);
                 break;
             }
         }
@@ -1056,27 +1063,27 @@ ResourcesManager.tileset = {
                     var h = vertexB[1] - vertexA[1];
 
                     var rect = {
-                        x:vertexA[0]+(w<0?w:0),
-                        y:vertexA[1]+(h<0?h:0),
-                        w:Math.abs(w),
-                        h:Math.abs(h)
+                        x: vertexA[0] + (w < 0 ? w : 0),
+                        y: vertexA[1] + (h < 0 ? h : 0),
+                        w: Math.abs(w),
+                        h: Math.abs(h)
                     };
                     self.region.children = [];
                     var blocked = false;
-                    for(var i = 0; i < self.rects.length;i++){
+                    for (var i = 0; i < self.rects.length; i++) {
                         var colide = self.rects[i].colide(rect);
-                        if(colide){
+                        if (colide) {
                             self.region.children.push(self.rects[i]);
-                            if(self.rects[i].inUse){
+                            if (self.rects[i].inUse) {
                                 self.rects[i].inContact = true;
                                 blocked = true;
                             }
-                            else{
+                            else {
                                 self.rects[i].checked = true;
                             }
                         }
                         else {
-                            if(!self.rects[i].inUse){
+                            if (!self.rects[i].inUse) {
                                 self.rects[i].checked = false;
                             }
                             self.rects[i].inContact = false;
@@ -1089,39 +1096,39 @@ ResourcesManager.tileset = {
             });
             self.gridMouseReader.onmousedown(MouseReader.LEFT, function () {
                 self.startPoint = [this.vertex[0], this.vertex[1]];
-                self.region = new Region('',0,0,0,0);
-                self.getContextMenuRegion().css('display','none');
+                self.region = new Region('', 0, 0, 0, 0);
+                self.getContextMenuRegion().css('display', 'none');
             });
 
-            self.gridMouseReader.onmousedown(MouseReader.RIGHT,function(e){
+            self.gridMouseReader.onmousedown(MouseReader.RIGHT, function (e) {
                 var region = null;
                 var vertex = this.vertex;
-                for(var i = 0; i < self.regions.length;i++){
-                    if(self.regions[i].pointColide(vertex)){
+                for (var i = 0; i < self.regions.length; i++) {
+                    if (self.regions[i].pointColide(vertex)) {
                         region = self.regions[i];
                         break;
                     }
                 }
-                if(region != null){
+                if (region != null) {
                     self.selectedRegion = region;
-                    self.getContextMenuRegion().css('left',vertex[0]+'px').css('top',vertex[1]+'px').css('display','table');
+                    self.getContextMenuRegion().css('left', vertex[0] + 'px').css('top', vertex[1] + 'px').css('display', 'table');
                 }
-                else{
-                    self.getContextMenuRegion().css('display','none');
+                else {
+                    self.getContextMenuRegion().css('display', 'none');
                     self.selectedRegion = null;
                 }
             });
 
             self.gridMouseReader.onmouseup(MouseReader.LEFT, function () {
-                if(self.region != null){
-                    if(!self.blocked){
+                if (self.region != null) {
+                    if (!self.blocked) {
                         self.region.updateSize();
                         self.regions.push(self.region);
                         self.region.updateInUse();
                         ResourcesManager.category.region = self.region;
                         ResourcesManager.category.getModal().open();
                     }
-                    else{
+                    else {
                         self.region.clearChildren();
                     }
                     self.region = null;
@@ -1142,7 +1149,7 @@ ResourcesManager.tileset = {
         }
         return self.gridMouseReader;
     },
-    refreshDrawGridRegion:function(){
+    refreshDrawGridRegion: function () {
         var self = this;
         self.clearGridRegion();
         self.drawGridRegion();
@@ -1183,30 +1190,30 @@ ResourcesManager.tileset = {
         var ctx = self.getGridRegionContext();
         ctx.strokeStyle = '#00000';
 
-        for(var i = 0; i < rects.length;i++){
+        for (var i = 0; i < rects.length; i++) {
             var rect = rects[i];
-            ctx.strokeRect(rect.x,rect.y,rect.w,rect.h);
-            if(rect.checked && !rect.inContact){
+            ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+            if (rect.checked && !rect.inContact) {
                 ctx.fillStyle = 'rgba(0,0,180,0.5)';
-                ctx.fillRect(rect.x,rect.y,rect.w,rect.h);
+                ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
             }
-            else if(rect.inContact){
+            else if (rect.inContact) {
                 ctx.fillStyle = 'rgba(180,0,0,1)';
-                ctx.fillRect(rect.x,rect.y,rect.w,rect.h);
+                ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
             }
         }
     },
-    createGridRects:function(){
+    createGridRects: function () {
         var self = this;
         var rows = self.rows;
         var cols = self.cols;
         var image = self.getImage();
-        var w = image.width/cols;
-        var h = image.height/rows;
+        var w = image.width / cols;
+        var h = image.height / rows;
         self.rects = [];
         for (var i = 0; i <= image.width; i += w) {
             for (var j = 0; j <= image.height; j += h) {
-                var rect = new Rect(i,j,w,h);
+                var rect = new Rect(i, j, w, h);
                 self.rects.push(rect);
             }
         }
@@ -1241,6 +1248,14 @@ ResourcesManager.tileset = {
         }
         return self.gridRegionContext;
     },
+    getForm:function(){
+        var self = this;
+        if(self.form == null){
+            self.form = new Form();
+            self.form.add(self.getImageInput()).action(Global.resources.add).setAttribute('type','post');
+        }
+        return self.form;
+    },
     getImageInput: function () {
         var self = this;
         if (self.imageInput == null) {
@@ -1271,7 +1286,7 @@ ResourcesManager.tileset = {
         var self = this;
         if (self.image == null) {
             self.image = new Image;
-            if(self.getImageInput().val() != ''){
+            if (self.getImageInput().val() != '') {
                 self.image.src = URL.createObjectURL(self.getImageInput().element.files[0]);
             }
         }
@@ -1285,7 +1300,7 @@ ResourcesManager.tileset = {
             container.css('overflow', 'hidden').css('padding', '20px');
             var canvasContainer = container.addContainer('col-md-12 form-group', self.getCanvasImage());
             canvasContainer.css('width', '100%').css('height', '300px').css('border', '1px dashed gray').css('overflow', 'scroll');
-            container.addContainer('col-md-12 form-group', self.getImageInput());
+            container.addContainer('col-md-12 form-group', self.getForm());
         }
         return self.tabPaneImage;
     },
@@ -1314,7 +1329,7 @@ ResourcesManager.tileset = {
             var canvasContainer = container.addContainer('col-md-12 form-group', '');
             self.canvasAlignerRegion = canvasContainer.addContainer('', self.getCanvasGridRegion());
             self.canvasAlignerRegion.add(self.getCanvasGridDrawRegion()).add(self.getContextMenuRegion());
-            self.canvasAlignerRegion.css('margin', 'auto').css('position','relative');
+            self.canvasAlignerRegion.css('margin', 'auto').css('position', 'relative');
             canvasContainer.css('width', '100%').css('height', '300px').css('border', '1px dashed gray').css('overflow', 'scroll');
         }
         return self.tabPaneRegion;
@@ -1356,8 +1371,8 @@ ResourcesManager.tileset = {
         if (self.canvasGridDrawRegion == null) {
             self.canvasGridDrawRegion = new Tag('canvas');
             self.canvasGridDrawRegion.setAttribute('width', '550px').setAttribute('height', 'auto').css('position', 'absolute').css('z-index', 2).css('margin', 'auto');
-            self.canvasGridDrawRegion.prop('id','canvas-grid-draw-region');
-            $('body').on('contextmenu', '#canvas-grid-draw-region', function(e){
+            self.canvasGridDrawRegion.prop('id', 'canvas-grid-draw-region');
+            $('body').on('contextmenu', '#canvas-grid-draw-region', function (e) {
                     return false;
                 }
             );
@@ -1372,7 +1387,7 @@ ResourcesManager.tileset = {
             self.modal.getBody().add(self.getTabPanel());
             self.modal.getFooter().add(self.getNextButton()).add(self.getCancelButton());
             self.modal.onopen(function () {
-               self.clearData();
+                self.clearData();
             });
             self.modal.onclose(function () {
                 self.clearData();
@@ -1381,26 +1396,26 @@ ResourcesManager.tileset = {
         }
         return self.modal;
     },
-    clearVars:function(){
+    clearVars: function () {
         var self = this;
         self.passo = 0;
         self.image = null;
-        self.rows =  null;
+        self.rows = null;
         self.cols = null;
         self.start = false;
         self.regions = [];
         self.rects = [];
         self.region = null;
-        self.loading  = false;
+        self.loading = false;
     },
-    clearData:function(){
-        var self= this;
+    clearData: function () {
+        var self = this;
         self.setTabsToDefault();
         self.setInputsToDefault();
         self.clearAllCanvas();
         self.clearVars();
     },
-    setInputsToDefault:function(){
+    setInputsToDefault: function () {
         var self = this;
         var imageInput = self.getImageInput();
         var rowInput = self.getRowInput();
@@ -1411,7 +1426,7 @@ ResourcesManager.tileset = {
         colInput.val(1);
         next.disable().removeClass('btn-success').addClass('btn-primary').val('Próximo');
     },
-    setTabsToDefault:function(){
+    setTabsToDefault: function () {
         var self = this;
         self.getTabItemImage().addClass('active');
         self.getTabPaneImage().addClass('active');
@@ -1420,7 +1435,7 @@ ResourcesManager.tileset = {
         self.getTabPaneRegion().removeClass('active');
         self.getTabItemRegion().removeClass('active');
     },
-    clearAllCanvas:function(){
+    clearAllCanvas: function () {
         var self = this;
         var canvasImage = self.getCanvasImage();
         var canvasGrid = self.getCanvasGrid();
@@ -1521,37 +1536,47 @@ ResourcesManager.tileset = {
                         self.drawGridRegion();
                         self.getNextButton().removeClass('btn-primary').addClass('btn-success').val('Concluir');
                     }
-                    else if(self.passo == 2){
-                        self.getModal().close();
+                    else if (self.passo >= 2) {
+                        console.log('teste');
+                        self.send(function () {
+                            self.getModal().close();
+                        });
                     }
                 });
         }
         return self.nextButton;
     },
-    getRegionsJson:function(){
+    getRegionsJson: function () {
         var self = this;
-        var json = {regions:[]};
-        for(var i = 0; i < self.regions.length;i++){
+        var json = {regions: []};
+        for (var i = 0; i < self.regions.length; i++) {
             json.regions.push(self.regions[i].object());
         }
         return json;
     },
-    send:function(){
+    send: function (callback) {
         var self = this;
-        if(!self.loading){
-            self.loading = true;
+        //if (!self.loading) {
+            //self.loading = true;
             var json = self.getRegionsJson();
-            $.ajax({
-                url:Global.resources.add,
-                dataType:'json',
-                success:function(){
-
+            $(self.getForm()).ajaxForm({
+                data: {
+                    category:8
                 },
-                complete:function(){
-                    self.loading = false;
+                type:'post',
+                dataType: 'json',
+                success: function (data) {
+                    if (data.success) {
+                        if (typeof callback == 'function') {
+                            callback();
+                        }
+                    }
+                },
+                complete: function () {
+                    //self.loading = false;
                 }
             });
-        }
+        //}
     },
     getCancelButton: function () {
         var self = this;
@@ -1602,40 +1627,40 @@ ResourcesManager.tileset = {
         }
         return self.colInput;
     },
-    getContextMenuRegion:function(){
+    getContextMenuRegion: function () {
         var self = this;
-        if(self.contextMenuRegion == null){
+        if (self.contextMenuRegion == null) {
             self.contextMenuRegion = new Tag('ul');
             self.contextMenuRegion.
                 addClass('context-menu');
             self.contextMenuRegion.
                 add(self.getContextMenuItemEdit()).
                 add(self.getContextMenuItemDelete());
-            self.contextMenuRegion.prop('id','region-context-menu');
-            $('body').on('contextmenu', '#region-context-menu', function(e){
+            self.contextMenuRegion.prop('id', 'region-context-menu');
+            $('body').on('contextmenu', '#region-context-menu', function (e) {
                     return false;
                 }
             );
         }
         return self.contextMenuRegion;
     },
-    getContextMenuItemDelete:function(){
+    getContextMenuItemDelete: function () {
         var self = this;
-        if(self.contextMenuItemDelete == null){
+        if (self.contextMenuItemDelete == null) {
             self.contextMenuItemDelete = new Tag('li');
             self.contextMenuItemDelete.add('<a href="#">Apagar</a>');
-            self.contextMenuItemDelete.click(function(){
+            self.contextMenuItemDelete.click(function () {
                 self.deleteRegion(self.selectedRegion);
                 self.refreshDrawGridRegion();
-                self.getContextMenuRegion().css('display','none');
+                self.getContextMenuRegion().css('display', 'none');
             });
 
         }
         return self.contextMenuItemDelete;
     },
-    getContextMenuItemEdit:function(){
+    getContextMenuItemEdit: function () {
         var self = this;
-        if(self.contextMenuItemEdit == null){
+        if (self.contextMenuItemEdit == null) {
             self.contextMenuItemEdit = new Tag('li');
             self.contextMenuItemEdit.add('<a href="#">Editar</a>');
         }

@@ -8,6 +8,7 @@
 
 App::import('Model','Project');
 App::import('Model','User');
+App::import('Model','ProjectResource');
 
 class Resource extends AppModel{
     public $useTable = 'resource';
@@ -49,10 +50,6 @@ class Resource extends AppModel{
     public $resources_folder = [];
 
     public $validate = array(
-        'name' => array(
-            'rule' => 'notEmpty',
-            'required' => true
-        ),
         'category' => array(
             'rule' => array(
                 array('comparison','>=',0),
@@ -131,6 +128,7 @@ class Resource extends AppModel{
         return $name;
     }
 
+
     public function beforeDelete($cascade = false){
         $file = $this->field('file');
         $category = $this->field('category');
@@ -145,5 +143,22 @@ class Resource extends AppModel{
         if(file_exists($file_path)){
             @unlink($file_path);
         }
+    }
+
+    public function afterSave($created,$options=array()){
+        if($created){
+            $resource_id = $this->getLastInsertID();
+            $project_id = $this->data['Resourcce']['project_id'];
+            $project_resource['ProjectResource'] = array(
+                'project_id' => $project_id,
+                'resource_id' => $resource_id
+            );
+            $ProjectResource = ProjectResource::getInstance();
+            $ProjectResource->save($project_resource);
+        }
+    }
+
+    public function beforeSave($options=array()){
+        $this->data['Resource']['user_id'] = AuthComponent::user('id');
     }
 } 
