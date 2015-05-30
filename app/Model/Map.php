@@ -65,6 +65,12 @@ class Map extends AppModel
             }
 
             if($continue){
+                $id = null;
+                if(isset($this->data['Map']['id'])){
+                    $id = $this->data['Map']['id'];
+                    $conditions['Map.id !='] = $id;
+                }
+
                 $name = $this->data['Map']['name'];
                 $conditions['Map.name'] = $name;
                 $continue = !$this->hasAny($conditions);

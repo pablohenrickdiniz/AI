@@ -13,7 +13,7 @@ Region.prototype.object = function () {
     var self = this;
     return {
         name:self.name,
-        category:self.categories,
+        categories:self.categories,
         x: self.x,
         y: self.y,
         width: self.w,

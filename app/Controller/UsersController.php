@@ -128,7 +128,7 @@ class UsersController extends AppController {
 
     }
     
-    public function all()
+    public function all($options = array() ,$return = false)
     {
 
 

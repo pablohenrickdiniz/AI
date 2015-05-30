@@ -167,7 +167,7 @@ class MapController extends AppController
         if (isset($this->request->data['id'])) {
             $id = $this->request->data['id'];
             $this->Map->id = $id;
-            if ($this->Map->exissts() && $this->Map->isAuthorized()) {
+            if ($this->Map->exists() && $this->Map->isAuthorized()) {
                 $map = $this->Map->read(array('Map.name', 'Map.display', 'Map.width', 'Map.height', 'Map.scroll', 'Map.user_id'));
                 $map = array(
                     'name' => $map['Map']['name'],
@@ -200,6 +200,9 @@ class MapController extends AppController
                 if ($this->Map->save($map)) {
                     $result['success'] = true;
                     $result['map'] = $map_edit;
+                }
+                else{
+                    $result['errors'] = $this->Map->validationErrors;
                 }
             }
         }

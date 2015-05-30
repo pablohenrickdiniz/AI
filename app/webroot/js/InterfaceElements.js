@@ -1038,7 +1038,7 @@ ResourcesManager.tileset = {
     contextMenuRegion: null,
     contextMenuItemDelete: null,
     contextMenuItemEdit: null,
-    form:null,
+    form: null,
     deleteRegion: function (region) {
         var self = this;
         for (var i = 0; i < self.regions.length; i++) {
@@ -1248,11 +1248,57 @@ ResourcesManager.tileset = {
         }
         return self.gridRegionContext;
     },
-    getForm:function(){
+    getForm: function () {
         var self = this;
-        if(self.form == null){
+        if (self.form == null) {
             self.form = new Form();
-            self.form.add(self.getImageInput()).action(Global.resources.add).setAttribute('type','post');
+            var submit = new Button();
+            submit.setAttribute('type','submit').addClass('hidden');
+            self.form.add(self.getImageInput()).action(Global.resources.add).setAttribute('method', 'post').setId(generateUUID()).add(submit);
+            self.form.setAttribute('enctype','multipart/form-data');
+            $(self.getForm().getDOM()).submit(function(event){
+                event.preventDefault();
+                if(!self.loading){
+                    self.loading = true;
+
+                    var regions = self.getRegionsJson();
+                    var formData = new FormData($(this)[0]);
+                    formData.append('data[Resource][category]',ResourcesManager.id);
+
+                    console.log(regions);
+
+
+                    for(var i = 0; i < regions.length;i++){
+                        var region = regions[i];
+                        var categories = region.categories;
+                        formData.append('data[ResourceRegion]['+i+'][height]',region.height);
+                        formData.append('data[ResourceRegion]['+i+'][name]',region.name);
+                        formData.append('data[ResourceRegion]['+i+'][width]',region.width);
+                        formData.append('data[ResourceRegion]['+i+'][x]',region.x);
+                        formData.append('data[ResourceRegion]['+i+'][y]',region.y);
+                        for(var j = 0;j<categories.length;j++){
+                            formData.append('data[ResourceRegion]['+i+'][Category]['+j+'][name]',categories[j]);
+                        }
+                    }
+                    $.ajax({
+                        url:Global.resources.add,
+                        type:'POST',
+                        data:formData,
+                        async:false,
+                        cache:false,
+                        contentType:false,
+                        processData:false,
+                        success:function(returndata){
+
+                        },
+                        complete:function(){
+                            self.loading = false;
+                        }
+                    });
+                }
+
+                return false;
+            });
         }
         return self.form;
     },
@@ -1260,7 +1306,7 @@ ResourcesManager.tileset = {
         var self = this;
         if (self.imageInput == null) {
             self.imageInput = new Input('file');
-            self.imageInput.addClass('form-control');
+            self.imageInput.addClass('form-control').setAttribute('name','data[Resource][file]');
             self.imageInput.change(function () {
                 var filepath = $(this.element).val();
                 var ext = self.getFileExt(filepath);
@@ -1537,10 +1583,7 @@ ResourcesManager.tileset = {
                         self.getNextButton().removeClass('btn-primary').addClass('btn-success').val('Concluir');
                     }
                     else if (self.passo >= 2) {
-                        console.log('teste');
-                        self.send(function () {
-                            self.getModal().close();
-                        });
+                        $(self.getForm().getDOM()).submit();
                     }
                 });
         }
@@ -1548,35 +1591,11 @@ ResourcesManager.tileset = {
     },
     getRegionsJson: function () {
         var self = this;
-        var json = {regions: []};
+        var regions = [];
         for (var i = 0; i < self.regions.length; i++) {
-            json.regions.push(self.regions[i].object());
+            regions.push(self.regions[i].object());
         }
-        return json;
-    },
-    send: function (callback) {
-        var self = this;
-        //if (!self.loading) {
-            //self.loading = true;
-            var json = self.getRegionsJson();
-            $(self.getForm()).ajaxForm({
-                data: {
-                    category:8
-                },
-                type:'post',
-                dataType: 'json',
-                success: function (data) {
-                    if (data.success) {
-                        if (typeof callback == 'function') {
-                            callback();
-                        }
-                    }
-                },
-                complete: function () {
-                    //self.loading = false;
-                }
-            });
-        //}
+        return regions;
     },
     getCancelButton: function () {
         var self = this;
@@ -1727,3 +1746,13 @@ ResourcesManager.main = {
         return self.tree;
     }
 };
+
+function generateUUID() {
+    var d = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (d + Math.random()*16)%16 | 0;
+        d = Math.floor(d/16);
+        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    });
+    return uuid;
+}

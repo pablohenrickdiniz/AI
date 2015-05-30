@@ -13,7 +13,6 @@ App::import('Model','ProjectResource');
 class Resource extends AppModel{
     public $useTable = 'resource';
     public $project_id = null;
-    public $file = null;
     public $category = null;
     public $categories = array(
         0 => 'Animation',
@@ -48,32 +47,32 @@ class Resource extends AppModel{
         13 => 'se'
     );
     public $resources_folder = [];
-
-    public $validate = array(
-        'category' => array(
-            'rule' => array(
-                array('comparison','>=',0),
-                array('comparison','<=',13)
-            ),
-            'message' => 'A categoria selecionada não existe'
-        ),
-        'user_id' => array(
-            'rule' => 'check_user_exists',
-            'message' => 'O usuário não existe'
+    public $hasMany = array(
+        'ResourceRegion' => array(
+            'cascade' => true
         )
     );
 
+    public $actsAs = array(
+        'File' => array(
+            'fields' => 'file',
+            'folder' => 'resources',
+            'prefix' => 'res-'
+        )
+    );
 
-    public function check_user_exists(){
-        $valid = isset($this->data['Resource']['user_id']);
-        if($valid){
-            $id = $this->data['Resource']['user_id'];
-            $User = User::getInstance();
-            $valid = $User->exists($id);
-        }
-
-        return $valid;
-    }
+    public $validate = array(
+        'category' => array(
+            'rule1' => array(
+                'rule' =>  array('comparison','>=',0),
+                'message' => 'A categoria selecionada não existe'
+            ),
+            'rule2' => array(
+                'rule' =>  array('comparison','<=',13),
+                'message' => 'A categoria selecionada não existe'
+            ),
+        )
+    );
 
     public function getCategories(){
         return $this->$categories;
@@ -128,37 +127,9 @@ class Resource extends AppModel{
         return $name;
     }
 
-
-    public function beforeDelete($cascade = false){
-        $file = $this->field('file');
-        $category = $this->field('category');
-        $this->file = $file;
-        $this->category = $category;
-    }
-
-    public function afterDelete(){
-        $file = $this->file;
-        $category_folder = $this->getCategoryFolder($this->category);
-        $file_path = $category_folder.'/'.$file;
-        if(file_exists($file_path)){
-            @unlink($file_path);
-        }
-    }
-
-    public function afterSave($created,$options=array()){
-        if($created){
-            $resource_id = $this->getLastInsertID();
-            $project_id = $this->data['Resourcce']['project_id'];
-            $project_resource['ProjectResource'] = array(
-                'project_id' => $project_id,
-                'resource_id' => $resource_id
-            );
-            $ProjectResource = ProjectResource::getInstance();
-            $ProjectResource->save($project_resource);
-        }
-    }
-
     public function beforeSave($options=array()){
         $this->data['Resource']['user_id'] = AuthComponent::user('id');
+        $this->data['Resource']['name'] = $this->generateName($this->data['Resource']['category']);
+        return true;
     }
 } 

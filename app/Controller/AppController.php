@@ -31,18 +31,18 @@ App::uses('Controller', 'Controller');
  * @link		http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
-    public $layout = 'admin';
     public $components = array(
         'Session',
         'Auth' => array(
-            'loginRedirect' => array('controller' => 'pages', 'action' => 'index'),
+            'loginRedirect' => array('controller' => 'panel', 'action' => 'index'),
             'logoutRedirect' => array('controller' => 'users', 'action' => 'login'),
             'loginError' => "<div class='alert alert-danger'>Usuário e/ou senha incorreto(s)</div>",
             'authError' => "<div class='alert alert-warning'>Você precisa estar <b>autenticado</b> para acessar esta página</div>",
             'authorize' => array('Controller') // Adicionamos essa linha
         )
     );
-    public $model = 'App';
+    public $result = 'result';
+    public $results = 'results';
     public $messages = array(
         'add' => array(
             'success' => '',
@@ -70,15 +70,23 @@ class AppController extends Controller {
             'show' => true
         )
     );
-    public $uses = array('Disponible');
-    public $authorization = array();
+    public $authorization = array(
+        'adm' => array(
+            'add',
+            'addAjax',
+            'all',
+            'edit',
+            'delete',
+            'deleteAjax'
+        )
+    );
+    public $layout = 'panel';
 
     public function beforeFilter(){
         if(isset($this->authorization['public'])){
             $this->Auth->allow($this->authorization['public']);
         }
     }
-
 
     public function isAuthorized($user){
         if(isset($user['role'])){
@@ -92,11 +100,10 @@ class AppController extends Controller {
     }
 
     public function add(){
-        $model = $this->model;
+        $model = $this->modelClass;
         if($this->request->is('post')){
-            $this->$model->create();
-            $success = $this->$model->save($this->request->data);
-            if($this->messages['add']['show']){
+            $success = $this->$model->saveAll($this->request->data);
+            if(!isset($this->messages['add']['show']) || $this->messages['add']['show']){
                 $this->showMessage('add',$success);
             }
             return $success;
@@ -104,19 +111,21 @@ class AppController extends Controller {
         return false;
     }
 
+
     public function addAjax(){
+        $result['success'] = false;
         if($this->request->is('ajax')){
-            return $this->add();
+            $result['success'] = $this->add()?true:false;
         }
-        return false;
+        echo json_encode($result);
     }
 
-
     public function edit($id=null){
-        $model = $this->model;
+        $model = $this->modelClass;
         $row = $this->$model->findById($id);
+        $success = false;
         if($this->request->is('post')){
-            $show = $this->messages['edit']['show'];
+            $show = !isset($this->messages['edit']['show']) || $this->messages['edit']['show'];
             if(empty($row)){
                 if($show){
                     $this->showMessage('edit',false);
@@ -124,22 +133,24 @@ class AppController extends Controller {
             }
             else{
                 $this->request->data[$model]['id'] = $id;
-                $success = $this->$model->save($this->request->data);
+                $success = $this->$model->saveAll($this->request->data);
+                if($success){
+                    $row = $this->$model->findById($id);
+                }
                 if($show){
-                    if($success){
-                        $row = $this->$model->findById($id);
-                    }
                     $this->showMessage('edit',$success);
                 }
             }
         }
         $this->request->data = $row;
-        $this->set(strtolower($model),$row);
+        $this->set($this->result,$row);
+        return $success;
     }
 
     public function deleteAjax(){
+        $this->autoRender = false;
         if($this->request->is('ajax') && $this->request->is('post')){
-            $model = $this->model;
+            $model = $this->modelClass;
             $id = $this->request->data['id'];
             if($this->$model->delete($id)){
                 echo json_encode(array('success' => true));
@@ -152,9 +163,9 @@ class AppController extends Controller {
 
     public function delete($id = null){
         if($this->request->is('post')){
-            $model = $this->model;
+            $model = $this->modelClass;
             $deleted = $this->$model->delete($id);
-            $show = $this->messages['delete']['show'];
+            $show = !isset($this->messages['delete']['show']) || $this->messages['delete']['show'];
             if($show){
                 $this->showMessage('delete',$deleted);
             }
@@ -162,35 +173,68 @@ class AppController extends Controller {
         $this->redirect(array('action' => 'all'));
     }
 
-    public function all(){
-        $model = $this->model;
-        $paginate = array(
+    public function all($options=array(),$return = false){
+        $model = $this->modelClass;
+        $default = array(
             'limit' => 20,
             'order' => array(
                 $model.'.id' => 'DESC'
             )
         );
-        $this->paginate = $paginate;
+        foreach($options as $key => $option){
+            $default[$key] = $option;
+        }
+        $this->paginate = $default;
         $rows = $this->paginate($model);
-        $this->set(strtolower($model).'s',$rows);
+        if($return){
+            return $rows;
+        }
+        $this->set($this->results,$rows);
     }
 
     public function view($id){
-        $model = $this->model;
+        $model = $this->modelClass;
         $row = $this->$model->findById($id);
-        $show = $this->messages['view']['show'];
+        $show = !isset($this->messages['view']['show']) || $this->messages['view']['show'];
         if(empty($row) && $show){
             $this->showMessage('view',false);
         }
-        $this->set(strtolower($model),$row);
+        $this->set($this->result,$row);
+    }
+
+    public function index(){
+
     }
 
     public function showMessage($action,$status){
         if($status && isset($this->messages[$action]['success'])){
-           $this->Session->setFlash(__($this->messages[$action]['success']),'sucesso');
+            $this->Session->setFlash(__($this->messages[$action]['success']),'sucesso');
         }
         else if(isset($this->messages[$action]['error'])){
             $this->Session->setFlash(__($this->messages[$action]['error']),'erro');
+        }
+    }
+
+    public function allow(Array $array){
+        foreach($array as $role => $actions){
+            if(!isset($this->authorization[$role])){
+                $this->authorization[$role] = [];
+            }
+
+            for($i=0;$i<count($actions);$i++){
+                if(!in_array($actions[$i],$this->authorization[$role])){
+                    $this->authorization[$role][] = $actions[$i];
+                }
+            }
+        }
+    }
+
+    public function deny(Array $array){
+        foreach($array as $role => $actions){
+            if(isset($this->authorization[$role])){
+                $result = array_diff($this->authorization[$role],$actions);
+                $this->authorization[$role] = $result;
+            }
         }
     }
 }

@@ -7,29 +7,22 @@
  */
 
 class ResourceController extends AppController{
-    public $file = null;
     public $autoRender = false;
-    public $model = 'Resource';
     public $authorization = array(
         'user' => array(
             'getResourcesTree',
-            'add'
+            'addAjax',
+            'delete',
+            'all'
         )
     );
-    public $uses = array('Project','Resource');
-    public $components = array('File');
-
-    public function beforeFilter(){
-        if($this->request->is('ajax') && $this->request->is('post')){
-            parent::beforeFilter();
-        }
-    }
 
     public function getResourcesTree()
     {
         $result['success'] = false;
         if (isset($this->request->data['id'])) {
             $id = $this->request->data['id'];
+            $this->loadModel('Project');
             $this->Project->id = $id;
             if($this->Project->exists() && $this->Project->isAuthorized()){
                 $this->Resource->project_id = $id;
@@ -39,38 +32,43 @@ class ResourceController extends AppController{
         echo json_encode($result);
     }
 
-
     public function addAjax(){
-        if($this->request->is('post') && $this->request->is('ajax')){
-            $continue = isset($this->request->data['Resource']['project_id']);
-            if($continue){
-                $continue = isset($this->request->data['Resource']['category']);
-                if($continue){
-                    $continue = isset($this->request->data['Resource']['file']['tmp_name']);
-                    if($continue){
-                        $file = $this->request->data['Resource']['file'];
-                        $continue = @is_uploaded_file($file['tmp_name']);
-                        if($continue){
-                            $project_id = $this->request->data['Resource']['project_id'];
-                            $this->Project->id = $project_id;
-                            if($this->Project->exists() && $this->Project->isAuthorized()){
-                                $category = $this->request->data['Resource']['category'];
-                                $categories = $this->Resource->categories;
-                                if(isset($categories[$category])){
-                                    $this->Resource->project_id = $project_id;
-                                    $file_name = $this->Resource->generateName($category);
-                                    $category_folder = $this->Resource->getCategoryFolder($category);
-                                    $name = $this->File->upload($file,$file_name,array(),$category_folder);
-                                    if(!is_null($name)){
-                                        $this->request->data['Resource']['file'] = $file;
-                                    }
-                                }
+        if($this->request->is('ajax') && $this->request->is('post')){
+            if(isset($this->request->data['ResourceRegion']) && is_array($this->request->data['ResourceRegion'])){
+                $this->loadModel('Category');
+                $resources_region = $this->request->data['ResourceRegion'];
+                for($i=0;$i<count($resources_region);$i++){
+                    if(isset($resources_region[$i]['Category']) && is_array($resources_region[$i]['Category'])){
+                        $categories = $resources_region[$i]['Category'];
+                        for($j=0;$j<count($categories);$j++){
+                            $name = $categories[$j]['name'];
+                            $category = $this->Category->findByName($name);
+                            if(empty($category)){
+                                $this->Category->create();
+                                $this->Category->save(array(
+                                    'Category' => array(
+                                        'name' => $name
+                                    )
+                                ));
+                                $category['Category']['id'] = $this->Category->getLastInsertID();
+                                $category['Category']['name'] = $name;
                             }
+
+                            $this->request->data['ResourceRegion'][$i]['Category'][$j]['ResourceRegionCategory']['category_id'] = $category['Category']['id'];
                         }
                     }
                 }
             }
+
+            parent::addAjax();
         }
-        parent::addAjax();
     }
+
+
+    public function all($options=array(),$return = false){
+        $rows = parent::all($options,true);
+
+        print_r($rows);
+    }
+
 } 
