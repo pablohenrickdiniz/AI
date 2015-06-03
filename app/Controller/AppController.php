@@ -34,7 +34,7 @@ class AppController extends Controller {
     public $components = array(
         'Session',
         'Auth' => array(
-            'loginRedirect' => array('controller' => 'panel', 'action' => 'index'),
+            'loginRedirect' => array('controller' => 'pages', 'action' => 'index'),
             'logoutRedirect' => array('controller' => 'users', 'action' => 'login'),
             'loginError' => "<div class='alert alert-danger'>Usuário e/ou senha incorreto(s)</div>",
             'authError' => "<div class='alert alert-warning'>Você precisa estar <b>autenticado</b> para acessar esta página</div>",

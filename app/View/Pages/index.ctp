@@ -8,7 +8,11 @@
 <?= $this->Html->script('react/build/modal')?>
 <?= $this->Html->script('react/build/dropdown')?>
 <?= $this->Html->script('react/build/dropdownitem')?>
+<?= $this->Html->script('react/build/tabpanel')?>
+<?= $this->Html->script('react/build/tabpane')?>
+<?= $this->Html->script('react/build/tablistitem')?>
 <?= $this->Html->script('react/build/navbar')?>
+<?= $this->Html->script('react/build/alert')?>
 <?= $this->Html->script('react/build/main')?>
 <script type="text/javascript">
     var Global = {

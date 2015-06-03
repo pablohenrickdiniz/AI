@@ -3,9 +3,9 @@ $(document).ready(function(){
         <div>
             <Navbar>
                 <Dropdown title="Projeto">
-                    <Dropdownitem title="Novo" icon="fa  fa-file-o"/>
-                    <Dropdownitem title="Abrir" icon="fa  fa-folder-open-o"/>
-                    <Dropdownitem title="Salvar" icon="fa  fa-floppy-o"/>
+                    <Dropdownitem title="Novo" icon="fa  fa-file-o" target="new-project-modal"/>
+                    <Dropdownitem title="Abrir" icon="fa  fa-folder-open-o" target="open-project-modal"/>
+                    <Dropdownitem title="Salvar" icon="fa  fa-floppy-o" target="#"/>
                 </Dropdown>
                 <Dropdown title="Editar">
                     <Dropdownitem title="Recortar" icon="fa  fa-scissors"/>
@@ -37,9 +37,7 @@ $(document).ready(function(){
                     <Dropdownitem title="Executar" icon="fa fa-play"/>
                 </Dropdown>
             </Navbar>
-            <Modal title="Novo Projeto" confirmText="Criar" cancelText="Cancelar">
-                <input type="text" className="form-control" placeholder="Nome do projeto"/>
-                <Alert type="warning" message = ""/>
+            <Modal id="new-project-modal" confirmText="Criar" cancelText="cancelar">
             </Modal>
         </div>
         ,

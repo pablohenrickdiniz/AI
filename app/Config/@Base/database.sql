@@ -14,6 +14,12 @@ SET time_zone = "+00:00";
 -- Database: `rpg_maker`
 --
 
+DROP DATABASE IF EXISTS rpg_maker;
+CREATE DATABASE rpg_maker;
+use rpg_maker;
+
+
+
 -- --------------------------------------------------------
 
 --
