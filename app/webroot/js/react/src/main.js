@@ -37,8 +37,7 @@ $(document).ready(function(){
                     <Dropdownitem title="Executar" icon="fa fa-play"/>
                 </Dropdown>
             </Navbar>
-            <Modal id="new-project-modal" confirmText="Criar" cancelText="cancelar">
-            </Modal>
+            <NewProject />
         </div>
         ,
         document.getElementById('content')

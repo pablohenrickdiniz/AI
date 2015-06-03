@@ -5,15 +5,7 @@
 <!--<?= $this->Import->script('DOMOBJ', true) ?>-->
 <?= $this->Html->css('index')?>
 <?= $this->Html->script('react/react')?>
-<?= $this->Html->script('react/build/modal')?>
-<?= $this->Html->script('react/build/dropdown')?>
-<?= $this->Html->script('react/build/dropdownitem')?>
-<?= $this->Html->script('react/build/tabpanel')?>
-<?= $this->Html->script('react/build/tabpane')?>
-<?= $this->Html->script('react/build/tablistitem')?>
-<?= $this->Html->script('react/build/navbar')?>
-<?= $this->Html->script('react/build/alert')?>
-<?= $this->Html->script('react/build/main')?>
+<?=$this->Import->script('react/build')?>
 <script type="text/javascript">
     var Global = {
         resources: {
