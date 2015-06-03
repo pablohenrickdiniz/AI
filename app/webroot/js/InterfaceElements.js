@@ -1039,6 +1039,8 @@ ResourcesManager.tileset = {
     contextMenuItemDelete: null,
     contextMenuItemEdit: null,
     form: null,
+    soundForm:null,
+    soundInput:null,
     deleteRegion: function (region) {
         var self = this;
         for (var i = 0; i < self.regions.length; i++) {
@@ -1248,6 +1250,47 @@ ResourcesManager.tileset = {
         }
         return self.gridRegionContext;
     },
+    getSoundInput:function(){
+        var self = this;
+        if(self.soundInput == null){
+            self.soundInput = new Input('file');
+            self.soundInput.setAttribute('name','data[Resource][file]').addClass('form-control');
+        }
+        return self.soundInput;
+    },
+    getSoundForm:function(){
+        var self = this;
+        if(self.form == null){
+            self.form = new Form();
+            self.form.add(self.getSoundInput()).action(Global.resources.add).setAttribute('method','post').setId(generateUUID());
+            self.form.setAttribute('enctype','multipart/form-data');
+            $(self.getForm().getDOM()).submit(function(event){
+                event.preventDefault();
+                if(!self.loading){
+                    self.loading = true;
+                    var formData = new FormData($(this)[0]);
+                    $.ajax({
+                        url:Global.resources.add,
+                        type:'POST',
+                        data:formData,
+                        async:false,
+                        cache:false,
+                        contentType:false,
+                        processData:false,
+                        dataType:'json',
+                        success:function(returndata){
+                            if(returndata.success){
+
+                            }
+                        },
+                        complete:function(){
+                            self.loading = false;
+                        }
+                    });
+                }
+            });
+        }
+    },
     getForm: function () {
         var self = this;
         if (self.form == null) {
@@ -1260,13 +1303,9 @@ ResourcesManager.tileset = {
                 event.preventDefault();
                 if(!self.loading){
                     self.loading = true;
-
                     var regions = self.getRegionsJson();
                     var formData = new FormData($(this)[0]);
                     formData.append('data[Resource][category]',ResourcesManager.id);
-
-                    console.log(regions);
-
 
                     for(var i = 0; i < regions.length;i++){
                         var region = regions[i];
@@ -1288,8 +1327,11 @@ ResourcesManager.tileset = {
                         cache:false,
                         contentType:false,
                         processData:false,
+                        dataType:'json',
                         success:function(returndata){
+                            if(returndata.success){
 
+                            }
                         },
                         complete:function(){
                             self.loading = false;
