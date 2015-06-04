@@ -38,8 +38,14 @@ $(document).ready(function(){
                 </Dropdown>
             </Navbar>
             <NewProject />
+            <MapEditor id="map-editor"/>
         </div>
         ,
         document.getElementById('content')
+    );
+
+    React.render(
+        <Tree id="tree" url={Global.project.mapTree} data={{'data[id]':Global.project.id}} />,
+        document.getElementById('map-container')
     );
 });

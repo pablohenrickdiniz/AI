@@ -10,7 +10,7 @@ var NewProject = React.createClass({
         return (
             <Modal title="Novo Projeto" id="new-project-modal" confirmText="Criar" cancelText="cancelar" confirmAction={this.confirm}>
                 <div className="form-group">
-                    <input type="text" className="form-control" refs="nome" placeholder="Nome do projeto"/>
+                    <input type="text" className="form-control" ref="nome" placeholder="Nome do projeto"/>
                 </div>
                 <Alert message={this.state.message} type={this.state.messageType} show={this.state.show}/>
             </Modal>
@@ -18,9 +18,8 @@ var NewProject = React.createClass({
     },
     confirm:function(){
         var data = {
-            'data[Project][name]':this.refs.nome.value.trim()
+            'data[Project][name]':React.findDOMNode(this.refs.nome).value.trim()
         };
-        console.log(data);
         $.ajax({
             url: Global.project.add,
             type: 'post',

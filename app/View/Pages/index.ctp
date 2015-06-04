@@ -1,11 +1,10 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script>
 <?= $this->Html->script('uuid')?>
 <?= $this->Html->script('jquery.form.min')?>
 <?= $this->Html->script('MouseReader') ?>
 <?= $this->Html->script('jquery-mask') ?>
 <!--<?= $this->Import->script('DOMOBJ', true) ?>-->
 <?= $this->Html->css('index')?>
-<?= $this->Html->script('react/react')?>
-<?=$this->Import->script('react/build')?>
 <script type="text/javascript">
     var Global = {
         resources: {
@@ -19,7 +18,7 @@
             all: '<?=$this->Html->url(array('controller'=>'project','action'=>'getAll'))?>',
             mapTree: '<?=$this->Html->url(array('controller'=>'project','action'=>'getMapTree'))?>',
             exists: '<?=$this->Html->url(array('controller'=>'project','action'=>'exists'))?>',
-            children: '<?=$this->Html->url(array('controller'=>'project','action'=>'getChildren'))?>',
+            children: '<?=$this->Html->url(array('controller'=>'project','action'=>'getChildren'))?>'
         },
         map: {
             add: '<?=$this->Html->url(array('controller'=>'map','action'=>'add'))?>',
@@ -37,6 +36,8 @@
     };
 
 </script>
+<?= $this->Html->script('react/react')?>
+<?=$this->Import->script('react/build')?>
 <?= $this->Html->script('InterfaceElements') ?>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -96,7 +97,7 @@
             selector: '.map',
             callback: function (key) {
                 if (key == 'new') {
-                    MapManager.create.getModal().open();
+
                 }
                 else if (key == 'edit') {
                     MapManager.edit.load(function () {
@@ -133,7 +134,7 @@
             selector: '.project',
             callback: function (key) {
                 if (key == 'new') {
-                    MapManager.create.getModal().open();
+                    $('#map-editor').modal();
                 }
                 else if (key == 'paste') {
                     MapManager.paste();
@@ -158,9 +159,7 @@
 
             </div>
             <div id="map-container">
-                <div id="tree">
 
-                </div>
             </div>
         </div>
         <div id="container-b">
