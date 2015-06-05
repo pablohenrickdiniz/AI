@@ -41,6 +41,12 @@ $(document).ready(function(){
             <OpenProject/>
             <ResourceModal id="resources-modal"/>
             <MapEditor id="map-editor"/>
+            <StepModal id="resource-step-modal"  open={true} title="New Resource">
+                <Tabpane title="A">
+                </Tabpane>
+                <Tabpane title="B">
+                </Tabpane>
+            </StepModal>
         </div>
         ,
         document.getElementById('content')
