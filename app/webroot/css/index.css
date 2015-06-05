@@ -65,3 +65,8 @@ ul.context-menu{
 .category-close:hover{
     background-color:#fbd850;
 }
+
+
+span.close{
+   float:none;
+}

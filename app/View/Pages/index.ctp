@@ -18,7 +18,8 @@
             all: '<?=$this->Html->url(array('controller'=>'project','action'=>'getAll'))?>',
             mapTree: '<?=$this->Html->url(array('controller'=>'project','action'=>'getMapTree'))?>',
             exists: '<?=$this->Html->url(array('controller'=>'project','action'=>'exists'))?>',
-            children: '<?=$this->Html->url(array('controller'=>'project','action'=>'getChildren'))?>'
+            children: '<?=$this->Html->url(array('controller'=>'project','action'=>'getChildren'))?>',
+            delete:'<?=$this->Html->url(array('controller'=>'project','action'=>'deleteAjax'))?>'
         },
         map: {
             add: '<?=$this->Html->url(array('controller'=>'map','action'=>'add'))?>',
@@ -27,7 +28,8 @@
             load: '<?=$this->Html->url(array('controller'=>'map','action'=>'load'))?>',
             expand: '<?=$this->Html->url(array('controller'=>'map','action'=>'expand'))?>',
             paste: '<?=$this->Html->url(array('controller'=>'map','action'=>'paste'))?>',
-            children: '<?=$this->Html->url(array('controller'=>'map','action'=>'getChildren'))?>'
+            children: '<?=$this->Html->url(array('controller'=>'map','action'=>'getChildren'))?>',
+            action:'new'
         },
         pages: {
             isOnline: '<?=$this->Html->url(array('controller'=>'pages','action'=>'isOnline'))?>',
@@ -41,13 +43,6 @@
 <?= $this->Html->script('InterfaceElements') ?>
 <script type="text/javascript">
     $(document).ready(function () {
-
-        ProjectManager.load();
-
-        $("#new-project").click(function () {
-            ProjectManager.create.getModal().open();
-        });
-
         $('#open-project').click(function () {
             ProjectManager.loadProjects(function () {
                 ProjectManager.open.getModal().open();
@@ -97,13 +92,12 @@
             selector: '.map',
             callback: function (key) {
                 if (key == 'new') {
-
+                    Global.map.action = 'new';
+                    $('#map-editor').modal();
                 }
                 else if (key == 'edit') {
-                    MapManager.edit.load(function () {
-                        var self = this;
-                        self.getModal().open();
-                    });
+                   Global.map.action = 'edit';
+                   $('#map-editor').modal();
                 }
                 else if (key == 'delete') {
                     MapManager.delete();
@@ -134,6 +128,7 @@
             selector: '.project',
             callback: function (key) {
                 if (key == 'new') {
+                    Global.map.action = 'new';
                     $('#map-editor').modal();
                 }
                 else if (key == 'paste') {
@@ -150,6 +145,9 @@
     });
 </script>
 <div id="content">
+
+</div>
+<div id="tmp">
 
 </div>
 <div class="row">

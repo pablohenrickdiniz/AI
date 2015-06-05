@@ -23,12 +23,12 @@ $(document).ready(function(){
                     <Dropdownitem title="Lápis" icon="fa fa-pencil"/>
                     <Dropdownitem title="Retangulo" icon="fa fa-square"/>
                     <Dropdownitem title="Círculo" icon="fa fa-circle"/>
-                    <Dropdownitem title="Preencher" icon="fa fa-title"/>
+                    <Dropdownitem title="Preencher" icon="fa fa-tint"/>
                     <Dropdownitem title="Sombra" icon="fa fa-pencil-square"/>
                 </Dropdown>
                 <Dropdown title="Ferramentas">
                     <Dropdownitem title="Banco de dados" icon="fa fa-database"/>
-                    <Dropdownitem title="Recursos" icon="fa fa-server"/>
+                    <Dropdownitem title="Recursos" icon="fa fa-server" target="resources-modal"/>
                     <Dropdownitem title="Editor de script" icon="fa fa-file-code-o"/>
                     <Dropdownitem title="Música" icon="fa fa-music"/>
                     <Dropdownitem title="Gerador de Caracters" icon="fa fa-street-view"/>
@@ -38,14 +38,36 @@ $(document).ready(function(){
                 </Dropdown>
             </Navbar>
             <NewProject />
+            <OpenProject/>
+            <ResourceModal id="resources-modal"/>
             <MapEditor id="map-editor"/>
         </div>
         ,
         document.getElementById('content')
     );
 
+    var lazy_load = function(node){
+        var span = node.span;
+        var action = '';
+
+        if ($(span).hasClass('project')) {
+            action = Global.project.children;
+        }
+        else if ($(span).hasClass('map')) {
+            action = Global.map.children;
+        }
+        node.appendAjax({
+            url: action,
+            type: 'post',
+            data: {
+                'data[id]': node.data.key
+            }
+        });
+    };
+
+
     React.render(
-        <Tree id="tree" url={Global.project.mapTree} data={{'data[id]':Global.project.id}} />,
+        <Tree id="tree" url={Global.project.mapTree} data={{'data[id]':Global.project.id}} onLazyRead={lazy_load}/>,
         document.getElementById('map-container')
     );
 });

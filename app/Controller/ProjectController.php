@@ -17,7 +17,8 @@ class ProjectController extends AppController
             'expand',
             'getMapTree',
             'getChildren',
-            'getResourcesTree'
+            'getResourcesTree',
+            'deleteAjax'
         )
     );
     public $autoRender = false;
