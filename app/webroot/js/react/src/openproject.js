@@ -60,9 +60,8 @@ var OpenProject = React.createClass({
     },
     openProject: function () {
         Global.project.id = this.state.checked;
-        React.unmountComponentAtNode(document.getElementById('map-container'));
         React.render(
-            <Tree id="tree" url={Global.project.mapTree} data={{'data[id]': Global.project.id}} />,
+            <Tree id="tree" data={{'data[id]': Global.project.id}} />,
             document.getElementById('map-container')
         );
         this.close();
@@ -77,14 +76,10 @@ var OpenProject = React.createClass({
         });
     },
     remove: function (e) {
-        var generated = generateUUID();
         var id = $(e.target).attr('data-id');
         var nome = $(e.target).attr('data-nome');
         var message = 'Tem certeza que deseja apagar o projeto '+nome+'?';
         var self = this;
-        $(document).on('hidden.bs.modal','#'+generated, function (e) {
-            React.unmountComponentAtNode(document.getElementById('tmp'));
-        });
 
         var remove = function(){
             $.ajax({
@@ -95,14 +90,14 @@ var OpenProject = React.createClass({
                 type:'post',
                 dataType:'json',
                 complete:function(data){
-                    $('#'+generated).modal('hide');
+                    $('#confirm-action-modal').modal('hide');
                     self.loadProjects();
                 }.bind(this)
             });
         };
 
         React.render(
-            <AlertModal id={generated} title="Confirmar Ação" message={message} onConfirm={remove} open={true} type="warning"/>,
+            <AlertModal id="confirm-action-modal" title="Confirmar Ação" message={message} onConfirm={remove} open={true} type="warning"/>,
             document.getElementById('tmp')
         );
     }

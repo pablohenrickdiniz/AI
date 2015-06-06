@@ -1,6 +1,6 @@
 $(document).ready(function(){
     React.render(
-        <div>
+        <div id="content">
             <Navbar>
                 <Dropdown title="Projeto">
                     <Dropdownitem title="Novo" icon="fa  fa-file-o" target="new-project-modal"/>
@@ -39,9 +39,8 @@ $(document).ready(function(){
             </Navbar>
             <NewProject />
             <OpenProject/>
-            <ResourceModal id="resources-modal"/>
             <MapEditor id="map-editor"/>
-            <StepModal id="resource-step-modal"  open={true} title="New Resource">
+            <StepModal id="resource-step-modal" title="New Resource">
                 <Tabpane title="A">
                 </Tabpane>
                 <Tabpane title="B">
@@ -51,6 +50,12 @@ $(document).ready(function(){
         ,
         document.getElementById('content')
     );
+
+    React.render(
+        <ResourceModal id="resources-modal" projectId={Global.project.id}/>,
+        document.getElementById('resources-modal-container')
+    );
+
 
     var lazy_load = function(node){
         var span = node.span;

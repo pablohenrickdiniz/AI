@@ -3,7 +3,8 @@ var NewProject = React.createClass({
         return {
             message:'',
             messageType:'success',
-            show:false
+            show:false,
+            text:''
         };
     },
     render:function(){
@@ -42,12 +43,15 @@ var NewProject = React.createClass({
             success: function (data) {
                 if (data.success) {
                     Global.project.id = data.id;
-                    React.unmountComponentAtNode(document.getElementById('map-container'));
                     React.render(
-                        <Tree id="tree"  url={Global.project.mapTree} data={{'data[id]':Global.project.id}}/>,
+                        <Tree id="tree" data={{'data[id]':Global.project.id}}/>,
                         document.getElementById('map-container')
                     );
-                    console.log(OpenProject);
+
+                    React.render(
+                        <ResourceModal id="resources-modal" projectId={Global.project.id}/>,
+                        document.getElementById('resources-modal-container')
+                    );
                     self.close();
                 }
                 else {

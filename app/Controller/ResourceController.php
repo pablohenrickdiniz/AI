@@ -19,17 +19,17 @@ class ResourceController extends AppController{
 
     public function getResourcesTree()
     {
-        $result['success'] = false;
         if (isset($this->request->data['id'])) {
             $id = $this->request->data['id'];
+            $result =[];
             $this->loadModel('Project');
             $this->Project->id = $id;
             if($this->Project->exists() && $this->Project->isAuthorized()){
                 $this->Resource->project_id = $id;
                 $result = $this->Resource->getTree();
             }
+            echo json_encode($result);
         }
-        echo json_encode($result);
     }
 
     public function addAjax(){

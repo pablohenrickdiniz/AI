@@ -1,38 +1,32 @@
 var StepModal = React.createClass({
     getInitialState:function(){
-        return {
-            step:'',
-            title:'',
+        var state = {
+            step:0,
+            title:'Step Modal',
             onConfirm:null,
             onCancel:null,
-            active:''
-        };
-    },
-    componentWillMount:function(){
-        var state = {
-            title:this.props.title
+            id:this.props.id
         };
 
         if(typeof this.props.children == 'array' && this.props.children.length > 0){
             var first = this.props.children[0];
-            state.active = 0;
+            state.step = 0;
             state.onConfirm = first.props.onConfirm;
             state.onCancel = first.props.onCancel;
         }
 
-        this.setState(state);
+        return state;
     },
     render:function(){
         return (
-            <Modal id={this.props.id} title={this.state.title} onConfirm={this.onConfirm} onCancel={this.onCancel} confirmText={this.state.confirmText} cancelText={this.state.cancelText} open={this.props.open}>
-                <Tabpanel active={this.state.active}>
+            <Modal id={this.state.id} title={this.state.title} onConfirm={this.onConfirm} onCancel={this.onCancel} confirmText={this.state.confirmText} cancelText={this.state.cancelText} open={this.props.open}>
+                <Tabpanel active={this.state.step} dataToggle={false}>
                     {this.props.children}
                 </Tabpanel>
             </Modal>
         );
     },
     onConfirm:function(){
-
         var action = this.state.onConfirm;
         var self = this;
         if(typeof action == 'function'){
@@ -61,18 +55,18 @@ var StepModal = React.createClass({
         }
     },
     next:function(){
-        var active = this.state.active;
-        if(this.props.children[active+1] != undefined){
+        var step = this.state.step;
+        if(this.props.children[step+1] != undefined){
             this.setState({
-                active:active+1
+                step:step+1
             });
         }
     },
     prev:function(){
-        var active = this.state.active;
-        if(this.props.children[active-1] != undefined){
+        var step = this.state.step;
+        if(this.props.children[step-1] != undefined){
             this.setState({
-                active:active-1
+                active:step-1
             });
         }
     }

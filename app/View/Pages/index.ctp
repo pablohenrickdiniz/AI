@@ -80,7 +80,8 @@
             selector: '.resource',
             callback: function (key) {
                 if (key == 'new') {
-                    ResourcesManager.tileset.getModal().open();
+                    //ResourcesManager.tileset.getModal().open();
+                    $('#resource-step-modal').modal();
                 }
             },
             items: {
@@ -148,6 +149,9 @@
 
 </div>
 <div id="tmp">
+
+</div>
+<div id="resources-modal-container">
 
 </div>
 <div class="row">

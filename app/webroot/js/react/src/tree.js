@@ -23,6 +23,14 @@ var Tree = React.createClass({
             </div>
         );
     },
+    componentDidUpdate:function(){
+        this.reload();
+    },
+    componentWillReceiveProps:function(props){
+        this.setState({
+            data:props.data
+        });
+    },
     reload:function(){
         var self = this;
         if(self.loaded){
