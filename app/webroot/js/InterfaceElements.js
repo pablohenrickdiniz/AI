@@ -1262,7 +1262,7 @@ ResourcesManager.tileset = {
         var self = this;
         if(self.form == null){
             self.form = new Form();
-            self.form.add(self.getSoundInput()).action(Global.resources.add).setAttribute('method','post').setId(generateUUID());
+            self.form.add(self.getSoundInput()).action(Global.resource.add).setAttribute('method','post').setId(generateUUID());
             self.form.setAttribute('enctype','multipart/form-data');
             $(self.getForm().getDOM()).submit(function(event){
                 event.preventDefault();
@@ -1270,7 +1270,7 @@ ResourcesManager.tileset = {
                     self.loading = true;
                     var formData = new FormData($(this)[0]);
                     $.ajax({
-                        url:Global.resources.add,
+                        url:Global.resource.add,
                         type:'POST',
                         data:formData,
                         async:false,
@@ -1297,7 +1297,7 @@ ResourcesManager.tileset = {
             self.form = new Form();
             var submit = new Button();
             submit.setAttribute('type','submit').addClass('hidden');
-            self.form.add(self.getImageInput()).action(Global.resources.add).setAttribute('method', 'post').setId(generateUUID()).add(submit);
+            self.form.add(self.getImageInput()).action(Global.resource.add).setAttribute('method', 'post').setId(generateUUID()).add(submit);
             self.form.setAttribute('enctype','multipart/form-data');
             $(self.getForm().getDOM()).submit(function(event){
                 event.preventDefault();
@@ -1320,7 +1320,7 @@ ResourcesManager.tileset = {
                         }
                     }
                     $.ajax({
-                        url:Global.resources.add,
+                        url:Global.resource.add,
                         type:'POST',
                         data:formData,
                         async:false,
@@ -1743,7 +1743,7 @@ ResourcesManager.main = {
             self.modal.onopen(function () {
                 $(self.getTree().getDOM()).dynatree({
                     initAjax: {
-                        url: Global.resources.children,
+                        url: Global.resource.children,
                         data: {
                             'data[id]': Global.project.id
                         },

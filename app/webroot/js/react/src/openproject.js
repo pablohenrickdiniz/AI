@@ -10,6 +10,7 @@ var OpenProject = React.createClass({
         $('#open-project-modal').on('show.bs.modal', function (e) {
             self.loadProjects();
         });
+
     },
     render: function () {
         var self = this;
@@ -60,10 +61,9 @@ var OpenProject = React.createClass({
     },
     openProject: function () {
         Global.project.id = this.state.checked;
-        React.render(
-            <Tree id="tree" data={{'data[id]': Global.project.id}} />,
-            document.getElementById('map-container')
-        );
+        Render.project.updateMapTree();
+        Render.resource.updateResourceModal();
+
         this.close();
 
     },

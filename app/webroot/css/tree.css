@@ -1,0 +1,91 @@
+.tree li {
+    list-style: none;
+    z-index: 2;
+}
+
+.space:before {
+    content: '\00a0\00a0\00a0';
+    border-top: 1px dashed black;
+    border-left: 1px dashed black;
+    position: relative;
+    top: 9px;
+    left: 5px;
+}
+
+.tree ul > li:last-child .space:before, ul.tree > li:last-child .space:before {
+    border-top: none;
+    border-bottom: 1px dashed black;
+    top: -7px;
+}
+
+.tree li.expanded:before {
+    border-left: 1px dashed black;
+    display: block;
+    height: 100%;
+    width: 1px;
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 5px;
+}
+
+.tree ul > li:first-child:after {
+    border-left: 1px dashed black;
+    display: block;
+    content: '';
+    height: 10px;
+    position: absolute;
+    left: 5px;
+    top: -2px;
+}
+
+.tree li.closed:before {
+    border-left: 1px dashed black;
+    display: block;
+    height: 8px;
+    width: 1px;
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 5px;
+}
+
+.space {
+    position: relative;
+}
+
+.tree {
+    padding-left: 5px;
+    padding-bottom: 0;
+}
+
+ul.tree {
+    display: inline-block;
+    overflow: hidden;
+    position: relative;
+}
+
+.tree li {
+    position: relative;
+}
+
+.tree ul {
+    padding-left: 16px;
+}
+
+.tree .fa {
+    z-index: 2;
+    background-color: white;
+}
+
+.expanded > ul {
+    display: block !important;
+}
+
+.tree ul {
+    display: none;
+}
+
+.icon:hover, .toggle:hover {
+    cursor: pointer;
+}

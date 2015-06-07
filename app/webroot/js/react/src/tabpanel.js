@@ -16,7 +16,8 @@ var Tabpanel = React.createClass({
         var self = this;
         children = this.props.children.map(function (tabpane, index) {
             var title = tabpane.props.title;
-            var id = tabpane.props.id;
+            var id = tabpane.props.id==undefined?generateUUID():tabpane.props.id;
+
             nav_tabs.push(<Tablistitem title={title} id={id} key={index} active={active == index} dataToggle={self.props.dataToggle}/>);
             return <Tabpane id={id} title={title} active={active == index} key={index}/>;
         });

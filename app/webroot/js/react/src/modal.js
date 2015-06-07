@@ -1,13 +1,24 @@
 var Modal = React.createClass({
     options: {
-        size: ['lg', 'md', 'sm']
+        size: ['lg', 'md', 'sm'],
+        position:[
+            'top left',
+            'top center',
+            'top right',
+            'center left',
+            'center center',
+            'center right',
+            'bottom left',
+            'bottom center',
+            'bottom right'
+        ]
     },
     componentWillMount:function(){
         this.updateState(this.props);
     },
     render: function () {
         return (
-            <div className="modal fade" id={this.state.id}>
+            <div className="modal fade" id={this.state.id} style={{zIndex:this.state.layer}}>
                 <div className={"modal-dialog" + ' ' + this.state.size}>
                     <div className="modal-content">
                         <div className="modal-header">
@@ -40,6 +51,10 @@ var Modal = React.createClass({
         var size = props.size != undefined ? (this.options.size.indexOf(props.size) != -1 ? 'modal-' + props.size : 'modal-md') : 'modal-md';
         var title = props.title == undefined?'Modal':props.title;
         var open = (props.open != undefined && props.open);
+        var layer = parseInt(this.props.layer);
+        var position = this.props.position == undefined?'':this.options.position.indexOf(this.props.position) != -1?this.props.position+' absolute':'';
+
+        layer = isNaN(layer)?1:layer;
         this.setState({
             id:id,
             title:title,
@@ -51,7 +66,9 @@ var Modal = React.createClass({
             confirmText: confirm_text,
             cancelText: cancel_text,
             size: size,
-            open:open
+            open:open,
+            layer:layer,
+            position:position
         });
     },
     componentWillReceiveProps:function(props){

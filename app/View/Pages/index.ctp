@@ -5,9 +5,10 @@
 <?= $this->Html->script('jquery-mask') ?>
 <!--<?= $this->Import->script('DOMOBJ', true) ?>-->
 <?= $this->Html->css('index')?>
+<?= $this->Html->css('tree')?>
 <script type="text/javascript">
     var Global = {
-        resources: {
+        resource: {
             children: '<?=$this->Html->url(array('controller'=>'resource','action'=>'getResourcesTree'))?>',
             add:'<?=$this->Html->url(array('controller' => 'resource','action'=>'addAjax'))?>'
         },
@@ -36,7 +37,6 @@
             index: '<?=$this->Html->url('/')?>'
         }
     };
-
 </script>
 <?= $this->Html->script('react/react')?>
 <?=$this->Import->script('react/build')?>

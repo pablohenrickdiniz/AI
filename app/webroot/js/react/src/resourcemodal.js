@@ -5,7 +5,7 @@ var ResourceModal = React.createClass({
     render:function(){
         return (
             <Modal title="Recursos" footer="false" id={this.state.id}>
-                <Tree id="resource-tree" url={Global.resources.children} data={{'data[id]':this.state.projectId}}/>
+                <Tree id="resource-tree" url={Global.resource.children} data={{'data[id]':this.state.projectId}}/>
             </Modal>
         );
     },

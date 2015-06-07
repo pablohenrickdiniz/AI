@@ -7,13 +7,17 @@ class PagesController extends AppController {
     public $user = array('index');
     public $authorization = array(
         'user' => array(
-            'index'
+            'index',
+            'tree'
         ),
         'public' => array(
             'isOnline'
         )
     );
 
+    public function tree(){
+
+    }
 
     public function admin(){
 

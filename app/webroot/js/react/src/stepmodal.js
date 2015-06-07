@@ -1,11 +1,22 @@
 var StepModal = React.createClass({
+    componentDidMount:function(){
+        var self = this;
+        $('#'+this.state.id).on('hidden.bs.modal', function (e) {
+            self.setState({
+                step:0,
+                open:false
+            });
+        });
+    },
     getInitialState:function(){
         var state = {
             step:0,
-            title:'Step Modal',
+            title:this.props.title == undefined?'Step Modal':this.props.title,
             onConfirm:null,
             onCancel:null,
-            id:this.props.id
+            id:this.props.id,
+            layer:this.props.layer,
+            open:this.props.open
         };
 
         if(typeof this.props.children == 'array' && this.props.children.length > 0){
@@ -19,7 +30,7 @@ var StepModal = React.createClass({
     },
     render:function(){
         return (
-            <Modal id={this.state.id} title={this.state.title} onConfirm={this.onConfirm} onCancel={this.onCancel} confirmText={this.state.confirmText} cancelText={this.state.cancelText} open={this.props.open}>
+            <Modal id={this.state.id} title={this.state.title} onConfirm={this.onConfirm} onCancel={this.onCancel} confirmText={this.state.confirmText} cancelText={this.state.cancelText} open={this.state.open} layer={this.state.layer}>
                 <Tabpanel active={this.state.step} dataToggle={false}>
                     {this.props.children}
                 </Tabpanel>

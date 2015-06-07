@@ -1,18 +1,15 @@
 var Tabpane = React.createClass({
     getInitialState:function(){
         return {
-            active:false
+            active:(this.props.active != undefined && this.props.active),
+            id:this.props.id,
+            data:this.props.data
         };
-    },
-    componentWillMount:function(){
-        this.setState({
-            active:this.props.active?true:false
-        });
     },
     render:function(){
         var class_name = 'tab-pane'+(this.state.active?' active':'');
         return (
-            <div role="tabpanel" className={class_name} id={this.props.id} data={this.props.data}>
+            <div role="tabpanel" className={class_name} id={this.state.id} data={this.state.data}>
                 {this.props.children}
             </div>
         );

@@ -70,3 +70,32 @@ ul.context-menu{
 span.close{
    float:none;
 }
+
+.modal-dialog.absolute{
+    position:absolute;
+}
+
+.modal-dialog.top-left{ /*top left*/
+    top:0;
+    left:2%;
+}
+
+.modal-dialog.top-center{ /*top center*/
+    top:0;
+    left:25%;
+}
+
+.modal-dialog.top-right{ /*top right*/
+    top:0;
+    right:2%;
+}
+
+.modal-dialog.center-left{/*center left*/
+    top:25%;
+    left:3%;
+}
+
+.modal-dialog.center-center{   /*center center*/
+    top:25%;
+    left:25%;
+}
