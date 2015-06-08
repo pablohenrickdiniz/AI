@@ -1,8 +1,14 @@
 var Render = {
     project: {
         updateMapTree: function () {
+            /*
             React.render(
                 <TreeView id="tree" url={Global.project.mapTree} formData={{'data[id]':Global.project.id}}/>,
+                document.getElementById('map-container')
+            );*/
+
+            React.render(
+                <MapTree />,
                 document.getElementById('map-container')
             );
         },
@@ -87,26 +93,6 @@ var Render = {
                     </StepModal>
                 </div>,
                 document.getElementById('content')
-            );
-
-            var event = function(key){
-                console.log(key)
-            };
-
-            var items = {
-                "edit": {name: "Alterar propriedades", icon: "edit"},
-                'sp1': '-----------',
-                'new': {name: 'Novo Mapa', icon: "add"},
-                'sp2': '-----------',
-                "copy": {name: "Copiar", icon: "copy"},
-                "cut": {name: "Recortar", icon: "cut"},
-                "paste": {name: "Colar", icon: "paste"},
-                "delete": {name: "Apagar", icon: "delete"}
-            };
-
-            React.render(
-                <ContextMenu items={items} show={true} callback={event} x={0} y={0}/>,
-                document.getElementById('context-menu-container')
             );
 
 

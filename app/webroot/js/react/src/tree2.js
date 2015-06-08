@@ -144,9 +144,9 @@ var TreeNode = React.createClass({
             </li>
         );
     },
-    contextMenu:function(){
+    contextMenu:function(e){
         if(typeof this.state.onLeftClick == 'function'){
-            this.state.onLeftClick.apply(this,arguments);
+            this.state.onLeftClick(e,this);
         }
     },
     toggle:function(){

@@ -97,13 +97,16 @@ var ContextMenuItem = React.createClass({
         }
 
         return (
-            <li className={className} onClick={click}><span className="name">{this.state.name}</span></li>
+            <li className={className} onClick={click} onContextMenu={this.contextMenu}><span className="name">{this.state.name}</span></li>
         );
     },
     click:function(e){
         if(typeof this.state.onClick == 'function'){
-            this.state.onClick.apply(this,[this.state.key]);
+            this.state.onClick(this.state.key,e,this);
             this.state.parent.close();
         }
+    },
+    contextMenu:function(e){
+        e.preventDefault();
     }
 });
