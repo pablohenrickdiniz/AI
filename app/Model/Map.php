@@ -184,8 +184,9 @@ class Map extends AppModel
                 'title' => $map['Map']['name'],
                 'key' => $map['Map']['id'],
                 'expand' => $map['Map']['expand'],
-                'addClass' => 'map',
-                'isLazy' => $map['Map']['isLazy']
+                'metadata' => array(
+                    'type' => 'map'
+                )
             );
         }
         return $children;
@@ -198,8 +199,9 @@ class Map extends AppModel
             'key' => $map['Map']['id'],
             'title' => $map['Map']['name'],
             'expand' => $map['Map']['expand'],
-            'addClass' => 'map',
-            'isLazy' => $map['Map']['isLazy']
+            'metadata' => array(
+                'type' => 'map'
+            )
         );
         return $node;
     }

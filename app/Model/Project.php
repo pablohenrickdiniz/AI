@@ -46,8 +46,11 @@ class Project extends AppModel{
             'key' => $project['Project']['id'],
             'title' => $project['Project']['name'],
             'expand' => $project['Project']['expand'],
-            'addClass' => 'project',
-            'isLazy' => $project['Project']['isLazy']
+            'icon' => '',
+            'isFolder' => true,
+            'metadata' => array(
+                'type' => 'project'
+            )
         );
         return $node;
     }
@@ -74,8 +77,9 @@ class Project extends AppModel{
                 'title' => $map['Map']['name'],
                 'key' => $map['Map']['id'],
                 'expand' => $map['Map']['expand'],
-                'addClass' => 'map',
-                'isLazy' => $map['Map']['isLazy']
+                'metadata' => array(
+                    'type' => 'map'
+                )
             );
         }
         return $children;

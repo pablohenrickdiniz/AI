@@ -1,12 +1,12 @@
 var Render = {
-    project:{
-        updateMapTree:function(){
+    project: {
+        updateMapTree: function () {
             React.render(
-                <Tree id="tree" url={Global.project.mapTree} data={{'data[id]':Global.project.id}} onLazyRead={this.treeLazyRead}/>,
+                <TreeView id="tree" url={Global.project.mapTree} formData={{'data[id]':Global.project.id}}/>,
                 document.getElementById('map-container')
             );
         },
-        treeLazyRead:function(node){
+        treeLazyRead: function (node) {
             var span = node.span;
             var action = '';
 
@@ -25,16 +25,19 @@ var Render = {
             });
         }
     },
-    resource:{
-        updateResourceModal:function(){
+    resource: {
+        updateResourceModal: function () {
             React.render(
                 <ResourceModal id="resources-modal" projectId={Global.project.id} layer="1"/>,
                 document.getElementById('resources-modal-container')
             );
         }
     },
-    main:{
-        renderMenu:function(){
+    main: {
+        renderMenu: function () {
+
+
+
             React.render(
                 <div id="content">
                     <Navbar>
@@ -85,7 +88,30 @@ var Render = {
                 </div>,
                 document.getElementById('content')
             );
+
+            var event = function(key){
+                console.log(key)
+            };
+
+            var items = {
+                "edit": {name: "Alterar propriedades", icon: "edit"},
+                'sp1': '-----------',
+                'new': {name: 'Novo Mapa', icon: "add"},
+                'sp2': '-----------',
+                "copy": {name: "Copiar", icon: "copy"},
+                "cut": {name: "Recortar", icon: "cut"},
+                "paste": {name: "Colar", icon: "paste"},
+                "delete": {name: "Apagar", icon: "delete"}
+            };
+
+            React.render(
+                <ContextMenu items={items} show={true} callback={event} x={0} y={0}/>,
+                document.getElementById('context-menu-container')
+            );
+
+
         }
     }
 };
+
 

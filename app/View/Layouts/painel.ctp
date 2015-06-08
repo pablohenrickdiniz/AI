@@ -5,7 +5,6 @@
     <?=$this->Html->script('jquery-ui.min')?>
     <?=$this->Html->script('jquery.cookie')?>
     <?=$this->Html->script('jquery.dynatree.min')?>
-    <?=$this->Html->script('/jquery-context-menu/jquery.contextMenu')?>
     <?=$this->Html->script('validate')?>
     <?=$this->Html->css('jquery-ui.min')?>
     <?=$this->Html->css('font-awesome/css/font-awesome')?>

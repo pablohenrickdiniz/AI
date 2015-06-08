@@ -119,8 +119,8 @@ class ProjectController extends AppController
             $this->Project->id = $id;
             if ($this->Project->exists() && $this->Project->isAuthorized()) {
                 try {
-                    $tree = $this->Project->getNode();
-                    $result = $tree;
+                    $node = $this->Project->getNode();
+                    $result[] = $node;
                     $this->Config->setLastProjectId($id);
                 } catch (Exception $ex) {
 

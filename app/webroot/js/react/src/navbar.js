@@ -1,15 +1,15 @@
 var Navbar = React.createClass({
-    getInitialState:function(){
+    getInitialState: function () {
         return {
-            collapseId:generateUUID()
+            collapseId: generateUUID()
         };
     },
-    render:function(){
+    render: function () {
         return (
             <nav className="navbar navbar-default" id={this.props.id}>
                 <div className="container-fluid">
                     <div className="navbar-header">
-                        <button type="button" className="navbar-toggle" data-toggle="collapse" data-target={'#'+this.state.collapseId}>
+                        <button type="button" className="navbar-toggle" data-toggle="collapse" data-target={'#' + this.state.collapseId}>
                             <span className="sr-only">Toggle navigation</span>
                             <span className="icon-bar"></span>
                             <span className="icon-bar"></span>
@@ -18,7 +18,7 @@ var Navbar = React.createClass({
                     </div>
                     <div className="collapse navbar-collapse" id={this.state.collapseId}>
                         <ul className="nav navbar-nav">
-                            {this.props.children}
+                                {this.props.children}
                         </ul>
                     </div>
                 </div>

@@ -5,8 +5,8 @@
 
 .space:before {
     content: '\00a0\00a0\00a0';
-    border-top: 1px dashed black;
-    border-left: 1px dashed black;
+    border-top: 1px dashed #C0C0C0  ;
+    border-left: 1px dashed #C0C0C0  ;
     position: relative;
     top: 9px;
     left: 5px;
@@ -14,12 +14,12 @@
 
 .tree ul > li:last-child .space:before, ul.tree > li:last-child .space:before {
     border-top: none;
-    border-bottom: 1px dashed black;
+    border-bottom: 1px dashed #C0C0C0  ;
     top: -7px;
 }
 
 .tree li.expanded:before {
-    border-left: 1px dashed black;
+    border-left: 1px dashed #C0C0C0  ;
     display: block;
     height: 100%;
     width: 1px;
@@ -30,7 +30,7 @@
 }
 
 .tree ul > li:first-child:after {
-    border-left: 1px dashed black;
+    border-left: 1px dashed #C0C0C0  ;
     display: block;
     content: '';
     height: 10px;
@@ -40,7 +40,7 @@
 }
 
 .tree li.closed:before {
-    border-left: 1px dashed black;
+    border-left: 1px dashed #C0C0C0  ;
     display: block;
     height: 8px;
     width: 1px;
@@ -63,6 +63,8 @@ ul.tree {
     display: inline-block;
     overflow: hidden;
     position: relative;
+    border:1px dashed #C0C0C0 ;
+    width:100%;
 }
 
 .tree li {
@@ -70,7 +72,7 @@ ul.tree {
 }
 
 .tree ul {
-    padding-left: 16px;
+    padding-left: 18px;
 }
 
 .tree .fa {
@@ -86,6 +88,21 @@ ul.tree {
     display: none;
 }
 
-.icon:hover, .toggle:hover {
+.icon:hover, .toggle:hover,.title:hover{
     cursor: pointer;
+}
+
+.toggle{
+    font-size:10px;
+    padding-left:1px;
+    padding-right:3px;
+}
+
+.title{
+    text-indent:10px;
+    padding-left:2px;
+}
+
+.expanded >.icon,.closed > .icon{
+    padding-left:5px;
 }

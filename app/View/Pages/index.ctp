@@ -1,26 +1,25 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script>
-<?= $this->Html->script('uuid')?>
-<?= $this->Html->script('jquery.form.min')?>
+<?= $this->Html->script('uuid') ?>
+<?= $this->Html->script('jquery.form.min') ?>
 <?= $this->Html->script('MouseReader') ?>
 <?= $this->Html->script('jquery-mask') ?>
 <!--<?= $this->Import->script('DOMOBJ', true) ?>-->
-<?= $this->Html->css('index')?>
-<?= $this->Html->css('tree')?>
+<?= $this->Html->css('index') ?>
+<?= $this->Html->css('tree') ?>
 <script type="text/javascript">
     var Global = {
         resource: {
             children: '<?=$this->Html->url(array('controller'=>'resource','action'=>'getResourcesTree'))?>',
-            add:'<?=$this->Html->url(array('controller' => 'resource','action'=>'addAjax'))?>'
+            add: '<?=$this->Html->url(array('controller' => 'resource','action'=>'addAjax'))?>'
         },
         project: {
-            id:'<?=$project_id?>',
+            id: '<?=$project_id?>',
             add: '<?=$this->Html->url(array('controller'=>'project','action'=>'addAjax'))?>',
             expand: '<?=$this->Html->url(array('controller'=>'project','action'=>'expand'))?>',
             all: '<?=$this->Html->url(array('controller'=>'project','action'=>'getAll'))?>',
             mapTree: '<?=$this->Html->url(array('controller'=>'project','action'=>'getMapTree'))?>',
             exists: '<?=$this->Html->url(array('controller'=>'project','action'=>'exists'))?>',
             children: '<?=$this->Html->url(array('controller'=>'project','action'=>'getChildren'))?>',
-            delete:'<?=$this->Html->url(array('controller'=>'project','action'=>'deleteAjax'))?>'
+            delete: '<?=$this->Html->url(array('controller'=>'project','action'=>'deleteAjax'))?>'
         },
         map: {
             add: '<?=$this->Html->url(array('controller'=>'map','action'=>'add'))?>',
@@ -30,7 +29,7 @@
             expand: '<?=$this->Html->url(array('controller'=>'map','action'=>'expand'))?>',
             paste: '<?=$this->Html->url(array('controller'=>'map','action'=>'paste'))?>',
             children: '<?=$this->Html->url(array('controller'=>'map','action'=>'getChildren'))?>',
-            action:'new'
+            action: 'new'
         },
         pages: {
             isOnline: '<?=$this->Html->url(array('controller'=>'pages','action'=>'isOnline'))?>',
@@ -38,8 +37,8 @@
         }
     };
 </script>
-<?= $this->Html->script('react/react')?>
-<?=$this->Import->script('react/build')?>
+<?= $this->Html->script('react/react') ?>
+<?= $this->Import->script('react/build') ?>
 <?= $this->Html->script('InterfaceElements') ?>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -75,7 +74,7 @@
             }
         });
 
-
+    /*
         $.contextMenu({
             selector: '.resource',
             callback: function (key) {
@@ -97,8 +96,8 @@
                     $('#map-editor').modal();
                 }
                 else if (key == 'edit') {
-                   Global.map.action = 'edit';
-                   $('#map-editor').modal();
+                    Global.map.action = 'edit';
+                    $('#map-editor').modal();
                 }
                 else if (key == 'delete') {
                     MapManager.delete();
@@ -142,13 +141,17 @@
                 "paste": {name: "Colar", icon: "paste"}
             }
         });
-
+*/
     });
 </script>
+
 <div id="content">
 
 </div>
 <div id="tmp">
+
+</div>
+<div id="context-menu-container">
 
 </div>
 <div id="resources-modal-container">
@@ -156,7 +159,7 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <div id="container-a">
+        <div id="container-a" class="col-md-3">
             <div id="tileset-container">
 
             </div>
@@ -164,8 +167,10 @@
 
             </div>
         </div>
-        <div id="container-b">
+        <div id="container-b" class="col-md-9">
+            <div id="canvas-container">
 
+            </div>
         </div>
     </div>
 </div>
