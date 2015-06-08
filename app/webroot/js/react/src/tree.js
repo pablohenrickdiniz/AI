@@ -55,6 +55,7 @@ var Tree = React.createClass({
                     self.loaded = true;
                     if(onComplete != null){
                         onComplete.apply(this,arguments);
+                        console.log('Tree load complete...');
                     }
                 }
             },

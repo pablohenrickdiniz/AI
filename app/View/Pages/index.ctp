@@ -1,3 +1,4 @@
+<?= $this->Html->script('lodash.min')?>
 <?= $this->Html->script('uuid') ?>
 <?= $this->Html->script('jquery.form.min') ?>
 <?= $this->Html->script('MouseReader') ?>

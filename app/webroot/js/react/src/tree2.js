@@ -20,12 +20,28 @@ var TreeView = React.createClass({
     },
     updateState:function(props){
         var state = [];
-        state.data = props.data instanceof Array?props.data:[];
-        state.url = props.url == undefined?'':props.url;
-        state.formData = typeof props.formData == 'object'?props.formData:{};
-        state.onItemLeftClick = typeof props.onItemLeftClick == 'function'?props.onItemLeftClick:null;
 
-        if(state.url != ''){
+        var urlChange = false;
+        var formChange = false;
+
+        if(props.data instanceof Array && !_.isEqual(props.data,this.state.data)){
+            state.data = props.data;
+        }
+        if(props.url != undefined && props.url != this.state.url){
+            state.url = props.url;
+            urlChange =  true;
+        }
+
+        if(typeof props.formData == 'object' && !_.isEqual(props.formData, this.state.formData)){
+            state.formData = props.formData;
+            formChange = true;
+        }
+
+        if(typeof props.onItemLeftClick == 'function' && props.onItemLeftClick != this.state.onItemLeftClick){
+            state.onItemLeftClick = props.onItemLeftClick;
+        }
+
+        if(urlChange || formChange){
             var self = this;
             $.ajax({
                 url:state.url,
@@ -35,9 +51,11 @@ var TreeView = React.createClass({
                 success:function(data){
                     state.data = data;
                     self.setState(state);
+                    console.info('Árvore carregada com sucesso...');
                 }.bind(this),
                 error:function(data){
-
+                    console.warn('Erro ao tentar carregar árvore!');
+                    console.log(data);
                 }.bind(this)
             });
         }

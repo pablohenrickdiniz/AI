@@ -36,7 +36,28 @@ var MapTree = React.createClass({
         );
     },
     projectCallback:function(key,e,obj){
+        switch(key){
+            case 'edit':
 
+
+                break;
+            case 'new':
+
+                break;
+            case 'copy':
+
+                break;
+            case 'cut':
+
+                break;
+            case 'paste':
+
+                break;
+            case 'delete':
+                break;
+            default:
+                console.log('Nenhuma ação definida para a chave...'+key);
+        }
     },
     projectItems:{
         "edit": {name: "Alterar propriedades", icon: "edit"},

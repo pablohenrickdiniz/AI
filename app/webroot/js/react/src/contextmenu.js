@@ -19,7 +19,11 @@ var ContextMenu = React.createClass({
         this.updateState(props);
     },
     componentWillMount:function(){
-        this.updateState(this.props);
+        var self = this;
+        $(document).on('click',function(e){
+            self.close();
+        });
+        self.updateState(this.props);
     },
     updateState:function(props){
         this.setState({
@@ -81,7 +85,8 @@ var ContextMenuItem = React.createClass({
         this.updateState(props);
     },
     componentWillMount:function(){
-        this.updateState(this.props);
+        var self = this;
+        self.updateState(this.props);
     },
     render:function(){
         var icon = this.state.icon;

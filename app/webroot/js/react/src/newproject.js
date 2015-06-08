@@ -42,6 +42,7 @@ var NewProject = React.createClass({
             dataType: 'json',
             success: function (data) {
                 if (data.success) {
+                    console.log('Projeto criado com sucesso...');
                     Global.project.id = data.id;
                     React.render(
                         <Tree id="tree" data={{'data[id]':Global.project.id}}/>,
@@ -55,6 +56,7 @@ var NewProject = React.createClass({
                     self.close();
                 }
                 else {
+                    console.log('Falha ao tentar criar projeto...');
                     var msg = '';
                     var elements = [];
                     for (var index in data.errors) {
@@ -68,7 +70,7 @@ var NewProject = React.createClass({
                 }
             }.bind(this),
             error: function (data) {
-
+                console.log('Erro ao tentar realizar requisição...');
             }.bind(this)
         });
     }
