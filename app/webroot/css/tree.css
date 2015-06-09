@@ -52,11 +52,11 @@
 
 .space {
     position: relative;
+    bottom:4px;
 }
 
 .tree {
-    padding-left: 5px;
-    padding-bottom: 0;
+    padding-left: 0;
 }
 
 ul.tree {
@@ -71,12 +71,26 @@ ul.tree {
     position: relative;
 }
 
-.tree ul {
-    padding-left: 18px;
-}
 
 .tree .fa {
     z-index: 2;
+    position:absolute;
+    left:14px;
+}
+
+.tree .title{
+    display:inline-block;
+    position:relative;
+    left:20px;
+    top:-3px;
+}
+
+.tree .title.title-folder{
+    left:30px;
+}
+
+.tree .toggle{
+    left:0;
 }
 
 .expanded > ul {
@@ -84,8 +98,15 @@ ul.tree {
 }
 
 .tree ul {
- /*   display: none;*/
+    padding-left:13px;
 }
+
+.tree li,.tree ul{
+    position:relative;
+}
+
+
+
 
 .icon:hover, .toggle:hover,.title:hover{
     cursor: pointer;
@@ -93,15 +114,5 @@ ul.tree {
 
 .toggle{
     font-size:10px;
-    padding-left:1px;
-    padding-right:3px;
 }
 
-.title{
-    text-indent:10px;
-    padding-left:2px;
-}
-
-.expanded >.icon,.closed > .icon{
-    padding-left:5px;
-}

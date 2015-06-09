@@ -179,6 +179,7 @@ var TreeNode = React.createClass({
         var hasChildren = this.state.children.length > 0;
         var self = this;
 
+
         var children = this.state.children.map(function (node, index) {
             var isFolder = node.isFolder ? true : false;
             var title = node.title == undefined ? '' : node.title;
@@ -190,11 +191,14 @@ var TreeNode = React.createClass({
             return <TreeNode title={title}  isFolder={isFolder} icon={icon} expand={expand} key={index} id={key} children={children} onLeftClick={self.state.onLeftClick} metadata={metadata}/>
         });
 
+        var title = hasChildren && this.state.isFolder?'title title-folder':'title';
+
+
         return (
             <li className={expand}>
                 <span className={toggle} onClick={this.state.isFolder && hasChildren ? this.toggle : null}></span>
                 <span className={icon} onDoubleClick={this.state.isFolder && hasChildren ? this.toggle : null} onContextMenu={this.contextMenu}></span>
-                <span className="title" onDoubleClick={this.state.isFolder && hasChildren ? this.toggle : null} onContextMenu={this.contextMenu}>{this.state.title}</span>
+                <span className={title} onDoubleClick={this.state.isFolder && hasChildren ? this.toggle : null} onContextMenu={this.contextMenu}>{this.state.title}</span>
                 <ul className={this.state.expand?'normal':'hidden'}>
                     {children}
                 </ul>
