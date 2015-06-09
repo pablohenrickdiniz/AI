@@ -26,7 +26,7 @@ class ResourceController extends AppController{
             $this->Project->id = $id;
             if($this->Project->exists() && $this->Project->isAuthorized()){
                 $this->Resource->project_id = $id;
-                $result = $this->Resource->getTree();
+                $result[] = $this->Resource->getTree();
             }
             echo json_encode($result);
         }

@@ -3,6 +3,10 @@
  */
 
 var MapTree = React.createClass({
+    propTypes:{
+        url:React.PropTypes.string,
+        projectId:React.PropTypes.number
+    },
     getInitialState:function() {
         return {
             url: Global.project.mapTree,
@@ -14,14 +18,23 @@ var MapTree = React.createClass({
         this.updateState(props);
     },
     updateState:function(props){
-        this.setState({
-            url:props.url,
-            projectId:props.projectId
-        });
+        var state = {};
+
+        if(props.url != undefined && props.url != this.state.url && _.isString(props.url)){
+            state.url = props.url;
+        }
+
+        if(props.projectId != undefined && props.projectId != this.state.projectId && _.isNumber(props.projectId)){
+            state.projectId = props.projectId;
+        }
+        console.log(state);
+        if(_.isEmpty(state)){
+            this.setState(state);
+        }
     },
     render:function(){
         return (
-            <TreeView id="tree" url={this.state.url} formData={{'data[id]':this.state.projectId}} onItemLeftClick={this.callback}/>
+            <Tree id="tree" url={this.state.url} formData={{'data[id]':this.state.projectId}} onItemLeftClick={this.callback}/>
         );
     },
     callback:function(e,obj){

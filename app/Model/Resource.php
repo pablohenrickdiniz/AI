@@ -79,16 +79,25 @@ class Resource extends AppModel{
     }
 
     public function getTree(){
-        $root['title'] = 'recursos';
-        $root['isFolder'] = true;
-        $root['addClass'] = 'resources';
-        $root['children'] = [];
+        $root = array(
+            'title' => 'recursos',
+            'isFolder' => true,
+            'children' => [],
+            'metadata' => array(
+                'type' =>'resources'
+            ),
+            'expand' => false
+        );
+
         $categories = $this->categories;
         foreach($categories as $key => $category){
             $root['children'][] = array(
                 'title' => $category,
-                'addClass' => 'resource',
-                'key' => $key
+                'key' => $key,
+                'metadata' => array(
+                    'type' => 'resource-folder'
+                ),
+                'isFolder' => true
             );
         }
         return $root;
