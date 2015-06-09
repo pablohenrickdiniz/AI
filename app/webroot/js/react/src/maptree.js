@@ -4,37 +4,48 @@
 
 var MapTree = React.createClass({
     propTypes:{
-        url:React.PropTypes.string,
+        loadUrl:React.PropTypes.string,
         projectId:React.PropTypes.number
     },
     getInitialState:function() {
         return {
-            url: Global.project.mapTree,
-            projectId: Global.project.id,
+            loadUrl: '',
+            projectId: 0,
             id:null
         }
     },
     componentWillReceiveProps:function(props){
         this.updateState(props);
     },
+    componentWillMount:function(){
+        this.updateState(this.props);
+    },
     updateState:function(props){
         var state = {};
 
-        if(props.url != undefined && props.url != this.state.url && _.isString(props.url)){
-            state.url = props.url;
+        if(_.isString(props.loadUrl) && props.loadUrl != this.state.loadUrl){
+            state.loadUrl = props.loadUrl;
         }
 
-        if(props.projectId != undefined && props.projectId != this.state.projectId && _.isNumber(props.projectId)){
+        if(_.isNumber(props.projectId) && props.projectId != this.state.projectId){
             state.projectId = props.projectId;
         }
-        console.log(state);
-        if(_.isEmpty(state)){
+
+        if(!_.isEmpty(state)){
+            console.log('updating state maptree:');
             this.setState(state);
+            console.log(state);
+            console.log('maptree state update complete...');
         }
+
+
     },
     render:function(){
+        console.log('maptree render...');
+        console.log('state:');
+        console.log(this.state);
         return (
-            <Tree id="tree" url={this.state.url} formData={{'data[id]':this.state.projectId}} onItemLeftClick={this.callback}/>
+            <Tree id="tree" loadUrl={this.state.loadUrl} formData={{'data[id]':this.state.projectId}} onItemLeftClick={this.callback}/>
         );
     },
     callback:function(e,obj){
@@ -55,7 +66,7 @@ var MapTree = React.createClass({
 
                 break;
             case 'new':
-
+                Render.map.new();
                 break;
             case 'copy':
 

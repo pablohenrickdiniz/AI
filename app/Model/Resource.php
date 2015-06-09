@@ -80,7 +80,7 @@ class Resource extends AppModel{
 
     public function getTree(){
         $root = array(
-            'title' => 'recursos',
+            'title' => 'Recursos',
             'isFolder' => true,
             'children' => [],
             'metadata' => array(

@@ -22,7 +22,7 @@ echo $this->Html->script('jquery-mask');
             };
 
             $('#foto').fileupload({
-                url: '<?=$this->Html->url(array('controller' =>'arquivos','action'=>'add'))?>',
+                postUrl: '<?=$this->Html->url(array('controller' =>'arquivos','action'=>'add'))?>',
                 add: function (e, data) {
                     var name = data.files[0].name;
                     var ext = getFileExt(name);

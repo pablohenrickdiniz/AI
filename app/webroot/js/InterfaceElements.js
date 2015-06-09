@@ -111,7 +111,7 @@ ProjectManager.load = function (callback) {
                     action = Global.map.children;
                 }
                 node.appendAjax({
-                    url: action,
+                    postUrl: action,
                     type: 'post',
                     data: {
                         'data[id]': node.data.key
@@ -1768,7 +1768,7 @@ ResourcesManager.main = {
                             action = Global.map.children;
                         }
                         node.appendAjax({
-                            url: action,
+                            postUrl: action,
                             type: 'post',
                             data: {
                                 'data[id]': node.data.key

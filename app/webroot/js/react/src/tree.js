@@ -1,7 +1,7 @@
 var Tree = React.createClass({
     propTypes: {
         data: React.PropTypes.array,
-        url: React.PropTypes.string,
+        loadUrl: React.PropTypes.string,
         id: React.PropTypes.string,
         formData: React.PropTypes.object,
         onItemLeftClick: React.PropTypes.func
@@ -10,12 +10,15 @@ var Tree = React.createClass({
         return {
             data: [],
             formData: {},
-            url: '',
+            loadUrl: '',
             id: generateUUID(),
             onItemLeftClick: null
         };
     },
     componentWillMount: function () {
+        console.log('mounting tree...');
+        console.log('props:');
+        console.log(this.props);
         this.updateState(this.props);
     },
     updateState: function (props) {
@@ -29,9 +32,8 @@ var Tree = React.createClass({
             state.data = props.data;
         }
 
-
-        if (props.url != undefined && props.url != this.state.url && _.isString(props.url)) {
-            state.url = props.url;
+        if (_.isString(props.loadUrl) && props.loadUrl != this.state.loadUrl) {
+            state.loadUrl = props.loadUrl;
             urlChange = true;
         }
 
@@ -46,14 +48,25 @@ var Tree = React.createClass({
 
         var self = this;
         if (!_.isEmpty(state)) {
+            console.log('updating tree state...');
+            console.log('state:');
+            console.log(state);
             if (urlChange || formChange) {
+                var url =  urlChange?state.loadUrl:this.state.loadUrl;
+                var formData = formChange?state.formData:this.state.formData;
+                console.log(url);
+                console.log(formData);
+
                 $.ajax({
-                    url: state.url,
+                    url:url,
                     type: 'post',
                     dataType: 'json',
-                    data: state.formData,
+                    data: formData,
                     success: function (data) {
                         if (!_.isEqual(data, this.state.data)) {
+                            console.log('updating tree data...');
+                            console.log('data:');
+                            console.log(data);
                             state.data = data;
                         }
                         self.setState(state);
@@ -61,7 +74,6 @@ var Tree = React.createClass({
                     }.bind(this),
                     error: function (data) {
                         console.warn('Erro ao tentar carregar árvore!');
-                        console.log(data);
                     }.bind(this)
                 });
             }
@@ -72,6 +84,9 @@ var Tree = React.createClass({
 
     },
     componentWillReceiveProps: function (props) {
+        console.log('updating tree props...');
+        console.log('props:');
+        console.log(props);
         this.updateState(props);
     },
     render: function () {

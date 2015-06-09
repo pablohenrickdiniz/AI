@@ -1,7 +1,7 @@
 var ResourceModal = React.createClass({
     getInitialState:function(){
         return {
-            url:'',
+            loadUrl:'',
             projectId:0,
             id:''
         };
@@ -12,7 +12,7 @@ var ResourceModal = React.createClass({
     render:function(){
         return (
             <Modal title="Recursos" footer="false" id={this.state.id}>
-                <Tree id="resource-tree" url={Global.resource.children} formData={{'data[id]':this.state.projectId}}/>
+                <Tree id="resource-tree" loadUrl={this.state.loadUrl} formData={{'data[id]':this.state.projectId}}/>
             </Modal>
         );
     },
@@ -22,19 +22,17 @@ var ResourceModal = React.createClass({
     updateState:function(props){
         var state = {};
 
-        if(props.id != undefined && props.id != this.state.id && _.isString(props.id)){
+        if(_.isString(props.id) && props.id != this.state.id){
             state.id = props.id;
         }
 
-        if(props.url != undefined && props.url != this.state.url && _.isString(props.url)){
-            state.url = props.url;
+        if(_.isString(props.loadUrl) && props.loadUrl != this.state.loadUrl){
+            state.loadUrl = props.loadUrl;
         }
 
-
-        if(props.projectId != undefined && props.projectId != this.state.projectId ){
+        if(_.isNumber(props.projectId) && props.projectId != this.state.projectId ){
             state.projectId = props.projectId;
         }
-
 
         if(!_.isEmpty(state)){
             this.setState(state);

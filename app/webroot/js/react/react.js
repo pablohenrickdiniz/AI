@@ -18605,7 +18605,7 @@ var supportedInputTypes = {
   'tel': true,
   'text': true,
   'time': true,
-  'url': true,
+  "postUrl": true,
   'week': true
 };
 

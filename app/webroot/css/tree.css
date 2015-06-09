@@ -105,7 +105,10 @@ ul.tree {
     position:relative;
 }
 
-
+ul.tree{
+    padding-top:5px;
+    padding-left:5px;
+}
 
 
 .icon:hover, .toggle:hover,.title:hover{

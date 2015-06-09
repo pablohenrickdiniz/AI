@@ -60,7 +60,7 @@ var OpenProject = React.createClass({
         });
     },
     openProject: function () {
-        Global.project.id = this.state.checked;
+        Global.project.id = parseInt(this.state.checked);
         Render.project.updateMapTree();
         Render.resource.updateResourceModal();
 

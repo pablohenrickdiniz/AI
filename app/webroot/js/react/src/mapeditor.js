@@ -15,26 +15,71 @@ var MapEditor = React.createClass({
             'Loop Vertical e Horizontal'
         ]
     },
-    componentDidMount: function () {
-        var self = this;
-        $('#' + this.props.id).on('show.bs.modal', function (e) {
-            self.setState({
-                action: Global.map.action
-            });
-            if (self.state.action == 'new') {
-                self.clear();
-            }
-            else if (self.state.action == 'edit') {
-                self.load();
-            }
-        });
+    propTypes: {
+        key:React.PropTypes.number,
+        action: React.PropTypes.oneOf(['new', 'edit']),
+        postUrl: React.PropTypes.string,
+        loadUrl: React.PropTypes.string,
+        type: React.PropTypes.string,
+        show: React.PropTypes.bool,
+        message: React.PropTypes.string,
+        messageType: React.PropTypes.oneOf(['success', 'error', 'warning', 'info'])
+    },
+    updateState: function (props) {
+        var state = {};
+
+        if(_.isNumber(props.key) && props.key != this.state.key){
+            state.key = props.key;
+        }
+
+        if (_.isString(props.type) && props.type != this.state.type) {
+            state.type = props.type;
+        }
+
+        if (_.isString(props.action) && props.action != this.state.action && ['new', 'edit'].indexOf(props.action) != -1) {
+            state.action = props.action;
+        }
+
+        if (_.isString(props.postUrl) && props.postUrl != this.state.postUrl) {
+            state.postUrl = props.postUrl;
+        }
+
+        if (_.isString(props.loadUrl) && props.loadUrl != this.state.loadUrl) {
+            state.loadUrl = props.loadUrl;
+        }
+
+        if (_.isBoolean(props.show) && props.show != this.state.show) {
+            state.show = props.show;
+        }
+
+        if (_.isString(props.message) && props.message != this.state.message) {
+            state.message = props.message;
+        }
+
+        if (_.isString(props.messageType) && props.messageType != this.state.messageType && ['success', 'error', 'warning', 'info'].indexOf(props.messageType) != -1) {
+            state.messageType = props.messageType;
+        }
+
+        if (!_.isEmpty(state)) {
+            this.setState(state);
+        }
+    },
+    componentWillReceiveProps: function (props) {
+        this.updateState(props);
+    },
+    componentWillMount: function () {
+        this.updateState(this.props);
     },
     getInitialState: function () {
         return {
+            type: '',
             action: 'new',
+            postUrl: '',
+            loadUrl: '',
             show: false,
             message: '',
-            messageType: 'success'
+            messageType: 'success',
+            key:''
         };
     },
     render: function () {
@@ -77,12 +122,13 @@ var MapEditor = React.createClass({
     },
     load: function () {
         var self = this;
+
         $.ajax({
-            url: Global.map.load,
+            url: self.state.loadUrl,
             type: 'post',
             dataType: 'json',
             data: {
-                'data[id]': FolderManager.id
+                'data[id]': self.state.key
             },
             success: function (data) {
                 if (data.success) {
@@ -115,6 +161,7 @@ var MapEditor = React.createClass({
     },
     send: function () {
         var self = this;
+        var key = self.state.key;
         var name = React.findDOMNode(this.refs.nome).value;
         var display_name = React.findDOMNode(this.refs.nomeApresentacao).value;
         var width = React.findDOMNode(this.refs.largura).value;
@@ -129,75 +176,57 @@ var MapEditor = React.createClass({
             'data[Map][scroll]': scroll
         };
 
-        switch(this.state.action){
+        switch (this.state.action) {
             case 'new':
-                action = Global.map.add;
-                if (FolderManager.type == 'map') {
-                    data['data[Map][parent_id]'] = FolderManager.id;
+                if (self.state.type == 'map') {
+                    data['data[Map][parent_id]'] = key;
                 }
                 else {
-                    data['data[Map][project_id]'] = FolderManager.id;
+                    data['data[Map][project_id]'] = key;
                 }
                 break;
             case 'edit':
-                action = Global.map.edit;
-                data['data[Map][id]'] = FolderManager.id;
+                data['data[Map][id]'] = key;
                 break;
             default:
-                action = '';
         }
 
         $.ajax({
-            url: action,
+            url: self.state.postUrl,
             type: 'post',
             dataType: 'json',
             data: data,
-            success: function (data) {
+            success: function () {
                 if (data.success) {
                     self.close();
-                    var tree = $('#tree').dynatree('getTree');
-                    var node = tree.getNodeByKey(FolderManager.id);
-                    if (node != null) {
-                        if(self.state.action == 'new'){
-                            node.addChild(data.node);
-                        }
-                        else if(self.state.action == 'edit'){
-                            node.data.title = data.map.name;
-                            node.render();
-                        }
-                    }
-                    self.setState({
-                        message: '',
-                        show: false
-                    });
+                    Render.updateMapTree();
                 }
                 else {
                     var errors = data.errors;
                     var message = '';
                     var elements = [];
                     for (var index in errors) {
-                        elements.push((<span key={index}>{'* ' + errors[index]}
-                            <br />
-                        </span>));
+                        elements.push((<span key={index}>{'* ' + errors[index]}<br /></span>));
                     }
-                    self.setState({
-                        message: elements,
-                        show: true,
-                        messageType: 'warning'
-                    });
+                    self.showError(elements);
                 }
             }.bind(this),
-            complete:function(){
-
-            }.bind(this),
-            error:function(){
+            error: function () {
                 self.setState({
-                    message:'Erro de conexão',
-                    show:true,
+                    message: 'Erro de conexão',
+                    show: true,
                     messageType: 'danger'
                 });
             }.bind(this)
         });
-
+    },
+    showError:function(message){
+        this.setState({
+            message: message,
+            show: true,
+            messageType: 'warning'
+        });
     }
 });
+
+

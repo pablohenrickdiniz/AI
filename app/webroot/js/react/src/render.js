@@ -1,14 +1,8 @@
 var Render = {
     project: {
         updateMapTree: function () {
-            /*
             React.render(
-                <TreeView id="tree" url={Global.project.mapTree} formData={{'data[id]':Global.project.id}}/>,
-                document.getElementById('map-container')
-            );*/
-
-            React.render(
-                <MapTree />,
+                <MapTree loadUrl={Global.project.mapTree} projectId={Global.project.id}/>,
                 document.getElementById('map-container')
             );
         },
@@ -34,16 +28,21 @@ var Render = {
     resource: {
         updateResourceModal: function () {
             React.render(
-                <ResourceModal id="resources-modal" projectId={Global.project.id} layer="1"/>,
+                <ResourceModal id="resources-modal" projectId={Global.project.id} loadUrl={Global.resource.children} layer="1"/>,
                 document.getElementById('resources-modal-container')
+            );
+        }
+    },
+    map: {
+        new:function(){
+            React.render(
+                <MapEditor id="map-editor" action={'new'} postUrl={Global.map.add} loadUrl={Global.map.load}/>,
+                document.getElementById('map-editor-container')
             );
         }
     },
     main: {
         renderMenu: function () {
-
-
-
             React.render(
                 <div id="content">
                     <Navbar>
@@ -82,9 +81,8 @@ var Render = {
                             <Dropdownitem title="Executar" icon="fa fa-play"/>
                         </Dropdown>
                     </Navbar>
-                    <NewProject />
+                    <NewProject postUrl={Global.project.add} />
                     <OpenProject/>
-                    <MapEditor id="map-editor"/>
                     <StepModal id="resource-step-modal" title="New Resource" layer="2">
                         <Tabpane title="A">
                         </Tabpane>

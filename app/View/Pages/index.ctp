@@ -13,7 +13,7 @@
             add: '<?=$this->Html->url(array('controller' => 'resource','action'=>'addAjax'))?>'
         },
         project: {
-            id: '<?=$project_id?>',
+            id: parseInt('<?=$project_id?>'),
             add: '<?=$this->Html->url(array('controller'=>'project','action'=>'addAjax'))?>',
             expand: '<?=$this->Html->url(array('controller'=>'project','action'=>'expand'))?>',
             all: '<?=$this->Html->url(array('controller'=>'project','action'=>'getAll'))?>',
@@ -156,6 +156,9 @@
 
 </div>
 <div id="resources-modal-container">
+
+</div>
+<div id="map-editor-container">
 
 </div>
 <div class="row">
