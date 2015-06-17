@@ -4,7 +4,8 @@ var Tree = React.createClass({
         loadUrl: React.PropTypes.string,
         id: React.PropTypes.string,
         formData: React.PropTypes.object,
-        onItemLeftClick: React.PropTypes.func
+        onItemLeftClick: React.PropTypes.func,
+        onItemToggle:React.PropTypes.func
     },
     getInitialState: function () {
         return {
@@ -12,13 +13,12 @@ var Tree = React.createClass({
             formData: {},
             loadUrl: '',
             id: generateUUID(),
-            onItemLeftClick: null
+            onItemLeftClick: null,
+            onItemToggle:null
         };
     },
     componentWillMount: function () {
         console.log('mounting tree...');
-        console.log('props:');
-        console.log(this.props);
         this.updateState(this.props);
     },
     updateState: function (props) {
@@ -46,16 +46,16 @@ var Tree = React.createClass({
             state.onItemLeftClick = props.onItemLeftClick;
         }
 
+        if(_.isFunction(props.onItemToggle) && !_.isEqual(props.onItemToggle != this.state.onItemToggle)){
+            state.onItemToggle = props.onItemToggle;
+        }
+
         var self = this;
         if (!_.isEmpty(state)) {
             console.log('updating tree state...');
-            console.log('state:');
-            console.log(state);
             if (urlChange || formChange) {
                 var url =  urlChange?state.loadUrl:this.state.loadUrl;
                 var formData = formChange?state.formData:this.state.formData;
-                console.log(url);
-                console.log(formData);
 
                 $.ajax({
                     url:url,
@@ -63,10 +63,9 @@ var Tree = React.createClass({
                     dataType: 'json',
                     data: formData,
                     success: function (data) {
+                        console.log(data);
                         if (!_.isEqual(data, this.state.data)) {
                             console.log('updating tree data...');
-                            console.log('data:');
-                            console.log(data);
                             state.data = data;
                         }
                         self.setState(state);
@@ -85,8 +84,6 @@ var Tree = React.createClass({
     },
     componentWillReceiveProps: function (props) {
         console.log('updating tree props...');
-        console.log('props:');
-        console.log(props);
         this.updateState(props);
     },
     render: function () {
@@ -101,7 +98,7 @@ var Tree = React.createClass({
             var children = node.children instanceof Array ? node.children : [];
             var key = node.key == undefined ? index : node.key;
             var metadata = typeof node.metadata == 'object' ? node.metadata : {};
-            return <TreeNode title={title}  isFolder={isFolder} icon={icon} expand={expand} key={index} id={key} children={children} onLeftClick={self.state.onItemLeftClick} metadata={metadata}/>
+            return <TreeNode title={title}  isFolder={isFolder} icon={icon} expand={expand} key={index} id={key} children={children} onLeftClick={self.state.onItemLeftClick} toggle={self.state.onItemToggle} metadata={metadata}/>
         });
 
         return (
@@ -123,7 +120,9 @@ var TreeNode = React.createClass({
         children: React.PropTypes.array,
         expand: React.PropTypes.bool,
         key: React.PropTypes.number,
-        metadata: React.PropTypes.object
+        metadata: React.PropTypes.object,
+        onLeftClick:React.PropTypes.func,
+        toggle:React.PropTypes.func
     },
     getInitialState: function () {
         return {
@@ -134,6 +133,7 @@ var TreeNode = React.createClass({
             expand: false,
             key: 0,
             onLeftClick: null,
+            toggle:null,
             metadata: {},
             show:false
         }
@@ -183,6 +183,10 @@ var TreeNode = React.createClass({
             state.show = props.show;
         }
 
+        if(_.isFunction(props.toggle) && _.isEqual(props.toggle, this.state.toggle)){
+            state.toggle = props.toggle;
+        }
+
         if(!_.isEmpty(state)){
             this.setState(state);
         }
@@ -225,7 +229,10 @@ var TreeNode = React.createClass({
             this.state.onLeftClick(e, this);
         }
     },
-    toggle: function () {
+    toggle: function (e) {
+        if(typeof this.state.toggle == 'function'){
+            this.state.toggle(e, this);
+        }
         this.setState({
             expand: !this.state.expand
         });

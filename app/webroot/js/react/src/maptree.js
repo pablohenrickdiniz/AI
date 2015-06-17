@@ -23,6 +23,10 @@ var MapTree = React.createClass({
     updateState:function(props){
         var state = {};
 
+        if(_.isBoolean(props.update) && props.update){
+           state.update = props.update;
+        }
+
         if(_.isString(props.loadUrl) && props.loadUrl != this.state.loadUrl){
             state.loadUrl = props.loadUrl;
         }
@@ -34,7 +38,6 @@ var MapTree = React.createClass({
         if(!_.isEmpty(state)){
             console.log('updating state maptree:');
             this.setState(state);
-            console.log(state);
             console.log('maptree state update complete...');
         }
 
@@ -42,8 +45,6 @@ var MapTree = React.createClass({
     },
     render:function(){
         console.log('maptree render...');
-        console.log('state:');
-        console.log(this.state);
         return (
             <Tree id="tree" loadUrl={this.state.loadUrl} formData={{'data[id]':this.state.projectId}} onItemLeftClick={this.callback}/>
         );
@@ -62,14 +63,11 @@ var MapTree = React.createClass({
     projectCallback:function(key,e,obj){
         switch(key){
             case 'edit':
-
-
                 break;
             case 'new':
                 Render.map.new();
                 break;
             case 'copy':
-
                 break;
             case 'cut':
 

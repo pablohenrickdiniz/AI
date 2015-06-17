@@ -103,3 +103,7 @@ span.close{
 .context-menu-item:hover{
     background-color:#AAAAAA;
 }
+
+#content .navbar{
+    border-radius:0 !important;
+}

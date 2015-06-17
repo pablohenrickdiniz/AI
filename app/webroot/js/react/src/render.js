@@ -2,7 +2,7 @@ var Render = {
     project: {
         updateMapTree: function () {
             React.render(
-                <MapTree loadUrl={Global.project.mapTree} projectId={Global.project.id}/>,
+                <MapTree loadUrl={Global.project.mapTree} projectId={Global.project.id} update={true}/>,
                 document.getElementById('map-container')
             );
         },
@@ -36,7 +36,7 @@ var Render = {
     map: {
         new:function(){
             React.render(
-                <MapEditor id="map-editor" action={'new'} postUrl={Global.map.add} loadUrl={Global.map.load}/>,
+                <MapEditor id="map-editor" action={'new'} postUrl={Global.map.add} loadUrl={Global.map.load} open={true}/>,
                 document.getElementById('map-editor-container')
             );
         }

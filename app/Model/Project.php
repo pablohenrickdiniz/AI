@@ -42,6 +42,7 @@ class Project extends AppModel{
 
     public function getNode(){
         $project = $this->read(array('id', 'name', 'expand', 'isLazy'));
+        $Map = Map::getInstance();
         $node = array(
             'key' => $project['Project']['id'],
             'title' => $project['Project']['name'],

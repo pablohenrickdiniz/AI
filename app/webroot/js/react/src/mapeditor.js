@@ -16,19 +16,24 @@ var MapEditor = React.createClass({
         ]
     },
     propTypes: {
-        key:React.PropTypes.number,
+        key: React.PropTypes.number,
         action: React.PropTypes.oneOf(['new', 'edit']),
         postUrl: React.PropTypes.string,
         loadUrl: React.PropTypes.string,
         type: React.PropTypes.string,
         show: React.PropTypes.bool,
         message: React.PropTypes.string,
-        messageType: React.PropTypes.oneOf(['success', 'error', 'warning', 'info'])
+        messageType: React.PropTypes.oneOf(['success', 'error', 'warning', 'info']),
+        open: React.PropTypes.bool
     },
     updateState: function (props) {
         var state = {};
 
-        if(_.isNumber(props.key) && props.key != this.state.key){
+        if (_.isBoolean(props.open) && props.open != this.state.open) {
+            this.state.open = props.open;
+        }
+
+        if (_.isNumber(props.key) && props.key != this.state.key) {
             state.key = props.key;
         }
 
@@ -79,12 +84,12 @@ var MapEditor = React.createClass({
             show: false,
             message: '',
             messageType: 'success',
-            key:''
+            key: ''
         };
     },
     render: function () {
         return (
-            <Modal onClose={this.close} onConfirm={this.send} title={this.options.title[this.state.action]} id={this.props.id} confirmText={this.options.confirmText[this.state.action]} cancelText="cancelar">
+            <Modal onClose={this.close} onConfirm={this.send} title={this.options.title[this.state.action]} id={this.props.id} confirmText={this.options.confirmText[this.state.action]} cancelText="cancelar" open={this.state.open}>
                 <div className="form-group col-md-6">
                     <input type="text" className="form-control" placeholder="Nome" required="true" ref="nome"/>
                 </div>
@@ -108,7 +113,10 @@ var MapEditor = React.createClass({
     close: function () {
         $('#' + this.props.id).modal('hide');
         this.clear();
-        this.setState({show: false});
+        this.setState({
+            show: false,
+            open:false
+        });
     },
     clear: function () {
         this.node('nome').value = '';
@@ -196,17 +204,20 @@ var MapEditor = React.createClass({
             type: 'post',
             dataType: 'json',
             data: data,
-            success: function () {
+            success: function (data) {
                 if (data.success) {
                     self.close();
-                    Render.updateMapTree();
+                    Render.project.updateMapTree();
                 }
                 else {
                     var errors = data.errors;
                     var message = '';
                     var elements = [];
+
                     for (var index in errors) {
-                        elements.push((<span key={index}>{'* ' + errors[index]}<br /></span>));
+                        elements.push((<span key={index}>{'* ' + errors[index]}
+                            <br />
+                        </span>));
                     }
                     self.showError(elements);
                 }
@@ -220,7 +231,8 @@ var MapEditor = React.createClass({
             }.bind(this)
         });
     },
-    showError:function(message){
+    showError: function (message) {
+
         this.setState({
             message: message,
             show: true,
