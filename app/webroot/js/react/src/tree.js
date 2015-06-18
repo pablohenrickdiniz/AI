@@ -5,7 +5,7 @@ var Tree = React.createClass({
         id: React.PropTypes.string,
         formData: React.PropTypes.object,
         onItemLeftClick: React.PropTypes.func,
-        onItemToggle:React.PropTypes.func
+        onItemToggle: React.PropTypes.func
     },
     getInitialState: function () {
         return {
@@ -14,7 +14,7 @@ var Tree = React.createClass({
             loadUrl: '',
             id: generateUUID(),
             onItemLeftClick: null,
-            onItemToggle:null
+            onItemToggle: null
         };
     },
     componentWillMount: function () {
@@ -46,7 +46,7 @@ var Tree = React.createClass({
             state.onItemLeftClick = props.onItemLeftClick;
         }
 
-        if(_.isFunction(props.onItemToggle) && !_.isEqual(props.onItemToggle != this.state.onItemToggle)){
+        if (_.isFunction(props.onItemToggle) && !_.isEqual(props.onItemToggle != this.state.onItemToggle)) {
             state.onItemToggle = props.onItemToggle;
         }
 
@@ -54,11 +54,11 @@ var Tree = React.createClass({
         if (!_.isEmpty(state)) {
             console.log('updating tree state...');
             if (urlChange || formChange) {
-                var url =  urlChange?state.loadUrl:this.state.loadUrl;
-                var formData = formChange?state.formData:this.state.formData;
+                var url = urlChange ? state.loadUrl : this.state.loadUrl;
+                var formData = formChange ? state.formData : this.state.formData;
 
                 $.ajax({
-                    url:url,
+                    url: url,
                     type: 'post',
                     dataType: 'json',
                     data: formData,
@@ -96,7 +96,10 @@ var Tree = React.createClass({
             var expand = node.expand ? true : false;
             var children = node.children instanceof Array ? node.children : [];
             var metadata = typeof node.metadata == 'object' ? node.metadata : {};
-            return <TreeNode title={title}  isFolder={isFolder} icon={icon} expand={expand} key={index}  children={children} onLeftClick={self.state.onItemLeftClick} toggle={self.state.onItemToggle} metadata={metadata}/>
+            var formData = _.isObject(node.formData)?node.formData:{};
+            var lazyLoadUrl = _.isString(node.lazyLoadUrl)?node.lazyLoadUrl:null;
+
+            return <TreeNode formData={formData} lazyLoadUrl={lazyLoadUrl} title={title}  isFolder={isFolder} icon={icon} expand={expand} key={index}  children={children} onLeftClick={self.state.onItemLeftClick} toggle={self.state.onItemToggle} metadata={metadata}/>
         });
 
         return (
@@ -116,13 +119,13 @@ var TreeNode = React.createClass({
         icon: React.PropTypes.string,
         title: React.PropTypes.string,
         children: React.PropTypes.arrayOf(React.PropTypes.object),
+        hasChildren: React.PropTypes.bool,
         expand: React.PropTypes.bool,
         metadata: React.PropTypes.object,
-        onLeftClick:React.PropTypes.func,
-        toggle:React.PropTypes.func,
-        lazyLoadUrl:React.PropTypes.string,
-        formData:React.PropTypes.object,
-        update:React.PropTypes.bool
+        onLeftClick: React.PropTypes.func,
+        toggle: React.PropTypes.func,
+        lazyLoadUrl: React.PropTypes.string,
+        formData: React.PropTypes.object
     },
     getInitialState: function () {
         return {
@@ -132,30 +135,30 @@ var TreeNode = React.createClass({
             children: [],
             expand: false,
             onLeftClick: null,
-            toggle:null,
+            toggle: null,
             metadata: {},
-            show:false,
-            lazyLoadUrl:null,
-            formData:{},
-            update:false
+            show: false,
+            lazyLoadUrl: null,
+            hasChildren: false,
+            formData: {}
         }
     },
-    lazyLoad:function(){
+    lazyLoad: function () {
         var self = this;
         $.ajax({
-            url:self.state.lazyLoadUrl,
-            type:'post',
-            dataType:'json',
-            data:self.state.formData,
-            success:function(children){
-                if(!_.isEqual(children,self.state.children)){
+            url: self.state.lazyLoadUrl,
+            type: 'post',
+            dataType: 'json',
+            data: self.state.formData,
+            success: function (children) {
+                if (!_.isEqual(children, self.state.children)) {
                     this.setState({
-                        children:children
+                        children: children
                     });
                     console.log('Lista de nós carregada com sucesso...');
                 }
             }.bind(this),
-            error:function(){
+            error: function () {
                 console.error('Erro ao carregar lista de nós...');
             }.bind(this)
         });
@@ -166,75 +169,74 @@ var TreeNode = React.createClass({
     componentWillMount: function () {
         this.updateState(this.props);
         this.intervals = [];
+        this.refresh();
+    },
+    componentWillUnmount: function () {
+        this.intervals.map(clearInterval);
+    },
+    refresh: function () {
+        clearInterval(this.intervals['update']);
+        var self = this;
+        this.intervals['update'] = setInterval(function () {
+            console.log('atualizando lista de nós...');
+            if (_.isString(self.state.lazyLoadUrl)) {
+                self.lazyLoad();
+            }
+        }, 60000);
     },
     updateState: function (props) {
         var self = this;
         var state = {};
 
-        if(props.title != this.state.title && _.isString(props.title)){
+        if (props.title != this.state.title && _.isString(props.title)) {
             state.title = props.title;
         }
 
-        if(props.isFolder != this.state.isFolder && _.isBoolean(props.isFolder)){
+        if (props.isFolder != this.state.isFolder && _.isBoolean(props.isFolder)) {
             state.isFolder = props.isFolder;
         }
 
-        if(props.icon != this.state.icon && _.isString(props.icon)){
+        if (props.icon != this.state.icon && _.isString(props.icon)) {
             state.icon = props.icon;
         }
 
-        if(_.isArray(props.children) && !_.isEqual(props.children, this.state.children)){
+        if (_.isArray(props.children) && !_.isEqual(props.children, this.state.children)) {
             state.children = props.children;
         }
 
-        if(_.isBoolean(props.expand) && props.expand != this.state.expand){
+        if (_.isBoolean(props.expand) && props.expand != this.state.expand) {
             state.expand = props.expand;
         }
 
-        if(_.isFunction(props.onLeftClick) && !_.isEqual(props.onLeftClick,this.state.onLeftClick)){
+        if (_.isFunction(props.onLeftClick) && !_.isEqual(props.onLeftClick, this.state.onLeftClick)) {
             state.onLeftClick = props.onLeftClick;
         }
 
-        if(_.isObject(props.metadata) && !_.isEqual(props.metadata,this.state.metadata)){
+        if (_.isObject(props.metadata) && !_.isEqual(props.metadata, this.state.metadata)) {
             state.metadata = props.metadata;
         }
 
-        if(_.isBoolean(props.show) && props.show != this.state.show){
+        if (_.isBoolean(props.show) && props.show != this.state.show) {
             state.show = props.show;
         }
 
-        if(_.isFunction(props.toggle) && _.isEqual(props.toggle, this.state.toggle)){
+        if (_.isFunction(props.toggle) && _.isEqual(props.toggle, this.state.toggle)) {
             state.toggle = props.toggle;
         }
 
-        if(_.isString(props.lazyLoadUrl) && props.lazyLoadUrl != this.state.lazyLoadUrl){
+        if (_.isString(props.lazyLoadUrl) && props.lazyLoadUrl != this.state.lazyLoadUrl) {
             state.lazyLoadUrl = props.lazyLoadUrl;
         }
 
-        if(_.isBoolean(props.update)){
-            if(props.update != this.state.update){
-                state.update = props.update;
-                if(props.update){
-                    clearInterval(this.updateInterval);
-                    this.updateInterval = setInterval(function(){
-                        if(_.isString(self.state.lazyLoadUrl)){
-                            self.lazyLoad();
-                        }
-                        else{
-                            clearInterval(self.updateInterval);
-                            self.setState({
-                               update:false
-                            });
-                        }
-                    },60000);
-                }
-                else{
-                    clearInterval(this.updateInterval);
-                }
-            }
+        if(_.isObject(props.formData) && !_.isEqual(props.formData,this.state.formData)){
+            state.formData = props.formData;
         }
 
-        if(!_.isEmpty(state)){
+        if (_.isBoolean(props.hasChildren) && props.hasChildren != this.state.hasChildren) {
+            state.hasChildren = props.hasChildren;
+        }
+
+        if (!_.isEmpty(state)) {
             this.setState(state);
         }
     },
@@ -242,7 +244,7 @@ var TreeNode = React.createClass({
         var expand = this.state.expand ? 'expand' : 'closed';
         var toggle = this.state.isFolder && this.state.children.length > 0 ? this.state.expand ? 'fa fa-minus-square toggle' : 'fa fa-plus-square toggle' : 'space';
         var icon = this.state.isFolder ? (this.state.expand ? 'fa fa-folder-open icon' : 'fa fa-folder icon') : this.state.icon + ' icon';
-        var hasChildren = this.state.children.length > 0;
+        var hasChildren = this.state.hasChildren || this.state.children.length > 0;
         var self = this;
 
 
@@ -256,7 +258,7 @@ var TreeNode = React.createClass({
             return <TreeNode title={title}  isFolder={isFolder} icon={icon} expand={expand} key={index} children={children} onLeftClick={self.state.onLeftClick} metadata={metadata}/>
         });
 
-        var title = hasChildren && this.state.isFolder?'title title-folder':'title';
+        var title = hasChildren && this.state.isFolder ? 'title title-folder' : 'title';
 
 
         return (
@@ -264,7 +266,7 @@ var TreeNode = React.createClass({
                 <span className={toggle} onClick={this.state.isFolder && hasChildren ? this.toggle : null}></span>
                 <span className={icon} onDoubleClick={this.state.isFolder && hasChildren ? this.toggle : null} onContextMenu={this.contextMenu}></span>
                 <span className={title} onDoubleClick={this.state.isFolder && hasChildren ? this.toggle : null} onContextMenu={this.contextMenu}>{this.state.title}</span>
-                <ul className={this.state.expand?'normal':'hidden'}>
+                <ul className={this.state.expand ? 'normal' : 'hidden'}>
                     {children}
                 </ul>
             </li>
@@ -276,7 +278,7 @@ var TreeNode = React.createClass({
         }
     },
     toggle: function (e) {
-        if(typeof this.state.toggle == 'function'){
+        if (typeof this.state.toggle == 'function') {
             this.state.toggle(e, this);
         }
         this.setState({

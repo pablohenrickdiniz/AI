@@ -25,6 +25,14 @@ class Project extends AppModel{
             )
         )
     );
+    private $lazy_load_url = '';
+
+    public function __construct($id = false, $table = null, $ds = null){
+        parent::__construct($id,$table,$ds);
+        $this->lazy_load_url = Router::url(array('controller' => 'project','action' => 'getChildren'),true);
+    }
+
+
 
     public function beforeSave($options=array()){
         $this->data['Project']['user_id'] = AuthComponent::user('id');
@@ -51,6 +59,10 @@ class Project extends AppModel{
             'metadata' => array(
                 'type' => 'project',
                 'id' => $project['Project']['id']
+            ),
+            'lazyLoadUrl' => $this->lazy_load_url,
+            'formData' => array(
+                'data[id]' => $project['Project']['id']
             )
         );
         return $node;
@@ -76,9 +88,10 @@ class Project extends AppModel{
         foreach ($maps as $map) {
             $children[] = array(
                 'title' => $map['Map']['name'],
-                'key' => $map['Map']['id'],
                 'expand' => $map['Map']['expand'],
+                'icon' => 'fa fa-picture-o',
                 'metadata' => array(
+                    'id' =>  $map['Map']['id'],
                     'type' => 'map'
                 )
             );
