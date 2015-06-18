@@ -44,13 +44,13 @@ class Project extends AppModel{
         $project = $this->read(array('id', 'name', 'expand', 'isLazy'));
         $Map = Map::getInstance();
         $node = array(
-            'key' => $project['Project']['id'],
             'title' => $project['Project']['name'],
             'expand' => $project['Project']['expand'],
             'icon' => '',
             'isFolder' => true,
             'metadata' => array(
-                'type' => 'project'
+                'type' => 'project',
+                'id' => $project['Project']['id']
             )
         );
         return $node;

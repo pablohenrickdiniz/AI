@@ -10,8 +10,7 @@ var MapTree = React.createClass({
     getInitialState:function() {
         return {
             loadUrl: '',
-            projectId: 0,
-            id:null
+            projectId: 0
         }
     },
     componentWillReceiveProps:function(props){
@@ -36,7 +35,7 @@ var MapTree = React.createClass({
         }
 
         if(!_.isEmpty(state)){
-            console.log('updating state maptree:');
+            console.log('updating state maptree...');
             this.setState(state);
             console.log('maptree state update complete...');
         }
@@ -52,9 +51,10 @@ var MapTree = React.createClass({
     callback:function(e,obj){
         var x = e.pageX;
         var y = e.pageY;
-        var id = obj.state.metadata.type;
         var items = this.projectItems;
-        this.setState({id:id});
+        console.log(obj.state);
+
+
         React.render(
             <ContextMenu x={x} y={y} items={items} callback={this.projectCallback} show={true}/>,
             document.getElementById('context-menu-container')

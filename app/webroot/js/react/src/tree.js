@@ -63,7 +63,6 @@ var Tree = React.createClass({
                     dataType: 'json',
                     data: formData,
                     success: function (data) {
-                        console.log(data);
                         if (!_.isEqual(data, this.state.data)) {
                             console.log('updating tree data...');
                             state.data = data;
@@ -96,9 +95,8 @@ var Tree = React.createClass({
             var icon = node.icon == undefined ? '' : node.icon;
             var expand = node.expand ? true : false;
             var children = node.children instanceof Array ? node.children : [];
-            var key = node.key == undefined ? index : node.key;
             var metadata = typeof node.metadata == 'object' ? node.metadata : {};
-            return <TreeNode title={title}  isFolder={isFolder} icon={icon} expand={expand} key={index} id={key} children={children} onLeftClick={self.state.onItemLeftClick} toggle={self.state.onItemToggle} metadata={metadata}/>
+            return <TreeNode title={title}  isFolder={isFolder} icon={icon} expand={expand} key={index}  children={children} onLeftClick={self.state.onItemLeftClick} toggle={self.state.onItemToggle} metadata={metadata}/>
         });
 
         return (
@@ -117,12 +115,14 @@ var TreeNode = React.createClass({
         isFolder: React.PropTypes.bool,
         icon: React.PropTypes.string,
         title: React.PropTypes.string,
-        children: React.PropTypes.array,
+        children: React.PropTypes.arrayOf(React.PropTypes.object),
         expand: React.PropTypes.bool,
-        key: React.PropTypes.number,
         metadata: React.PropTypes.object,
         onLeftClick:React.PropTypes.func,
-        toggle:React.PropTypes.func
+        toggle:React.PropTypes.func,
+        lazyLoadUrl:React.PropTypes.string,
+        formData:React.PropTypes.object,
+        update:React.PropTypes.bool
     },
     getInitialState: function () {
         return {
@@ -131,20 +131,44 @@ var TreeNode = React.createClass({
             icon: '',
             children: [],
             expand: false,
-            key: 0,
             onLeftClick: null,
             toggle:null,
             metadata: {},
-            show:false
+            show:false,
+            lazyLoadUrl:null,
+            formData:{},
+            update:false
         }
+    },
+    lazyLoad:function(){
+        var self = this;
+        $.ajax({
+            url:self.state.lazyLoadUrl,
+            type:'post',
+            dataType:'json',
+            data:self.state.formData,
+            success:function(children){
+                if(!_.isEqual(children,self.state.children)){
+                    this.setState({
+                        children:children
+                    });
+                    console.log('Lista de nós carregada com sucesso...');
+                }
+            }.bind(this),
+            error:function(){
+                console.error('Erro ao carregar lista de nós...');
+            }.bind(this)
+        });
     },
     componentWillReceiveProps: function (props) {
         this.updateState(props);
     },
     componentWillMount: function () {
         this.updateState(this.props);
+        this.intervals = [];
     },
     updateState: function (props) {
+        var self = this;
         var state = {};
 
         if(props.title != this.state.title && _.isString(props.title)){
@@ -167,15 +191,11 @@ var TreeNode = React.createClass({
             state.expand = props.expand;
         }
 
-        if(props.id != undefined && props.id != this.state.key){
-            state.key = props.id;
-        }
-
         if(_.isFunction(props.onLeftClick) && !_.isEqual(props.onLeftClick,this.state.onLeftClick)){
             state.onLeftClick = props.onLeftClick;
         }
 
-        if(_.isObject(props.metadata) && _.isEqual(props.metadata,this.state.metadata)){
+        if(_.isObject(props.metadata) && !_.isEqual(props.metadata,this.state.metadata)){
             state.metadata = props.metadata;
         }
 
@@ -185,6 +205,33 @@ var TreeNode = React.createClass({
 
         if(_.isFunction(props.toggle) && _.isEqual(props.toggle, this.state.toggle)){
             state.toggle = props.toggle;
+        }
+
+        if(_.isString(props.lazyLoadUrl) && props.lazyLoadUrl != this.state.lazyLoadUrl){
+            state.lazyLoadUrl = props.lazyLoadUrl;
+        }
+
+        if(_.isBoolean(props.update)){
+            if(props.update != this.state.update){
+                state.update = props.update;
+                if(props.update){
+                    clearInterval(this.updateInterval);
+                    this.updateInterval = setInterval(function(){
+                        if(_.isString(self.state.lazyLoadUrl)){
+                            self.lazyLoad();
+                        }
+                        else{
+                            clearInterval(self.updateInterval);
+                            self.setState({
+                               update:false
+                            });
+                        }
+                    },60000);
+                }
+                else{
+                    clearInterval(this.updateInterval);
+                }
+            }
         }
 
         if(!_.isEmpty(state)){
@@ -205,9 +252,8 @@ var TreeNode = React.createClass({
             var icon = node.icon == undefined ? '' : node.icon;
             var expand = node.expand ? true : false;
             var children = node.children instanceof Array ? node.children : [];
-            var key = node.key == undefined ? index : node.key;
             var metadata = typeof node.metadata == 'object' ? node.metadata : {};
-            return <TreeNode title={title}  isFolder={isFolder} icon={icon} expand={expand} key={index} id={key} children={children} onLeftClick={self.state.onLeftClick} metadata={metadata}/>
+            return <TreeNode title={title}  isFolder={isFolder} icon={icon} expand={expand} key={index} children={children} onLeftClick={self.state.onLeftClick} metadata={metadata}/>
         });
 
         var title = hasChildren && this.state.isFolder?'title title-folder':'title';
