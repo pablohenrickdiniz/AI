@@ -63,7 +63,8 @@ class Project extends AppModel{
             'lazyLoadUrl' => $this->lazy_load_url,
             'formData' => array(
                 'data[id]' => $project['Project']['id']
-            )
+            ),
+            'hasChildren' => $Map->hasAny(array('project_id' => $project['Project']['id']))
         );
         return $node;
     }

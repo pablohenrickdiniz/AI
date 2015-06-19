@@ -3,44 +3,17 @@
  */
 
 var MapTree = React.createClass({
+    mixins:[updateMixin],
     propTypes:{
         loadUrl:React.PropTypes.string,
         projectId:React.PropTypes.number
     },
+
     getInitialState:function() {
         return {
             loadUrl: '',
             projectId: 0
         }
-    },
-    componentWillReceiveProps:function(props){
-        this.updateState(props);
-    },
-    componentWillMount:function(){
-        this.updateState(this.props);
-    },
-    updateState:function(props){
-        var state = {};
-
-        if(_.isBoolean(props.update) && props.update){
-           state.update = props.update;
-        }
-
-        if(_.isString(props.loadUrl) && props.loadUrl != this.state.loadUrl){
-            state.loadUrl = props.loadUrl;
-        }
-
-        if(_.isNumber(props.projectId) && props.projectId != this.state.projectId){
-            state.projectId = props.projectId;
-        }
-
-        if(!_.isEmpty(state)){
-            console.log('updating state maptree...');
-            this.setState(state);
-            console.log('maptree state update complete...');
-        }
-
-
     },
     render:function(){
         console.log('maptree render...');
@@ -52,20 +25,57 @@ var MapTree = React.createClass({
         var x = e.pageX;
         var y = e.pageY;
         var items = this.projectItems;
-        console.log(obj.state);
+        this.selectedNode = obj;
 
+
+        var callback = obj.state.metadata.type == 'project'?this.projectCallback:this.mapCallback;
 
         React.render(
-            <ContextMenu x={x} y={y} items={items} callback={this.projectCallback} show={true}/>,
+            <ContextMenu x={x} y={y} items={items} callback={callback} show={true}/>,
             document.getElementById('context-menu-container')
         );
     },
+    createSuccess:function(node){
+        var children = this.selectedNode.state.children;
+        children.push(node);
+        this.selectedNode.setState({
+            children:children
+        });
+    },
+    mapCallback:function(key,e,obj){
+        var mapId = this.selectedNode.state.metadata.id;
+        switch(key){
+            case 'delete':
+                this.deleteMap(mapId);
+                break;
+        }
+    },
+    deleteMap:function(id){
+        var self = this;
+        $.ajax({
+            url:Global.map.delete,
+            type:'post',
+            dataType:'json',
+            data:{
+                'data[id]':id
+            },
+            success:function(data){
+                if(data.success){
+                    self.selectedNode.remove();
+                }
+            }.bind(this)
+        });
+    },
     projectCallback:function(key,e,obj){
+        var projectId = this.selectedNode.state.metadata.id;
         switch(key){
             case 'edit':
                 break;
             case 'new':
-                Render.map.new();
+                React.render(
+                    <MapEditor id="map-editor" action={'new'} postUrl={Global.map.add}  formData={{'data[Map][project_id]':projectId}} open={true} onPostSuccess={this.createSuccess}/>,
+                    document.getElementById('map-editor-container')
+                );
                 break;
             case 'copy':
                 break;

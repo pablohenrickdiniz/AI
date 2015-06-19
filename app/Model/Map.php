@@ -196,11 +196,14 @@ class Map extends AppModel
     {
         $map = $this->read(array('id', 'name', 'expand', 'isLazy'));
         $node = array(
-            'key' => $map['Map']['id'],
             'title' => $map['Map']['name'],
             'expand' => $map['Map']['expand'],
+            'isFolder' => false,
+            'hasChildren' => $this->hasAny(array('parent_id' => $map['Map']['id'])),
+            'icon' => 'fa fa-picture-o',
             'metadata' => array(
-                'type' => 'map'
+                'type' => 'map',
+                'id' => $map['Map']['id']
             )
         );
         return $node;

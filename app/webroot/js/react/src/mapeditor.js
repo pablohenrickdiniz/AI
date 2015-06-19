@@ -1,4 +1,5 @@
 var MapEditor = React.createClass({
+    mixins:[updateMixin,customFunctions],
     options: {
         title: {
             'new': 'Novo Mapa',
@@ -20,60 +21,13 @@ var MapEditor = React.createClass({
         action: React.PropTypes.oneOf(['new', 'edit']),
         postUrl: React.PropTypes.string,
         loadUrl: React.PropTypes.string,
+        onPostSuccess:React.PropTypes.func,
+        onLoadSuccess:React.PropTypes.func,
         type: React.PropTypes.string,
         show: React.PropTypes.bool,
         message: React.PropTypes.string,
         messageType: React.PropTypes.oneOf(['success', 'error', 'warning', 'info']),
         open: React.PropTypes.bool
-    },
-    updateState: function (props) {
-        var state = {};
-
-        if (_.isBoolean(props.open) && props.open != this.state.open) {
-            this.state.open = props.open;
-        }
-
-        if (_.isNumber(props.key) && props.key != this.state.key) {
-            state.key = props.key;
-        }
-
-        if (_.isString(props.type) && props.type != this.state.type) {
-            state.type = props.type;
-        }
-
-        if (_.isString(props.action) && props.action != this.state.action && ['new', 'edit'].indexOf(props.action) != -1) {
-            state.action = props.action;
-        }
-
-        if (_.isString(props.postUrl) && props.postUrl != this.state.postUrl) {
-            state.postUrl = props.postUrl;
-        }
-
-        if (_.isString(props.loadUrl) && props.loadUrl != this.state.loadUrl) {
-            state.loadUrl = props.loadUrl;
-        }
-
-        if (_.isBoolean(props.show) && props.show != this.state.show) {
-            state.show = props.show;
-        }
-
-        if (_.isString(props.message) && props.message != this.state.message) {
-            state.message = props.message;
-        }
-
-        if (_.isString(props.messageType) && props.messageType != this.state.messageType && ['success', 'error', 'warning', 'info'].indexOf(props.messageType) != -1) {
-            state.messageType = props.messageType;
-        }
-
-        if (!_.isEmpty(state)) {
-            this.setState(state);
-        }
-    },
-    componentWillReceiveProps: function (props) {
-        this.updateState(props);
-    },
-    componentWillMount: function () {
-        this.updateState(this.props);
     },
     getInitialState: function () {
         return {
@@ -84,6 +38,8 @@ var MapEditor = React.createClass({
             show: false,
             message: '',
             messageType: 'success',
+            onPostSuccess:null,
+            onLoadSucess:null,
             key: ''
         };
     },
@@ -124,9 +80,6 @@ var MapEditor = React.createClass({
         this.node('largura').value = 10;
         this.node('altura').value = 10;
         this.node('loop').value = 0;
-    },
-    node: function (name) {
-        return React.findDOMNode(this.refs[name]);
     },
     load: function () {
         var self = this;
@@ -169,13 +122,13 @@ var MapEditor = React.createClass({
     },
     send: function () {
         var self = this;
-        var key = self.state.key;
-        var name = React.findDOMNode(this.refs.nome).value;
-        var display_name = React.findDOMNode(this.refs.nomeApresentacao).value;
-        var width = React.findDOMNode(this.refs.largura).value;
-        var height = React.findDOMNode(this.refs.altura).value;
-        var scroll = React.findDOMNode(this.refs.loop).value;
+        var name = this.node('nome').value;
+        var display_name = this.node('nomeApresentacao').value;
+        var width = this.node('largura').value;
+        var height = this.node('altura').value;
+        var scroll = this.node('loop').value;
         var action = null;
+
         var data = {
             'data[Map][name]': name,
             'data[Map][display]': display_name,
@@ -184,21 +137,8 @@ var MapEditor = React.createClass({
             'data[Map][scroll]': scroll
         };
 
-        switch (this.state.action) {
-            case 'new':
-                if (self.state.type == 'map') {
-                    data['data[Map][parent_id]'] = key;
-                }
-                else {
-                    data['data[Map][project_id]'] = key;
-                }
-                break;
-            case 'edit':
-                data['data[Map][id]'] = key;
-                break;
-            default:
-        }
-
+        data = _.merge(data,self.state.formData);
+        console.log(data);
         $.ajax({
             url: self.state.postUrl,
             type: 'post',
@@ -207,7 +147,9 @@ var MapEditor = React.createClass({
             success: function (data) {
                 if (data.success) {
                     self.close();
-                    Render.project.updateMapTree();
+                    if(self.state.onPostSuccess != null){
+                        self.state.onPostSuccess(data.node,self);
+                    }
                 }
                 else {
                     var errors = data.errors;
