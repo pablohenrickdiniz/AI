@@ -1,184 +1,105 @@
-<style type="text/css">
-    .tree li {
-        list-style: none;
-        z-index: 2;
-    }
+<?=$this->Html->css('tree2')?>
 
-    .space:before {
-        content: '\00a0\00a0\00a0';
-        border-top: 1px dashed black;
-        border-left: 1px dashed black;
-        position: relative;
-        top: 9px;
-        left: 5px;
-    }
-
-    .tree ul > li:last-child .space:before, ul.tree > li:last-child .space:before {
-        border-top: none;
-        border-bottom: 1px dashed black;
-        top: -7px;
-    }
-
-    .tree li.expanded:before {
-        border-left: 1px dashed black;
-        display: block;
-        height: 100%;
-        width: 1px;
-        content: '';
-        position: absolute;
-        top: 20px;
-        left: 5px;
-    }
-
-    .tree ul > li:first-child:after {
-        border-left: 1px dashed black;
-        display: block;
-        content: '';
-        height: 10px;
-        position: absolute;
-        left: 5px;
-        top: -2px;
-    }
-
-    .tree li.closed:before {
-        border-left: 1px dashed black;
-        display: block;
-        height: 8px;
-        width: 1px;
-        content: '';
-        position: absolute;
-        top: 20px;
-        left: 5px;
-    }
-
-    .space {
-        position: relative;
-    }
-
-    .tree {
-        padding-left: 5px;
-        padding-bottom: 0;
-    }
-
-    ul.tree {
-        display: inline-block;
-        overflow: hidden;
-        position: relative;
-    }
-
-    .tree li {
-        position: relative;
-    }
-
-    .tree ul {
-        padding-left: 16px;
-    }
-
-    .tree .fa {
-        z-index: 2;
-        background-color: white;
-    }
-
-    .expanded > ul {
-        display: block !important;
-    }
-
-    .tree ul {
-        display: none;
-    }
-
-    .icon:hover, .toggle:hover {
-        cursor: pointer;
-    }
-</style>
-<script type="text/javascript">
-    var tree = [
-        {
-            title: 'Documentos',
-            expanded: false,
-            isFolder: true,
-            children: [
-                {
-                    title'composer.json',
-                    icon: 'fa fa-file-text-o',
-                    isFolder: false
-                    children: [
-                        {title'teste', icon: '', isFolder: false},
-                        {title'teste', icon: '', isFolder: false},
-                        {title'teste', icon: '', isFolder: false}
-                    ]
-                },
-                {
-                    title:'index.html',
-                    icon:'',
-                    isFolder:true
-                },
-                {
-                    title:'htaccess',
-                    icon:'',
-                    isFolder:false
-                }
-            ]
-        },
-        {
-            title:'Imagens',
-            expanded:false,
-            isFolder:true,
-            children:[]
-        },
-        {
-            title:'Vídeos',
-            expanded:false,
-            isFolder:true,
-            children:[]
-        }
-    ];
-</script>
-<ul class="tree">
-    <li class="expanded">
-        <span class="fa fa-minus-square toggle"></span>
-        <span class="fa fa-folder-open icon"></span>
-        <span class="title">Documentos</span>
-        <ul>
-            <li class="expanded">
-                <span class="space"></span>
-                <span class="fa fa-file-text-o icon"></span>
-                <span class="title">composer.json</span>
-                <ul>
-                    <li>
-                        <span class="space"></span>
-                        <span class="title">teste</span>
-                    </li>
-                    <li>
-                        <span class="space"></span>
-                        <span class="title">teste</span>
-                    </li>
-                    <li>
-                        <span class="space"></span>
-                        <span class="title">teste</span>
-                    </li>
-                </ul>
-            </li>
+<ol class="tree">
+    <li>
+        <label for="folder1">Folder 1</label> <input type="checkbox" checked disabled id="folder1" />
+        <ol>
+            <li class="file"><a href="document.html.pdf">File 1</a></li>
             <li>
-                <span class="fa fa-plus-square toggle"></span>
-                <span class="fa fa-folder-open icon"></span>
-                <span class="title">index.html</span>
+                <label for="subfolder1">Subfolder 1</label> <input type="checkbox" id="subfolder1" />
+                <ol>
+                    <li class="file"><a href="">Arquivo</a></li>
+                    <li>
+                        <label for="subsubfolder1">Subfolder 1</label> <input type="checkbox" id="subsubfolder1" />
+                        <ol>
+                            <li class="file"><a href="">File 1</a></li>
+                            <li>
+                                <label for="subsubfolder2">Subfolder 1</label> <input type="checkbox" id="subsubfolder2" />
+                                <ol>
+                                    <li class="file"><a href="#file.pdf">Subfile 1</a></li>
+                                    <li class="file"><a href="">Subfile 2</a></li>
+                                    <li class="file"><a href="">Subfile 3</a></li>
+                                    <li class="file"><a href="">Subfile 4</a></li>
+                                    <li class="file"><a href="">Subfile 5</a></li>
+                                    <li class="file"><a href="">Subfile 6</a></li>
+                                </ol>
+                            </li>
+                        </ol>
+                    </li>
+                    <li class="file"><a href="">File 3</a></li>
+                    <li class="file"><a href="">File 4</a></li>
+                    <li class="file"><a href="">File 5</a></li>
+                    <li class="file"><a href="">File 6</a></li>
+                </ol>
             </li>
-            <li>
-                <span class="space"></span>
-                <span class="fa fa-folder-open icon"></span>
-                <span class="title">htaccess.txt</span>
-            </li>
-        </ul>
+        </ol>
     </li>
     <li>
-        <span class="space"></span>
-        <span class="fa fa-folder-open icon"></span>
-        <span class="title">Imagens</span>
+        <label for="folder2">Folder 2</label> <input type="checkbox" id="folder2" />
+        <ol>
+            <li class="file"><a href="">File 1</a></li>
+            <li>
+                <label for="subfolder2">Subfolder 1</label> <input type="checkbox" id="subfolder2" />
+                <ol>
+                    <li class="file"><a href="">Subfile 1</a></li>
+                    <li class="file"><a href="">Subfile 2</a></li>
+                    <li class="file"><a href="">Subfile 3</a></li>
+                    <li class="file"><a href="">Subfile 4</a></li>
+                    <li class="file"><a href="">Subfile 5</a></li>
+                    <li class="file"><a href="">Subfile 6</a></li>
+                </ol>
+            </li>
+        </ol>
     </li>
     <li>
-        <span class="space"></span>
-        <span class="fa fa-folder-open icon"></span>
-        <span class="title"> Vídeos</span>
+        <label for="folder3">Folder 3</label> <input type="checkbox" id="folder3" />
+        <ol>
+            <li class="file"><a href="">File 1</a></li>
+            <li>
+                <label for="subfolder3">Subfolder 1</label> <input type="checkbox" id="subfolder3" />
+                <ol>
+                    <li class="file"><a href="">Subfile 1</a></li>
+                    <li class="file"><a href="">Subfile 2</a></li>
+                    <li class="file"><a href="">Subfile 3</a></li>
+                    <li class="file"><a href="">Subfile 4</a></li>
+                    <li class="file"><a href="">Subfile 5</a></li>
+                    <li class="file"><a href="">Subfile 6</a></li>
+                </ol>
+            </li>
+        </ol>
     </li>
-</ul>
+    <li>
+        <label for="folder4">Folder 4</label> <input type="checkbox" id="folder4" />
+        <ol>
+            <li class="file"><a href="">File 1</a></li>
+            <li>
+                <label for="subfolder4">Subfolder 1</label> <input type="checkbox" id="subfolder4" />
+                <ol>
+                    <li class="file"><a href="">Subfile 1</a></li>
+                    <li class="file"><a href="">Subfile 2</a></li>
+                    <li class="file"><a href="">Subfile 3</a></li>
+                    <li class="file"><a href="">Subfile 4</a></li>
+                    <li class="file"><a href="">Subfile 5</a></li>
+                    <li class="file"><a href="">Subfile 6</a></li>
+                </ol>
+            </li>
+        </ol>
+    </li>
+    <li>
+        <label for="folder5">Folder 5</label> <input type="checkbox" id="folder5" />
+        <ol>
+            <li class="file"><a href="">File 1</a></li>
+            <li>
+                <label for="subfolder5">Subfolder 1</label> <input type="checkbox" id="subfolder5" />
+                <ol>
+                    <li class="file"><a href="">Subfile 1</a></li>
+                    <li class="file"><a href="">Subfile 2</a></li>
+                    <li class="file"><a href="">Subfile 3</a></li>
+                    <li class="file"><a href="">Subfile 4</a></li>
+                    <li class="file"><a href="">Subfile 5</a></li>
+                    <li class="file"><a href="">Subfile 6</a></li>
+                </ol>
+            </li>
+        </ol>
+    </li>
+</ol>

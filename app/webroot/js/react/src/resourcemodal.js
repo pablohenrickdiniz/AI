@@ -1,4 +1,8 @@
 var ResourceModal = React.createClass({
+    mixins:[updateMixin],
+    items:{
+        'new': {name: 'Importar recurso', icon: "add"}
+    },
     getInitialState:function(){
         return {
             loadUrl:'',
@@ -6,36 +10,25 @@ var ResourceModal = React.createClass({
             id:''
         };
     },
-    componentWillMount:function(){
-        this.updateState(this.props);
-    },
     render:function(){
         return (
             <Modal title="Recursos" footer="false" id={this.state.id}>
-                <Tree id="resource-tree" loadUrl={this.state.loadUrl} formData={{'data[id]':this.state.projectId}}/>
+                <Tree id="resource-tree" loadUrl={this.state.loadUrl} formData={{'data[id]':this.state.projectId}} onItemLeftClick={this.onItemLeftClick}/>
             </Modal>
         );
     },
-    componentWillReceiveProps:function(props){
-        this.updateState(props);
+    onItemLeftClick:function(e,obj){
+        if(obj.state.metadata.type == 'resource-folder'){
+            var x = e.pageX;
+            var y = e.pageY;
+            this.selectedFolder = obj;
+            React.render(
+                <ContextMenu x={x} y={y} items={this.items} callback={this.callback} show={true}/>,
+                document.getElementById('context-menu-container')
+            );
+        }
     },
-    updateState:function(props){
-        var state = {};
+    callback:function(){
 
-        if(_.isString(props.id) && props.id != this.state.id){
-            state.id = props.id;
-        }
-
-        if(_.isString(props.loadUrl) && props.loadUrl != this.state.loadUrl){
-            state.loadUrl = props.loadUrl;
-        }
-
-        if(_.isNumber(props.projectId) && props.projectId != this.state.projectId ){
-            state.projectId = props.projectId;
-        }
-
-        if(!_.isEmpty(state)){
-            this.setState(state);
-        }
     }
 });

@@ -93,9 +93,9 @@ class Resource extends AppModel{
         foreach($categories as $key => $category){
             $root['children'][] = array(
                 'title' => $category,
-                'key' => $key,
                 'metadata' => array(
-                    'type' => 'resource-folder'
+                    'type' => 'resource-folder',
+                    'id' => $key
                 ),
                 'isFolder' => true
             );

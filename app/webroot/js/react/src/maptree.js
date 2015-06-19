@@ -48,6 +48,12 @@ var MapTree = React.createClass({
             case 'delete':
                 this.deleteMap(mapId);
                 break;
+            case 'new':
+                React.render(
+                    <MapEditor id="map-editor" action={'new'} postUrl={Global.map.add}  formData={{'data[Map][parent_id]':mapId}} open={true} onPostSuccess={this.createSuccess}/>,
+                    document.getElementById('map-editor-container')
+                );
+                break;
         }
     },
     deleteMap:function(id){
