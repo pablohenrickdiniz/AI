@@ -5,7 +5,7 @@
 <?= $this->Html->script('jquery-mask') ?>
 <!--<?= $this->Import->script('DOMOBJ', true) ?>-->
 <?= $this->Html->css('index') ?>
-<?= $this->Html->css('tree') ?>
+<?= $this->Html->css('tree2') ?>
 <script type="text/javascript">
     var Global = {
         resource: {

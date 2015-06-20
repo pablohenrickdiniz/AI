@@ -58,13 +58,10 @@ var Tree = React.createClass({
             return <TreeNode {...node} key={index} onLeftClick={self.state.onItemLeftClick} toggle={self.state.onItemToggle}/>
         });
         return (
-            <ul className="tree" onContextMenu={this.contextMenu} id={this.state.id}>
+            <ol className="tree" id={this.state.id}>
                 {children}
-            </ul>
+            </ol>
         );
-    },
-    contextMenu: function (e) {
-        e.preventDefault();
     }
 });
 
@@ -72,7 +69,6 @@ var TreeNode = React.createClass({
     mixins:[updateMixin],
     propTypes: {
         isFolder: React.PropTypes.bool,
-        icon: React.PropTypes.string,
         title: React.PropTypes.string,
         children: React.PropTypes.arrayOf(React.PropTypes.object),
         hasChildren: React.PropTypes.bool,
@@ -82,7 +78,9 @@ var TreeNode = React.createClass({
         toggle: React.PropTypes.func,
         lazyLoadUrl: React.PropTypes.string,
         formData: React.PropTypes.object,
-        parent:React.PropTypes.object
+        parent:React.PropTypes.object,
+        addClass:React.PropTypes.string,
+        expandClass:React.PropTypes.string
     },
     remove:function(){
         var self = this;
@@ -99,7 +97,6 @@ var TreeNode = React.createClass({
         return {
             title: '',
             isFolder: false,
-            icon: '',
             children: [],
             expand: false,
             onLeftClick: null,
@@ -109,7 +106,10 @@ var TreeNode = React.createClass({
             lazyLoadUrl: null,
             hasChildren: false,
             formData: {},
-            parent:null
+            parent:null,
+            id:generateUUID(),
+            addClass:'',
+            expandClass:''
         }
     },
     lazyLoad: function () {
@@ -156,29 +156,37 @@ var TreeNode = React.createClass({
         }, 60000);
     },
     render: function () {
-        var hasChildren = this.state.hasChildren || this.state.children.length > 0;
-        var expand = this.state.expand ? 'expand' : 'closed';
-        var toggle = hasChildren? this.state.expand ? 'fa fa-minus-square toggle' : 'fa fa-plus-square toggle' : 'space';
-        var icon = this.state.isFolder ? (this.state.expand ? 'fa fa-folder-open icon' : 'fa fa-folder icon') : this.state.icon + ' icon';
-        var title = hasChildren && this.state.isFolder ? 'title title-folder' : 'title';
         var self = this;
 
         var children = this.state.children.map(function (node, index) {
             return <TreeNode {...node} key={index}  onLeftClick={self.state.onLeftClick} parent={self}/>
         });
 
+        var elements = [];
+        var hasChildren = self.state.children.length > 0 || self.state.hasChildren;
+
+
+        if(self.state.isFolder || hasChildren){
+            var className = this.state.expand&&hasChildren?'expanded '+this.state.expandClass:this.state.addClass;
+            elements.push(<label className={className} htmlFor={self.state.id} key={0} onContextMenu={this.contextMenu}>{self.state.title}</label>);
+        }
+        else{
+            elements = <a href={'#'} className={this.state.addClass} onContextMenu={this.contextMenu}>{self.state.title}</a>;
+        }
+
+        if(hasChildren){
+            elements.push(<input type="checkbox" checked={self.state.expand&&hasChildren} id={self.state.id} onChange={this.toggle} key={1}/>);
+            elements.push(<ol key={2}>{children}</ol>);
+        }
+
         return (
-            <li className={expand}>
-                <span className={toggle} onClick={hasChildren ? this.toggle : null}></span>
-                <span className={icon} onDoubleClick={hasChildren ? this.toggle : null} onContextMenu={this.contextMenu}></span>
-                <span className={title} onDoubleClick={hasChildren ? this.toggle : null} onContextMenu={this.contextMenu}>{this.state.title}</span>
-                <ul className={this.state.expand ? 'normal' : 'hidden'}>
-                    {children}
-                </ul>
+            <li className={self.state.isFolder?'folder':'file'} type={self.state.metadata.type}>
+                {elements}
             </li>
         );
     },
     contextMenu: function (e) {
+        e.preventDefault();
         if (typeof this.state.onLeftClick == 'function') {
             this.state.onLeftClick(e, this);
         }

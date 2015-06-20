@@ -24,11 +24,19 @@ var MapTree = React.createClass({
     callback:function(e,obj){
         var x = e.pageX;
         var y = e.pageY;
-        var items = this.projectItems;
         this.selectedNode = obj;
-
-
-        var callback = obj.state.metadata.type == 'project'?this.projectCallback:this.mapCallback;
+        var type = obj.state.metadata.type;
+        var callback = null;
+        var items = this.items;
+        console.log(type);
+        switch(type){
+            case 'project':
+                callback = this.projectCallback;
+                break;
+            case 'map':
+                callback = this.mapCallback;
+                break;
+        }
 
         React.render(
             <ContextMenu x={x} y={y} items={items} callback={callback} show={true}/>,
@@ -97,11 +105,9 @@ var MapTree = React.createClass({
                 console.log('Nenhuma ação definida para a chave...'+key);
         }
     },
-    projectItems:{
+    items:{
         "edit": {name: "Alterar propriedades", icon: "edit"},
-        'sp1': '-----------',
         'new': {name: 'Novo Mapa', icon: "add"},
-        'sp2': '-----------',
         "copy": {name: "Copiar", icon: "copy"},
         "cut": {name: "Recortar", icon: "cut"},
         "paste": {name: "Colar", icon: "paste"},

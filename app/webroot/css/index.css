@@ -102,6 +102,7 @@ span.close{
 
 .context-menu-item:hover{
     background-color:#AAAAAA;
+    cursor:pointer;
 }
 
 #content .navbar{

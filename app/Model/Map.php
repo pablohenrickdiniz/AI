@@ -50,6 +50,13 @@ class Map extends AppModel
             'required' => false
         ),
     );
+    public $lazy_load_url = '';
+
+
+    public function __construct($id = false, $table = null, $ds = null){
+        parent::__construct($id,$table,$ds);
+        $this->lazy_load_url =  Router::url(array('controller' => 'map','action' => 'getChildren'),true);
+    }
 
     public function checkName(){
         $continue = isset($this->data['Map']['name']);
@@ -184,6 +191,13 @@ class Map extends AppModel
                 'title' => $map['Map']['name'],
                 'key' => $map['Map']['id'],
                 'expand' => $map['Map']['expand'],
+                'addClass' => 'fa fa-picture-o',
+                'expandClass' => 'fa fa-picture-o',
+                'hasChildren' => $this->hasAny(array('parent_id' => $map['Map']['id'])),
+                'lazyLoadUrl' => $this->lazy_load_url,
+                'formData' => array(
+                    'data[id]' => $map['Map']['id']
+                ),
                 'metadata' => array(
                     'type' => 'map'
                 )
@@ -194,13 +208,18 @@ class Map extends AppModel
 
     public function getNode()
     {
-        $map = $this->read(array('id', 'name', 'expand', 'isLazy'));
+        $map = $this->read(array('id', 'name', 'expand'));
         $node = array(
             'title' => $map['Map']['name'],
             'expand' => $map['Map']['expand'],
             'isFolder' => false,
             'hasChildren' => $this->hasAny(array('parent_id' => $map['Map']['id'])),
-            'icon' => 'fa fa-picture-o',
+            'addClass' => 'fa fa-picture-o',
+            'expandClass' => 'fa fa-picture-o',
+            'lazyLoadUrl' => $this->lazy_load_url,
+            'formData' => array(
+                'data[id]' => $map['Map']['id']
+            ),
             'metadata' => array(
                 'type' => 'map',
                 'id' => $map['Map']['id']

@@ -25,7 +25,7 @@ class Project extends AppModel{
             )
         )
     );
-    private $lazy_load_url = '';
+    public $lazy_load_url = '';
 
     public function __construct($id = false, $table = null, $ds = null){
         parent::__construct($id,$table,$ds);
@@ -54,7 +54,8 @@ class Project extends AppModel{
         $node = array(
             'title' => $project['Project']['name'],
             'expand' => $project['Project']['expand'],
-            'icon' => '',
+            'addClass' => 'fa fa-folder',
+            'expandClass' => 'fa fa-folder-open',
             'isFolder' => true,
             'metadata' => array(
                 'type' => 'project',
@@ -90,7 +91,13 @@ class Project extends AppModel{
             $children[] = array(
                 'title' => $map['Map']['name'],
                 'expand' => $map['Map']['expand'],
-                'icon' => 'fa fa-picture-o',
+                'addClass' => 'fa fa-picture-o',
+                'expandClass' => 'fa fa-picture-o',
+                'hasChildren' => $Map->hasAny(array('parent_id' => $map['Map']['id'])),
+                'lazyLoadUrl' => $Map->lazy_load_url,
+                'formData' => array(
+                    'data[id]' => $map['Map']['id']
+                ),
                 'metadata' => array(
                     'id' =>  $map['Map']['id'],
                     'type' => 'map'
