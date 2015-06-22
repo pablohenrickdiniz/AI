@@ -79,8 +79,7 @@ class ProjectController extends AppController
                         'Project.expand' => $expand
                     ),
                     array(
-                        'Project.id' => $id,
-                        'Project.user_id' => $user_id
+                        'Project.id' => $id
                     )
                 );
 

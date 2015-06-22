@@ -50,8 +50,13 @@ class Project extends AppModel{
 
     public function getNode(){
         $project = $this->read(array('id', 'name', 'expand', 'isLazy'));
+        $node = $this->parseNode($project);
+        return $node;
+    }
+
+    private function parseNode($project){
         $Map = Map::getInstance();
-        $node = array(
+        return array(
             'title' => $project['Project']['name'],
             'expand' => $project['Project']['expand'],
             'addClass' => 'fa fa-folder',
@@ -67,7 +72,6 @@ class Project extends AppModel{
             ),
             'hasChildren' => $Map->hasAny(array('project_id' => $project['Project']['id']))
         );
-        return $node;
     }
 
     public function getChildrenNodes()
@@ -88,21 +92,7 @@ class Project extends AppModel{
         }
 
         foreach ($maps as $map) {
-            $children[] = array(
-                'title' => $map['Map']['name'],
-                'expand' => $map['Map']['expand'],
-                'addClass' => 'fa fa-picture-o',
-                'expandClass' => 'fa fa-picture-o',
-                'hasChildren' => $Map->hasAny(array('parent_id' => $map['Map']['id'])),
-                'lazyLoadUrl' => $Map->lazy_load_url,
-                'formData' => array(
-                    'data[id]' => $map['Map']['id']
-                ),
-                'metadata' => array(
-                    'id' =>  $map['Map']['id'],
-                    'type' => 'map'
-                )
-            );
+            $children[] = $Map->parseNode($map);
         }
         return $children;
     }

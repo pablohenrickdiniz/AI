@@ -199,7 +199,7 @@ class MapController extends AppController
                 $map['Map']['scroll'] = $map_edit['scroll'];
                 if ($this->Map->save($map)) {
                     $result['success'] = true;
-                    $result['map'] = $map_edit;
+                    $result['node'] = $this->Map->getNode();
                 }
                 else{
                     $result['errors'] = $this->Map->validationErrors;

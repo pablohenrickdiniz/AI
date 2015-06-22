@@ -187,29 +187,13 @@ class Map extends AppModel
         }
 
         foreach ($maps as $map) {
-            $children[] = array(
-                'title' => $map['Map']['name'],
-                'key' => $map['Map']['id'],
-                'expand' => $map['Map']['expand'],
-                'addClass' => 'fa fa-picture-o',
-                'expandClass' => 'fa fa-picture-o',
-                'hasChildren' => $this->hasAny(array('parent_id' => $map['Map']['id'])),
-                'lazyLoadUrl' => $this->lazy_load_url,
-                'formData' => array(
-                    'data[id]' => $map['Map']['id']
-                ),
-                'metadata' => array(
-                    'type' => 'map'
-                )
-            );
+            $children[] = $this->parseNode($map);
         }
         return $children;
     }
 
-    public function getNode()
-    {
-        $map = $this->read(array('id', 'name', 'expand'));
-        $node = array(
+    public function parseNode($map){
+        return array(
             'title' => $map['Map']['name'],
             'expand' => $map['Map']['expand'],
             'isFolder' => false,
@@ -225,6 +209,12 @@ class Map extends AppModel
                 'id' => $map['Map']['id']
             )
         );
+    }
+
+    public function getNode()
+    {
+        $map = $this->read(array('id', 'name', 'expand'));
+        $node  = $this->parseNode($map);
         return $node;
     }
 

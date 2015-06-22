@@ -83,6 +83,8 @@ class Resource extends AppModel{
             'title' => 'Recursos',
             'isFolder' => true,
             'children' => [],
+            'addClass' => 'fa fa-folder',
+            'expandClass' => 'fa fa-folder-open',
             'metadata' => array(
                 'type' =>'resources'
             ),
@@ -93,6 +95,8 @@ class Resource extends AppModel{
         foreach($categories as $key => $category){
             $root['children'][] = array(
                 'title' => $category,
+                'addClass' => 'fa fa-folder',
+                'expandClass' => 'fa fa-folder-open',
                 'metadata' => array(
                     'type' => 'resource-folder',
                     'id' => $key

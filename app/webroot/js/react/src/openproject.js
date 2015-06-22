@@ -47,7 +47,7 @@ var OpenProject = React.createClass({
     },
     loadProjects: function () {
         var self = this;
-        $.ajax({
+        AjaxQueue.ajax({
             url: Global.project.all,
             type: 'post',
             dataType: 'json',
@@ -82,7 +82,7 @@ var OpenProject = React.createClass({
         var self = this;
 
         var remove = function(){
-            $.ajax({
+            AjaxQueue.ajax({
                 url:Global.project.delete,
                 data:{
                     'data[id]':id

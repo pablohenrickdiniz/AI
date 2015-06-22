@@ -17,17 +17,18 @@ var MapEditor = React.createClass({
         ]
     },
     propTypes: {
-        key: React.PropTypes.number,
         action: React.PropTypes.oneOf(['new', 'edit']),
         postUrl: React.PropTypes.string,
         loadUrl: React.PropTypes.string,
         onPostSuccess:React.PropTypes.func,
         onLoadSuccess:React.PropTypes.func,
         type: React.PropTypes.string,
-        show: React.PropTypes.bool,
+        showError: React.PropTypes.bool,
         message: React.PropTypes.string,
         messageType: React.PropTypes.oneOf(['success', 'error', 'warning', 'info']),
-        open: React.PropTypes.bool
+        open: React.PropTypes.bool,
+        formData:React.PropTypes.object,
+        loadFormData:React.PropTypes.object
     },
     getInitialState: function () {
         return {
@@ -35,17 +36,38 @@ var MapEditor = React.createClass({
             action: 'new',
             postUrl: '',
             loadUrl: '',
-            show: false,
+            showError: false,
             message: '',
             messageType: 'success',
             onPostSuccess:null,
-            onLoadSucess:null,
-            key: ''
+            onLoadSucess:null
         };
+    },
+    close:function(){
+        this.node('nome').value = '';
+        this.node('nomeApresentacao').value = '';
+        this.node('largura').value = '';
+        this.node('altura').value = '';
+        this.node('loop').value  = 0;
+        this.setState({
+            open:false,
+            showError:false
+        });
+    },
+    componentDidMount:function(){
+        this.start();
+    },
+    start:function(){
+        if(this.state.action == 'edit' && this.state.open){
+            this.load();
+        }
+    },
+    componentDidUpdate:function(){
+        this.start();
     },
     render: function () {
         return (
-            <Modal onClose={this.close} onConfirm={this.send} title={this.options.title[this.state.action]} id={this.props.id} confirmText={this.options.confirmText[this.state.action]} cancelText="cancelar" open={this.state.open}>
+            <Modal onClose={this.close} onConfirm={this.send} title={this.options.title[this.state.action]} confirmText={this.options.confirmText[this.state.action]} cancelText="cancelar" open={this.state.open}>
                 <div className="form-group col-md-6">
                     <input type="text" className="form-control" placeholder="Nome" required="true" ref="nome"/>
                 </div>
@@ -62,35 +84,17 @@ var MapEditor = React.createClass({
                     <Select ref="loop" options={this.options.loop} />
                 </div>
                 <div className="clearfix"/>
-                <Alert message={this.state.message} type={this.state.messageType} show={this.state.show}/>
+                <Alert message={this.state.message} type={this.state.messageType} show={this.state.showError}/>
             </Modal>
         );
     },
-    close: function () {
-        $('#' + this.props.id).modal('hide');
-        this.clear();
-        this.setState({
-            show: false,
-            open:false
-        });
-    },
-    clear: function () {
-        this.node('nome').value = '';
-        this.node('nomeApresentacao').value = '';
-        this.node('largura').value = 10;
-        this.node('altura').value = 10;
-        this.node('loop').value = 0;
-    },
     load: function () {
         var self = this;
-
-        $.ajax({
+        AjaxQueue.ajax({
             url: self.state.loadUrl,
             type: 'post',
             dataType: 'json',
-            data: {
-                'data[id]': self.state.key
-            },
+            data:self.state.loadFormData,
             success: function (data) {
                 if (data.success) {
                     var map = data.map;
@@ -99,24 +103,13 @@ var MapEditor = React.createClass({
                     self.node('largura').value = map.width;
                     self.node('altura').value = map.height;
                     self.node('loop').value = map.scroll;
-                    self.setState({
-                        show: false
-                    });
                 }
                 else {
-                    self.setState({
-                        show: true,
-                        message: 'Erro ao tentar carregar informações do mapa...',
-                        messageType: 'danger'
-                    });
+                    self.showError('Erro ao tentar carregar informações do mapa...');
                 }
             }.bind(this),
             error: function () {
-                self.setState({
-                    show: true,
-                    message: 'Erro de conexão!',
-                    messageType: 'warning'
-                });
+                self.showError('Erro de conexão...');
             }.bind(this)
         });
     },
@@ -138,8 +131,7 @@ var MapEditor = React.createClass({
         };
 
         data = _.merge(data,self.state.formData);
-        console.log(data);
-        $.ajax({
+        AjaxQueue.ajax({
             url: self.state.postUrl,
             type: 'post',
             dataType: 'json',
@@ -149,6 +141,7 @@ var MapEditor = React.createClass({
                     self.close();
                     if(self.state.onPostSuccess != null){
                         self.state.onPostSuccess(data.node,self);
+
                     }
                 }
                 else {
@@ -165,20 +158,15 @@ var MapEditor = React.createClass({
                 }
             }.bind(this),
             error: function () {
-                self.setState({
-                    message: 'Erro de conexão',
-                    show: true,
-                    messageType: 'danger'
-                });
+                self.showError('Erro de conexão...');
             }.bind(this)
         });
     },
-    showError: function (message) {
-
+    showError:function(message){
         this.setState({
-            message: message,
-            show: true,
-            messageType: 'warning'
+            showError:true,
+            message:message,
+            messageType: 'danger'
         });
     }
 });

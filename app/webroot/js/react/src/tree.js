@@ -1,5 +1,5 @@
 var Tree = React.createClass({
-    mixins:[updateMixin],
+    mixins:[updateMixin,setIntervalMixin],
     propTypes: {
         data: React.PropTypes.array,
         loadUrl: React.PropTypes.string,
@@ -20,6 +20,15 @@ var Tree = React.createClass({
     },
     componentDidMount:function(){
         this.load();
+        this.refresh();
+    },
+    refresh:function(){
+        this.clearInterval('update');
+        var self = this;
+        this.setInterval('update',function(){
+            console.log('updating tree root nodes...');
+            self.load();
+        },30000);
     },
     componentDidUpdate:function(){
         if(!_.isEqual(this.lastLoadUrl,this.state.loadUrl) && !_.isEqual(this.lastFormData,this.state.formData)){
@@ -29,7 +38,7 @@ var Tree = React.createClass({
     load:function(){
         var self = this;
 
-        $.ajax({
+        AjaxQueue.ajax({
             url: self.state.loadUrl,
             type: 'post',
             dataType: 'json',
@@ -66,7 +75,7 @@ var Tree = React.createClass({
 });
 
 var TreeNode = React.createClass({
-    mixins:[updateMixin],
+    mixins:[updateMixin,setIntervalMixin],
     propTypes: {
         isFolder: React.PropTypes.bool,
         title: React.PropTypes.string,
@@ -115,7 +124,7 @@ var TreeNode = React.createClass({
     lazyLoad: function () {
         var self = this;
         if (_.isString(self.state.lazyLoadUrl)) {
-            $.ajax({
+            AjaxQueue.ajax({
                 url: self.state.lazyLoadUrl,
                 type: 'post',
                 dataType: 'json',
@@ -127,7 +136,7 @@ var TreeNode = React.createClass({
                         });
                         console.log('Lista de nós carregada com sucesso...');
                     }
-                    this.loaded = true;
+                    self.loaded = true;
                 }.bind(this),
                 error: function () {
                     console.error('Erro ao carregar lista de nós...');
@@ -138,28 +147,28 @@ var TreeNode = React.createClass({
     },
     componentWillMount: function () {
         this.loaded = false;
-        this.intervals = [];
         this.refresh();
     },
-    componentWillUnmount: function () {
-        this.intervals.map(clearInterval);
+    componentDidMount:function(){
+        if(this.state.expand && !this.loaded){
+            this.lazyLoad();
+        }
     },
-
     refresh: function () {
-        clearInterval(this.intervals['update']);
+        this.clearInterval('update');
         var self = this;
-        this.intervals['update'] = setInterval(function () {
+        self.setInterval('update',function(){
             console.log('atualizando lista de nós...');
-            if(this.loaded){
+            if(self.loaded){
                 self.lazyLoad();
             }
-        }, 60000);
+        },30000);
     },
     render: function () {
         var self = this;
 
         var children = this.state.children.map(function (node, index) {
-            return <TreeNode {...node} key={index}  onLeftClick={self.state.onLeftClick} parent={self}/>
+            return <TreeNode {...node} key={index}  onLeftClick={self.state.onLeftClick} parent={self} toggle={self.state.toggle}/>
         });
 
         var elements = [];
@@ -197,7 +206,7 @@ var TreeNode = React.createClass({
             this.refresh();
         }
         if (typeof this.state.toggle == 'function') {
-            this.state.toggle(e, this);
+            this.state.toggle(!this.state.expand,e, this);
         }
         this.setState({
             expand: !this.state.expand

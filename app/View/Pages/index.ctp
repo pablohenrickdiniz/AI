@@ -1,11 +1,41 @@
+<?= $this->Html->css('index') ?>
+<?= $this->Html->css('tree2') ?>
+<div id="content">
+
+</div>
+<div id="tmp">
+
+</div>
+<div id="context-menu-container">
+
+</div>
+<div id="resources-modal-container">
+
+</div>
+<div id="map-editor-container">
+
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div id="container-a" class="col-md-3">
+            <div id="tileset-container">
+
+            </div>
+            <div id="map-container">
+
+            </div>
+        </div>
+        <div id="container-b" class="col-md-9">
+            <div id="canvas-container">
+
+            </div>
+        </div>
+    </div>
+</div>
 <?= $this->Html->script('lodash.min')?>
 <?= $this->Html->script('uuid') ?>
 <?= $this->Html->script('jquery.form.min') ?>
-<?= $this->Html->script('MouseReader') ?>
 <?= $this->Html->script('jquery-mask') ?>
-<!--<?= $this->Import->script('DOMOBJ', true) ?>-->
-<?= $this->Html->css('index') ?>
-<?= $this->Html->css('tree2') ?>
 <script type="text/javascript">
     var Global = {
         resource: {
@@ -75,106 +105,74 @@
             }
         });
 
-    /*
-        $.contextMenu({
-            selector: '.resource',
-            callback: function (key) {
-                if (key == 'new') {
-                    //ResourcesManager.tileset.getModal().open();
-                    $('#resource-step-modal').modal();
-                }
-            },
-            items: {
-                "new": {'name': "Adicionar Recurso", 'icon': 'add'}
-            }
-        });
+        /*
+         $.contextMenu({
+         selector: '.resource',
+         callback: function (key) {
+         if (key == 'new') {
+         //ResourcesManager.tileset.getModal().open();
+         $('#resource-step-modal').modal();
+         }
+         },
+         items: {
+         "new": {'name': "Adicionar Recurso", 'icon': 'add'}
+         }
+         });
 
-        $.contextMenu({
-            selector: '.map',
-            callback: function (key) {
-                if (key == 'new') {
-                    Global.map.action = 'new';
-                    $('#map-editor').modal();
-                }
-                else if (key == 'edit') {
-                    Global.map.action = 'edit';
-                    $('#map-editor').modal();
-                }
-                else if (key == 'delete') {
-                    MapManager.delete();
-                }
-                else if (key == 'copy') {
-                    MapManager.copy();
-                }
-                else if (key == 'cut') {
-                    MapManager.cut();
-                }
-                else if (key == 'paste') {
-                    MapManager.paste();
-                }
-            },
-            items: {
-                "edit": {name: "Alterar propriedades", icon: "edit"},
-                'sp1': '-----------',
-                'new': {name: 'Novo Mapa', icon: "add"},
-                'sp2': '-----------',
-                "copy": {name: "Copiar", icon: "copy"},
-                "cut": {name: "Recortar", icon: "cut"},
-                "paste": {name: "Colar", icon: "paste"},
-                "delete": {name: "Apagar", icon: "delete"}
-            }
-        });
+         $.contextMenu({
+         selector: '.map',
+         callback: function (key) {
+         if (key == 'new') {
+         Global.map.action = 'new';
+         $('#map-editor').modal();
+         }
+         else if (key == 'edit') {
+         Global.map.action = 'edit';
+         $('#map-editor').modal();
+         }
+         else if (key == 'delete') {
+         MapManager.delete();
+         }
+         else if (key == 'copy') {
+         MapManager.copy();
+         }
+         else if (key == 'cut') {
+         MapManager.cut();
+         }
+         else if (key == 'paste') {
+         MapManager.paste();
+         }
+         },
+         items: {
+         "edit": {name: "Alterar propriedades", icon: "edit"},
+         'sp1': '-----------',
+         'new': {name: 'Novo Mapa', icon: "add"},
+         'sp2': '-----------',
+         "copy": {name: "Copiar", icon: "copy"},
+         "cut": {name: "Recortar", icon: "cut"},
+         "paste": {name: "Colar", icon: "paste"},
+         "delete": {name: "Apagar", icon: "delete"}
+         }
+         });
 
-        $.contextMenu({
-            selector: '.project',
-            callback: function (key) {
-                if (key == 'new') {
-                    Global.map.action = 'new';
-                    $('#map-editor').modal();
-                }
-                else if (key == 'paste') {
-                    MapManager.paste();
-                }
-            },
-            items: {
-                'new': {name: 'Novo Mapa', icon: "add"},
-                'sp2': '-----------',
-                "paste": {name: "Colar", icon: "paste"}
-            }
-        });
-*/
+         $.contextMenu({
+         selector: '.project',
+         callback: function (key) {
+         if (key == 'new') {
+         Global.map.action = 'new';
+         $('#map-editor').modal();
+         }
+         else if (key == 'paste') {
+         MapManager.paste();
+         }
+         },
+         items: {
+         'new': {name: 'Novo Mapa', icon: "add"},
+         'sp2': '-----------',
+         "paste": {name: "Colar", icon: "paste"}
+         }
+         });
+         */
     });
 </script>
 
-<div id="content">
-
-</div>
-<div id="tmp">
-
-</div>
-<div id="context-menu-container">
-
-</div>
-<div id="resources-modal-container">
-
-</div>
-<div id="map-editor-container">
-
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <div id="container-a" class="col-md-3">
-            <div id="tileset-container">
-
-            </div>
-            <div id="map-container">
-
-            </div>
-        </div>
-        <div id="container-b" class="col-md-9">
-            <div id="canvas-container">
-
-            </div>
-        </div>
-    </div>
-</div>

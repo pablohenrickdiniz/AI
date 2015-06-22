@@ -73,7 +73,7 @@ var NewProject = React.createClass({
             'data[Project][name]':React.findDOMNode(this.refs.nome).value.trim()
         };
 
-        $.ajax({
+        AjaxQueue.ajax({
             url: self.state.postUrl,
             type: 'post',
             data: data,
