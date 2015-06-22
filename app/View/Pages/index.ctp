@@ -15,6 +15,12 @@
 <div id="map-editor-container">
 
 </div>
+<div id="open-project-modal-container">
+
+</div>
+<div id="new-project-modal-container">
+
+</div>
 <div class="row">
     <div class="col-md-12">
         <div id="container-a" class="col-md-3">

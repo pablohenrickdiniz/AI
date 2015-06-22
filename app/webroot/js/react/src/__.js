@@ -6,7 +6,7 @@ var updateMixin = {
         var self = this;
         var state = {};
         for (var index in props) {
-            if (!_.isEqual(props[index], this.state[index])) {
+            if (this.state[index] == undefined || !_.isEqual(props[index], this.state[index])) {
                 state[index] = props[index];
             }
         }

@@ -1,4 +1,5 @@
 var NewProject = React.createClass({
+    mixins:[updateMixin,customFunctions],
     propTypes:{
         postUrl:React.PropTypes.string,
         message:React.PropTypes.string,
@@ -11,61 +12,28 @@ var NewProject = React.createClass({
             postUrl:'',
             message:'',
             messageType:'success',
-            show:false,
-            text:''
+            showError:false,
+            text:'',
+            open:false
         };
     },
     render:function(){
         return (
-            <Modal title="Novo Projeto" id="new-project-modal" confirmText="Criar" cancelText="cancelar" onConfirm={this.confirm} onClose={this.close}>
+            <Modal title="Novo Projeto" id="new-project-modal" confirmText="Criar" cancelText="cancelar" onConfirm={this.confirm} onClose={this.close} open={this.state.open}>
                 <div className="form-group">
-                    <input type="text" className="form-control" ref="nome" placeholder="Nome do projeto"/>
+                    <input type="text" className="form-control" ref="nome" placeholder="Nome do projeto" value={this.state.text} onChange={this.change}/>
                 </div>
-                <Alert message={this.state.message} type={this.state.messageType} show={this.state.show}/>
+                <Alert message={this.state.message} type={this.state.messageType} show={this.state.showError}/>
             </Modal>
         );
     },
-    updateState:function(props){
-        var state = {};
-
-        if(_.isString(props.postUrl) && props.postUrl != this.state.postUtl){
-            state.postUrl = props.postUrl;
-        }
-
-        if(_.isString(props.message) && props.message != this.state.message){
-            state.message = props.message;
-        }
-
-        if(_.isBoolean(props.show) && props.show != this.state.show){
-            state.show = props.show;
-        }
-
-        if(_.isString(props.text) && props.text != this.state.text){
-            state.text = props.text;
-        }
-
-        if(!_.isEmpty(state)){
-            this.setState(state);
-        }
-    },
-    componentWillMount:function(){
-        this.updateState(this.props);
-    },
-    componentWillReceiveProps:function(props){
-        this.updateState(props);
-    },
-    node:function(name){
-        return React.findDOMNode(this.refs.nome);
-    },
-    clear:function(){
-        this.setState({
-            show:false
-        });
-        this.node('nome').value = '';
-    },
     close:function(){
-        this.clear();
-        $('#new-project-modal').modal('hide');
+        this.setState(this.getInitialState());
+    },
+    change:function(e){
+        this.setState({
+            text: e.target.value
+        });
     },
     confirm:function(){
         var self = this;

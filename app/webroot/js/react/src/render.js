@@ -41,15 +41,29 @@ var Render = {
             );
         }
     },
+    modal:{
+        openProjectModal:function(){
+            React.render(
+                <OpenProject open={true}/>,
+                document.getElementById('open-project-modal-container')
+            );
+        },
+        newProjectModal:function(){
+            React.render(
+                <NewProject postUrl={Global.project.add} open={true} />,
+                document.getElementById('new-project-modal-container')
+            );
+        }
+    },
     main: {
         renderMenu: function () {
             React.render(
                 <div id="content">
                     <Navbar>
                         <Dropdown title="Projeto">
-                            <Dropdownitem title="Novo" icon="fa  fa-file-o" target="new-project-modal"/>
-                            <Dropdownitem title="Abrir" icon="fa  fa-folder-open-o" target="open-project-modal"/>
-                            <Dropdownitem title="Salvar" icon="fa  fa-floppy-o" target="#"/>
+                            <Dropdownitem title="Novo" icon="fa  fa-file-o" onClick={Render.modal.newProjectModal}/>
+                            <Dropdownitem title="Abrir" icon="fa  fa-folder-open-o" onClick={Render.modal.openProjectModal}/>
+                            <Dropdownitem title="Salvar" icon="fa  fa-floppy-o"/>
                         </Dropdown>
                         <Dropdown title="Editar">
                             <Dropdownitem title="Recortar" icon="fa  fa-scissors"/>
@@ -81,8 +95,6 @@ var Render = {
                             <Dropdownitem title="Executar" icon="fa fa-play"/>
                         </Dropdown>
                     </Navbar>
-                    <NewProject postUrl={Global.project.add} />
-                    <OpenProject/>
                     <StepModal id="resource-step-modal" title="New Resource" layer="2">
                         <Tabpane title="A">
                         </Tabpane>

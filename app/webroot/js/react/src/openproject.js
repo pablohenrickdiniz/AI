@@ -1,16 +1,27 @@
 var OpenProject = React.createClass({
+    mixins:[updateMixin],
     getInitialState: function () {
         return {
             data: [],
-            checked: Global.project.id
+            checked: Global.project.id,
+            id:generateUUID(),
+            open:false
         };
     },
     componentDidMount: function () {
         var self = this;
-        $('#open-project-modal').on('show.bs.modal', function (e) {
+        self.loadProjects();
+    },
+    componentDidUpdate:function(){
+        var self = this;
+        if(self.state.open){
             self.loadProjects();
+        }
+    },
+    close:function(){
+        this.setState({
+            open:false
         });
-
     },
     render: function () {
         var self = this;
@@ -28,9 +39,8 @@ var OpenProject = React.createClass({
             );
         });
 
-
         return (
-            <Modal id="open-project-modal" confirmText="Abrir" cancelText="Cancelar" title="Abrir Projeto" onConfirm={this.openProject}>
+            <Modal id={this.state.id} onClose={this.close} confirmText="Abrir" cancelText="Cancelar" title="Abrir Projeto" onConfirm={this.openProject} open={this.state.open}>
                 <table className="table table-bordered">
                     <tbody>
                         <tr>
@@ -41,9 +51,6 @@ var OpenProject = React.createClass({
                 </table>
             </Modal>
         );
-    },
-    close: function () {
-        $('#open-project-modal').modal('hide');
     },
     loadProjects: function () {
         var self = this;
@@ -63,9 +70,7 @@ var OpenProject = React.createClass({
         Global.project.id = parseInt(this.state.checked);
         Render.project.updateMapTree();
         Render.resource.updateResourceModal();
-
         this.close();
-
     },
     node: function (name) {
         return React.findDOMNode(this.refs[name]);

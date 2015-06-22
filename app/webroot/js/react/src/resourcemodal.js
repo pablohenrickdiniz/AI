@@ -10,9 +10,12 @@ var ResourceModal = React.createClass({
             id:''
         };
     },
+    close:function(modal){
+        modal.hide();
+    },
     render:function(){
         return (
-            <Modal title="Recursos" footer="false" id={this.state.id}>
+            <Modal title="Recursos" footer={false} id={this.state.id} onClose={this.close}>
                 <Tree id="resource-tree" loadUrl={this.state.loadUrl} formData={{'data[id]':this.state.projectId}} onItemLeftClick={this.onItemLeftClick}/>
             </Modal>
         );

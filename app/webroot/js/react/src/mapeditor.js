@@ -40,19 +40,17 @@ var MapEditor = React.createClass({
             message: '',
             messageType: 'success',
             onPostSuccess:null,
-            onLoadSucess:null
+            onLoadSucess:null,
+            nome:'',
+            nomeApresentacao:'',
+            largura:10,
+            altura:10,
+            loop:0,
+            open:false
         };
     },
     close:function(){
-        this.node('nome').value = '';
-        this.node('nomeApresentacao').value = '';
-        this.node('largura').value = '';
-        this.node('altura').value = '';
-        this.node('loop').value  = 0;
-        this.setState({
-            open:false,
-            showError:false
-        });
+        this.setState(this.getInitialState());
     },
     componentDidMount:function(){
         this.start();
@@ -65,23 +63,33 @@ var MapEditor = React.createClass({
     componentDidUpdate:function(){
         this.start();
     },
+    change:function(e){
+        for(var index in this.refs){
+            if(e.target == this.refs[index].getDOMNode()){
+                var state = {};
+                state[index] = e.target.value;
+                this.setState(state);
+                break;
+            }
+        }
+    },
     render: function () {
         return (
             <Modal onClose={this.close} onConfirm={this.send} title={this.options.title[this.state.action]} confirmText={this.options.confirmText[this.state.action]} cancelText="cancelar" open={this.state.open}>
                 <div className="form-group col-md-6">
-                    <input type="text" className="form-control" placeholder="Nome" required="true" ref="nome"/>
+                    <input type="text" className="form-control" placeholder="Nome" required="true" ref="nome" value={this.state.nome} onChange={this.change}/>
                 </div>
                 <div className="form-group col-md-6">
-                    <input type="text" className="form-control" placeholder="Nome de apresentação" required="true" ref="nomeApresentacao"/>
+                    <input type="text" className="form-control" placeholder="Nome de apresentação" required="true" ref="nomeApresentacao" value={this.state.nomeApresentacao} onChange={this.change}/>
                 </div>
                 <div className="form-group col-md-6">
-                    <input type="number" className="form-control" placeholder="Largura" required="true" min="10" max="100" ref="largura"/>
+                    <input type="number" className="form-control" placeholder="Largura" required="true" min="10" max="100" ref="largura" value={this.state.largura} onChange={this.change}/>
                 </div>
                 <div className="form-group col-md-6">
-                    <input type="number" className="form-control" placeholder="Altura" required="true" min="10" max="100" ref="altura"/>
+                    <input type="number" className="form-control" placeholder="Altura" required="true" min="10" max="100" ref="altura" value={this.state.altura} onChange={this.change}/>
                 </div>
                 <div className="form-group col-md-12">
-                    <Select ref="loop" options={this.options.loop} />
+                    <Select ref="loop" options={this.options.loop} value={this.state.loop} onChange={this.change}/>
                 </div>
                 <div className="clearfix"/>
                 <Alert message={this.state.message} type={this.state.messageType} show={this.state.showError}/>

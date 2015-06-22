@@ -1,13 +1,16 @@
 var Dropdownitem = React.createClass({
+    mixins:[updateMixin],
     getInitialState:function(){
         return {
-            id:generateUUID()
+            id:generateUUID(),
+            onClick:null,
+            icon:'',
+            title:'DropdownItem'
         };
     },
     render:function(){
-        var id = this.props.id ==  undefined?this.state.id:this.props.id;
         return (
-            <li><a href='#' id={id} data-toggle="modal" data-target={'#'+this.props.target}><span className={this.props.icon}></span>&nbsp;&nbsp;{this.props.title}</a></li>
+            <li><a href='#' id={this.state.id} onClick={this.state.onClick}><span className={this.state.icon}></span>&nbsp;&nbsp;{this.state.title}</a></li>
         );
     }
 });

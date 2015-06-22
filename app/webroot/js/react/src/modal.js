@@ -44,6 +44,11 @@ var Modal = React.createClass({
     componentDidMount:function(){
         this.start();
     },
+    hide:function(){
+        this.setState({
+            open:false
+        });
+    },
     onConfirm:function(){
         if(_.isFunction(this.state.onConfirm)){
             this.state.onConfirm.apply(this,[this]);
@@ -51,7 +56,7 @@ var Modal = React.createClass({
     },
     close:function(){
         if(_.isFunction(this.state.onClose)){
-            this.state.onClose();
+            this.state.onClose(this);
         }
     },
     render: function () {
