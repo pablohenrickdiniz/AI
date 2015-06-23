@@ -21,7 +21,7 @@ var Tabpanel = React.createClass({
             var title = tabpane.props.title;
 
             nav_tabs.push(<Tablistitem title={title} key={index} active={activeTab == index} toggle={self.state.toggle}/>);
-            return <Tabpane title={title} active={activeTab == index} key={index}/>;
+            return <Tabpane title={title} active={activeTab == index} key={index}>{tabpane.props.children}</Tabpane>;
         });
 
         return (

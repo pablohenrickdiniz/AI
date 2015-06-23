@@ -27,7 +27,9 @@ var Modal = React.createClass({
         confirmText:React.PropTypes.string,
         open:React.PropTypes.bool,
         confirm:React.PropTypes.bool,
-        cancel:React.PropTypes.bool
+        cancel:React.PropTypes.bool,
+        confirmDisabled:React.PropTypes.bool,
+        cancelDisabled:React.PropTypes.bool
     },
     getInitialState:function(){
         return {
@@ -43,7 +45,9 @@ var Modal = React.createClass({
             confirmText:'confirm',
             open:false,
             confirm:true,
-            cancel:true
+            cancel:true,
+            confirmDisabled:false,
+            cancelDisabled:false
         }
     },
     componentDidUpdate:function(){
@@ -96,8 +100,8 @@ var Modal = React.createClass({
                             {this.props.children}
                         </div>
                         <div className="modal-footer" style={!this.state.footer?{display:'none'}:{}}>
-                            <button type="button" className="btn btn-default" onClick={this.cancel} style={!this.state.cancel?{display:'none'}:{}}>{this.state.cancelText}</button>
-                            <button type="button" className="btn btn-primary" onClick={this.state.onConfirm} style={!this.state.confirm?{display:'none'}:{}}>{this.state.confirmText}</button>
+                            <button type="button" className="btn btn-default" onClick={this.cancel} disabled={this.cancelDisabled}>{this.state.cancelText}</button>
+                            <button type="button" className="btn btn-primary" onClick={this.state.onConfirm} disabled={this.confirmDisabled}>{this.state.confirmText}</button>
                         </div>
                     </div>
                 </div>

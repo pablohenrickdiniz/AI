@@ -8,7 +8,9 @@ var ResourceModal = React.createClass({
             loadUrl: '',
             projectId: 0,
             id: generateUUID(),
-            open: false
+            open: false,
+            fileInputId:generateUUID(),
+            canvas:null
         };
     },
     close: function () {
@@ -39,10 +41,21 @@ var ResourceModal = React.createClass({
         switch (key) {
             case 'new':
                 React.render(
-                    <StepModal title={'Novo Recurso'} layer={3} open={true} confirmText={'confirmar'} cancelText={'cancelar'} nextText={'próximo'} previousText={'anterior'}>
-                        <Tabpane title={'Imagem'}>
+                    <StepModal title='Novo Recurso' layer={3} open={true} confirmText='confirmar' cancelText='cancelar' nextText='próximo' previousText='anterior'>
+                        <Tabpane title='Imagem'>
+                            <div className="row" style={{marginLeft:0, marginRight:0}}>
+                                <div className="col-md-12" style={{overflow:'scroll',height:300,width:'100%'}}>
+                                    <Canvas parent={this}></Canvas>
+                                </div>
+                                <div className="col-md-12">
+                                    <label htmlFor="arquivo">Selecione o arquivo</label>
+                                    <input className="form-control" type="file" name="arquivo" required="true" onChange={this.inputFileChange}/>
+                                </div>
+                            </div>
                         </Tabpane>
-                        <Tabpane title={'Regiões'}>
+                        <Tabpane title="Grid">
+                        </Tabpane>
+                        <Tabpane title="Regiões">
                         </Tabpane>
                     </StepModal>,
                     document.getElementById('resource-step-modal-container')
@@ -50,5 +63,20 @@ var ResourceModal = React.createClass({
                 break;
         }
 
+    },
+    inputFileChange:function(e){
+        var self = this;
+        var img = new Image;
+        img.src = URL.createObjectURL(e.target.files[0]);
+        img.onload = function(){
+            var state = {
+                width:img.width,
+                height:img.height
+            };
+            var canvas = self.state.canvas;
+            var context = canvas.state.context;
+            canvas.updateState(state);
+            context.drawImage(img,0,0);
+        };
     }
 });

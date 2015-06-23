@@ -35,8 +35,18 @@ var StepModal = React.createClass({
         });
     },
     render:function(){
+        var props = {
+            id:this.state.id,
+            title:this.state.title,
+            confirmText:this.state.inputConfirmText,
+            cancelText:this.state.inputCancelText,
+            open:this.state.open,
+            layer:this.state.layer,
+            confirmDisabled:true
+        };
+
         return (
-            <Modal id={this.state.id} title={this.state.title} onConfirm={this.onConfirm} onCancel={this.onCancel} onClose={this.close} confirmText={this.state.inputConfirmText} cancelText={this.state.inputCancelText} open={this.state.open} layer={this.state.layer}>
+            <Modal {...props} onConfirm={this.onConfirm} onCancel={this.onCancel} onClose={this.close}>
                 <Tabpanel activeTab={this.state.step} dataToggle={false}>
                     {this.state.children}
                 </Tabpanel>

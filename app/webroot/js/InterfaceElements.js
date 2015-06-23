@@ -367,7 +367,7 @@ MapManager.create = {
         };
 
         if (FolderManager.type == 'map') {
-            data['data[Map][parent_id]'] = FolderManager.id;
+            data['dataMap][parent_id]'] = FolderManager.id;
         }
         else {
             data['data[Map][project_id]'] = FolderManager.id;

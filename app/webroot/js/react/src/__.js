@@ -11,7 +11,6 @@ var updateMixin = {
             }
         }
 
-
         if (!_.isEmpty(state)) {
             this.setState(state);
         }
