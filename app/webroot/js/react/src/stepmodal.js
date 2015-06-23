@@ -1,38 +1,44 @@
 var StepModal = React.createClass({
-    componentDidMount:function(){
-        var self = this;
-        $('#'+this.state.id).on('hidden.bs.modal', function (e) {
-            self.setState({
-                step:0,
-                open:false
-            });
-        });
+    mixins:[updateMixin],
+    propTypes:{
+        step:React.PropTypes.number,
+        title:React.PropTypes.string,
+        onConfirm:React.PropTypes.func,
+        onCancel:React.PropTypes.func,
+        id:React.PropTypes.string,
+        layer:React.PropTypes.number,
+        open:React.PropTypes.bool,
+        children:React.PropTypes.array
     },
     getInitialState:function(){
-        var state = {
+        return {
             step:0,
-            title:this.props.title == undefined?'Step Modal':this.props.title,
+            title:'Step Modal',
             onConfirm:null,
             onCancel:null,
-            id:this.props.id,
-            layer:this.props.layer,
-            open:this.props.open
+            id:generateUUID(),
+            layer:1,
+            open:false,
+            children:[],
+            confirmText:'confirm',
+            cancelText:'cancel',
+            previousText:'previous',
+            nextText:'next',
+            inputConfirmText:'next',
+            inputCancelText:'cancel'
         };
-
-        if(typeof this.props.children == 'array' && this.props.children.length > 0){
-            var first = this.props.children[0];
-            state.step = 0;
-            state.onConfirm = first.props.onConfirm;
-            state.onCancel = first.props.onCancel;
-        }
-
-        return state;
+    },
+    close:function(){
+        this.setState({
+            step:0,
+            open:false
+        });
     },
     render:function(){
         return (
-            <Modal id={this.state.id} title={this.state.title} onConfirm={this.onConfirm} onCancel={this.onCancel} confirmText={this.state.confirmText} cancelText={this.state.cancelText} open={this.state.open} layer={this.state.layer}>
-                <Tabpanel active={this.state.step} dataToggle={false}>
-                    {this.props.children}
+            <Modal id={this.state.id} title={this.state.title} onConfirm={this.onConfirm} onCancel={this.onCancel} onClose={this.close} confirmText={this.state.inputConfirmText} cancelText={this.state.inputCancelText} open={this.state.open} layer={this.state.layer}>
+                <Tabpanel activeTab={this.state.step} dataToggle={false}>
+                    {this.state.children}
                 </Tabpanel>
             </Modal>
         );
@@ -51,6 +57,29 @@ var StepModal = React.createClass({
             self.next();
         }
     },
+    componentDidMount:function(){
+        this.updateInputs();
+    },
+    componentDidUpdate:function(){
+        this.updateInputs();
+    },
+    updateInputs:function(){
+        var state  = {};
+        var initial = this.getInitialState();
+        if(this.state.step == 0){
+            state.inputCancelText = this.state.cancelText;
+        }
+        else{
+            state.inputCancelText = this.state.previousText;
+        }
+        if(this.state.step == this.state.children.length - 1){
+            state.inputConfirmText =  this.state.confirmText;
+        }
+        else{
+            state.inputConfirmText = this.state.nextText;
+        }
+        this.updateState(state);
+    },
     onCancel:function(){
         var action = this.state.onCancel;
         var self = this;
@@ -67,7 +96,7 @@ var StepModal = React.createClass({
     },
     next:function(){
         var step = this.state.step;
-        if(this.props.children[step+1] != undefined){
+        if(this.state.children[step+1] != undefined){
             this.setState({
                 step:step+1
             });
@@ -75,9 +104,10 @@ var StepModal = React.createClass({
     },
     prev:function(){
         var step = this.state.step;
-        if(this.props.children[step-1] != undefined){
+        if(this.state.children[step-1] != undefined){
+
             this.setState({
-                active:step-1
+                step:step-1
             });
         }
     }

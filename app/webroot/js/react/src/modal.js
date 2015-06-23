@@ -14,6 +14,21 @@ var Modal = React.createClass({
             'bottom right'
         ]
     },
+    propTypes:{
+        id:React.PropTypes.string,
+        zIndex:React.PropTypes.number,
+        size:React.PropTypes.string,
+        onClose:React.PropTypes.func,
+        onConfirm:React.PropTypes.func,
+        onCancel:React.PropTypes.func,
+        title:React.PropTypes.string,
+        footer:React.PropTypes.bool,
+        cancelText:React.PropTypes.string,
+        confirmText:React.PropTypes.string,
+        open:React.PropTypes.bool,
+        confirm:React.PropTypes.bool,
+        cancel:React.PropTypes.bool
+    },
     getInitialState:function(){
         return {
             id:generateUUID(),
@@ -21,6 +36,7 @@ var Modal = React.createClass({
             size:'',
             onClose:null,
             onConfirm:null,
+            onCancel:null,
             title:'Modal',
             footer:true,
             cancelText:'cancel',
@@ -54,7 +70,13 @@ var Modal = React.createClass({
             this.state.onConfirm.apply(this,[this]);
         }
     },
+    cancel:function(){
+        if(_.isFunction(this.state.onCancel)){
+            this.state.onCancel(this);
+        }
+    },
     close:function(){
+        this.hide();
         if(_.isFunction(this.state.onClose)){
             this.state.onClose(this);
         }
@@ -74,7 +96,7 @@ var Modal = React.createClass({
                             {this.props.children}
                         </div>
                         <div className="modal-footer" style={!this.state.footer?{display:'none'}:{}}>
-                            <button type="button" className="btn btn-default" data-dismiss="modal" onClick={this.close} style={!this.state.cancel?{display:'none'}:{}}>{this.state.cancelText}</button>
+                            <button type="button" className="btn btn-default" onClick={this.cancel} style={!this.state.cancel?{display:'none'}:{}}>{this.state.cancelText}</button>
                             <button type="button" className="btn btn-primary" onClick={this.state.onConfirm} style={!this.state.confirm?{display:'none'}:{}}>{this.state.confirmText}</button>
                         </div>
                     </div>

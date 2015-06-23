@@ -1,4 +1,5 @@
 var ContextMenu = React.createClass({
+    mixins:[updateMixin],
     propTypes:{
         items:React.PropTypes.object,
         show:React.PropTypes.bool,
@@ -15,38 +16,24 @@ var ContextMenu = React.createClass({
             y:0
         };
     },
-    componentWillReceiveProps:function(props){
-        this.updateState(props);
-    },
     componentWillMount:function(){
         var self = this;
         $(document).on('click',function(e){
             self.close();
         });
-        self.updateState(this.props);
-    },
-    updateState:function(props){
-        this.setState({
-            items:props.items,
-            show:props.show?true:false,
-            callback:props.callback,
-            x:props.x,
-            y:props.y
-        });
     },
     render:function(){
         var items = [];
-
         for(var index in this.state.items){
             var item = this.state.items[index];
             var name = item.name==undefined?'':item.name;
             var icon = item.icon==undefined?'':item.icon;
 
-            items.push(<ContextMenuItem id={index} key={index} name={name} icon={icon} onClick={this.state.callback} parent={this}/>);
+            items.push(<ContextMenuItem id={index} key={index} action={index} name={name} icon={icon} onClick={this.state.callback} parent={this}/>);
         }
 
         return (
-            <ul className="context-menu-list context-menu-root" style={{display:this.state.show?'block':'none', zIndex:3, left:this.state.x,top:this.state.y}}>
+            <ul className="context-menu-list context-menu-root" style={{display:this.state.show?'block':'none', zIndex:9999, left:this.state.x,top:this.state.y}}>
                 {items}
             </ul>
         );
@@ -57,36 +44,22 @@ var ContextMenu = React.createClass({
 });
 
 var ContextMenuItem = React.createClass({
+    mixins:[updateMixin],
     propTypes:{
         name:React.PropTypes.string,
         icon:React.PropTypes.string,
         onClick:React.PropTypes.func,
-        id:React.PropTypes.string
+        id:React.PropTypes.string,
+        action:React.PropTypes.string
     },
     getInitialState:function(){
         return {
             name:'',
             icon:'',
             onClick:null,
-            key:'',
+            action:'',
             parent:null
         };
-    },
-    updateState:function(props){
-        this.setState({
-            name:props.name,
-            icon:props.icon,
-            onClick:props.onClick,
-            key:props.id,
-            parent:props.parent
-        });
-    },
-    componentWillReceiveProps:function(props){
-        this.updateState(props);
-    },
-    componentWillMount:function(){
-        var self = this;
-        self.updateState(this.props);
     },
     render:function(){
         var icon = this.state.icon;
@@ -107,7 +80,7 @@ var ContextMenuItem = React.createClass({
     },
     click:function(e){
         if(typeof this.state.onClick == 'function'){
-            this.state.onClick(this.state.key,e,this);
+            this.state.onClick(this.state.action,e,this);
             this.state.parent.close();
         }
     },

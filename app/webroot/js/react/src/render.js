@@ -25,14 +25,6 @@ var Render = {
             });
         }
     },
-    resource: {
-        updateResourceModal: function () {
-            React.render(
-                <ResourceModal id="resources-modal" projectId={Global.project.id} loadUrl={Global.resource.children} layer="1"/>,
-                document.getElementById('resources-modal-container')
-            );
-        }
-    },
     map: {
         new:function(){
             React.render(
@@ -52,6 +44,12 @@ var Render = {
             React.render(
                 <NewProject postUrl={Global.project.add} open={true} />,
                 document.getElementById('new-project-modal-container')
+            );
+        },
+        resourcesModal:function(){
+            React.render(
+                <ResourceModal projectId={Global.project.id} loadUrl={Global.resource.children} layer={1} open={true}/>,
+                document.getElementById('resources-modal-container')
             );
         }
     },
@@ -86,7 +84,7 @@ var Render = {
                         </Dropdown>
                         <Dropdown title="Ferramentas">
                             <Dropdownitem title="Banco de dados" icon="fa fa-database"/>
-                            <Dropdownitem title="Recursos" icon="fa fa-server" target="resources-modal"/>
+                            <Dropdownitem title="Recursos" icon="fa fa-server" onClick={Render.modal.resourcesModal}/>
                             <Dropdownitem title="Editor de script" icon="fa fa-file-code-o"/>
                             <Dropdownitem title="Música" icon="fa fa-music"/>
                             <Dropdownitem title="Gerador de Caracters" icon="fa fa-street-view"/>
@@ -95,12 +93,6 @@ var Render = {
                             <Dropdownitem title="Executar" icon="fa fa-play"/>
                         </Dropdown>
                     </Navbar>
-                    <StepModal id="resource-step-modal" title="New Resource" layer="2">
-                        <Tabpane title="A">
-                        </Tabpane>
-                        <Tabpane title="B">
-                        </Tabpane>
-                    </StepModal>
                 </div>,
                 document.getElementById('content')
             );

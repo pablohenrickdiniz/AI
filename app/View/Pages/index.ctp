@@ -21,6 +21,9 @@
 <div id="new-project-modal-container">
 
 </div>
+<div id="resource-step-modal-container">
+
+</div>
 <div class="row">
     <div class="col-md-12">
         <div id="container-a" class="col-md-3">

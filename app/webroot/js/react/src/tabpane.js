@@ -1,16 +1,22 @@
 var Tabpane = React.createClass({
+    mixins:[updateMixin],
+    propTypes:{
+        active:React.PropTypes.bool,
+        id:React.PropTypes.string,
+        children:React.PropTypes.array
+    },
     getInitialState:function(){
         return {
-            active:(this.props.active != undefined && this.props.active),
-            id:this.props.id,
-            data:this.props.data
+            active:false,
+            id:generateUUID(),
+            children:[]
         };
     },
     render:function(){
         var class_name = 'tab-pane'+(this.state.active?' active':'');
         return (
-            <div role="tabpanel" className={class_name} id={this.state.id} data={this.state.data}>
-                {this.props.children}
+            <div role="tabpanel" className={class_name} id={this.state.id}>
+                {this.state.children}
             </div>
         );
     }

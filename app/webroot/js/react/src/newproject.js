@@ -19,7 +19,7 @@ var NewProject = React.createClass({
     },
     render:function(){
         return (
-            <Modal title="Novo Projeto" id="new-project-modal" confirmText="Criar" cancelText="cancelar" onConfirm={this.confirm} onClose={this.close} open={this.state.open}>
+            <Modal title="Novo Projeto" confirmText="Criar" cancelText="cancelar" onConfirm={this.confirm} onClose={this.close} onCancel={this.close} open={this.state.open}>
                 <div className="form-group">
                     <input type="text" className="form-control" ref="nome" placeholder="Nome do projeto" value={this.state.text} onChange={this.change}/>
                 </div>

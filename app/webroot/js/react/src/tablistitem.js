@@ -1,10 +1,23 @@
 var Tablistitem = React.createClass({
+    mixins:[updateMixin],
+    propTypes:{
+        toggle:React.PropTypes.bool,
+        active:React.PropTypes.bool,
+        id:React.PropTypes.string,
+        title:React.PropTypes.string
+    },
+    getInitialState:function(){
+        return {
+            toggle:false,
+            active:false,
+            id:generateUUID(),
+            title:'tablistitem'
+        }
+    },
     render:function(){
-        var data_toggle = this.props.dataToggle == undefined || this.props.dataToggle?true:false;
-
         return (
-            <li role="presentation" className={"tablistitem"+(this.props.active?' active':'')}>
-                <a href={'#'+this.props.id} aria-controls="home" role="tab" data-toggle={data_toggle?'tab':''} aria-expanded={this.props.active}>{this.props.title}</a>
+            <li role="presentation" className={"tablistitem"+(this.state.active?' active':'')}>
+                <a href={'#'} aria-controls="home" role="tab" data-toggle={this.state.toggle?'tab':''} aria-expanded={this.state.active}>{this.state.title}</a>
             </li>
         );
     }

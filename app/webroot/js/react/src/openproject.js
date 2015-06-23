@@ -40,7 +40,7 @@ var OpenProject = React.createClass({
         });
 
         return (
-            <Modal id={this.state.id} onClose={this.close} confirmText="Abrir" cancelText="Cancelar" title="Abrir Projeto" onConfirm={this.openProject} open={this.state.open}>
+            <Modal id={this.state.id} onClose={this.close} onCancel={this.close} confirmText="Abrir" cancelText="Cancelar" title="Abrir Projeto" onConfirm={this.openProject} open={this.state.open}>
                 <table className="table table-bordered">
                     <tbody>
                         <tr>

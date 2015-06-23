@@ -1,25 +1,27 @@
 var Tabpanel = React.createClass({
+    mixins:[updateMixin],
+    propTypes:{
+        activeTab:React.PropTypes.number,
+        toggle:React.PropTypes.bool,
+        children:React.PropTypes.array
+    },
     getInitialState: function () {
         return {
-            active: this.props.active
+            activeTab: 0,
+            toggle:false,
+            children:[]
         };
-    },
-    componentWillReceiveProps:function(nextProps){
-        this.setState({
-            active:nextProps.active
-        });
     },
     render: function () {
         var nav_tabs = [];
         var children = [];
-        var active = this.state.active;
+        var activeTab = this.state.activeTab;
         var self = this;
-        children = this.props.children.map(function (tabpane, index) {
+        children = this.state.children.map(function (tabpane, index) {
             var title = tabpane.props.title;
-            var id = tabpane.props.id==undefined?generateUUID():tabpane.props.id;
 
-            nav_tabs.push(<Tablistitem title={title} id={id} key={index} active={active == index} dataToggle={self.props.dataToggle}/>);
-            return <Tabpane id={id} title={title} active={active == index} key={index}/>;
+            nav_tabs.push(<Tablistitem title={title} key={index} active={activeTab == index} toggle={self.state.toggle}/>);
+            return <Tabpane title={title} active={activeTab == index} key={index}/>;
         });
 
         return (

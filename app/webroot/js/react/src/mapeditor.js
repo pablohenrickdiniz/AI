@@ -75,7 +75,7 @@ var MapEditor = React.createClass({
     },
     render: function () {
         return (
-            <Modal onClose={this.close} onConfirm={this.send} title={this.options.title[this.state.action]} confirmText={this.options.confirmText[this.state.action]} cancelText="cancelar" open={this.state.open}>
+            <Modal onClose={this.close} onCancel={this.close} onConfirm={this.send} title={this.options.title[this.state.action]} confirmText={this.options.confirmText[this.state.action]} cancelText="cancelar" open={this.state.open}>
                 <div className="form-group col-md-6">
                     <input type="text" className="form-control" placeholder="Nome" required="true" ref="nome" value={this.state.nome} onChange={this.change}/>
                 </div>
@@ -146,11 +146,10 @@ var MapEditor = React.createClass({
             data: data,
             success: function (data) {
                 if (data.success) {
-                    self.close();
                     if(self.state.onPostSuccess != null){
                         self.state.onPostSuccess(data.node,self);
-
                     }
+                    self.close();
                 }
                 else {
                     var errors = data.errors;
