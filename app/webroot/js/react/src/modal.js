@@ -100,8 +100,8 @@ var Modal = React.createClass({
                             {this.props.children}
                         </div>
                         <div className="modal-footer" style={!this.state.footer?{display:'none'}:{}}>
-                            <button type="button" className="btn btn-default" onClick={this.cancel} disabled={this.cancelDisabled}>{this.state.cancelText}</button>
-                            <button type="button" className="btn btn-primary" onClick={this.state.onConfirm} disabled={this.confirmDisabled}>{this.state.confirmText}</button>
+                            <button type="button" className="btn btn-default" onClick={this.cancel} disabled={this.state.cancelDisabled}>{this.state.cancelText}</button>
+                            <button type="button" className="btn btn-primary" onClick={this.state.onConfirm} disabled={this.state.confirmDisabled}>{this.state.confirmText}</button>
                         </div>
                     </div>
                 </div>

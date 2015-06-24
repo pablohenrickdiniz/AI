@@ -8,7 +8,10 @@ var StepModal = React.createClass({
         id:React.PropTypes.string,
         layer:React.PropTypes.number,
         open:React.PropTypes.bool,
-        children:React.PropTypes.array
+        children:React.PropTypes.array,
+        confirmDisabled:React.PropTypes.arrayOf(React.PropTypes.bool),
+        loadCallback:React.PropTypes.func,
+        onClose:React.PropTypes.func
     },
     getInitialState:function(){
         return {
@@ -25,14 +28,25 @@ var StepModal = React.createClass({
             previousText:'previous',
             nextText:'next',
             inputConfirmText:'next',
-            inputCancelText:'cancel'
+            inputCancelText:'cancel',
+            confirmDisabled:[true],
+            loadCallback:null,
+            onClose:null
         };
     },
     close:function(){
-        this.setState({
-            step:0,
-            open:false
+        if(_.isFunction(this.state.onClose)){
+            this.state.onClose();
+        }
+        this.setState(this.getInitialState());
+    },
+    setDisabled:function(disabled){
+        var state ={};
+        var self = this;
+        state.confirmDisabled = this.state.confirmDisabled.map(function(val,index){
+            return (index == self.state.step?disabled:val);
         });
+        this.updateState(state);
     },
     render:function(){
         var props = {
@@ -42,8 +56,9 @@ var StepModal = React.createClass({
             cancelText:this.state.inputCancelText,
             open:this.state.open,
             layer:this.state.layer,
-            confirmDisabled:true
+            confirmDisabled:this.state.confirmDisabled[this.state.step]
         };
+        console.log('step modal updated...');
 
         return (
             <Modal {...props} onConfirm={this.onConfirm} onCancel={this.onCancel} onClose={this.close}>
@@ -69,13 +84,25 @@ var StepModal = React.createClass({
     },
     componentDidMount:function(){
         this.updateInputs();
+        if(_.isFunction(this.state.loadCallback)){
+            this.state.loadCallback(this);
+        }
     },
     componentDidUpdate:function(){
         this.updateInputs();
     },
     updateInputs:function(){
         var state  = {};
-        var initial = this.getInitialState();
+        var length = this.state.children.length;
+        state.confirmDisabled = this.state.confirmDisabled;
+
+        if(state.confirmDisabled.length != length){
+            state.confirmDisabled.length = length;
+            for(var i = 0; i < length;i++){
+                state.confirmDisabled[i] = (_.isBoolean(state.confirmDisabled[i])?state.confirmDisabled[i]:true);
+            }
+        }
+
         if(this.state.step == 0){
             state.inputCancelText = this.state.cancelText;
         }

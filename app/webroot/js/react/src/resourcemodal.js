@@ -3,6 +3,9 @@ var ResourceModal = React.createClass({
     items: {
         'new': {name: 'Importar recurso', icon: "add"}
     },
+    allowedExtensions:{
+        img:['jpg','png','jpeg']
+    },
     getInitialState: function () {
         return {
             loadUrl: '',
@@ -12,6 +15,7 @@ var ResourceModal = React.createClass({
             fileInputId:generateUUID(),
             canvasImage:null,
             canvasGrid:null,
+            stepModal:null,
             image:null
         };
     },
@@ -39,13 +43,35 @@ var ResourceModal = React.createClass({
             );
         }
     },
+    closeStepModal:function(){
+        this.state.canvasImage.updateState(this.state.canvasImage.getInitialState());
+        this.state.canvasGrid.updateState(this.state.canvasGrid.getInitialState());
+    },
     callback: function (key, e, obj) {
         switch (key) {
             case 'new':
+                var props = {
+                    title:'Novo Recurso',
+                    layer:3,
+                    open:true,
+                    confirmText:'confirmar',
+                    cancelText:'cancelar',
+                    nextText:'próximo',
+                    previousText:'anterior',
+                    loadCallback:this.stepModal,
+                    onClose:this.closeStepModal
+                };
+
+                var rowStyle = {
+                    marginLeft:0,
+                    marginRight:0,
+                    paddingTop:10
+                };
+
                 React.render(
-                    <StepModal title='Novo Recurso' layer={3} open={true} confirmText='confirmar' cancelText='cancelar' nextText='próximo' previousText='anterior'>
+                    <StepModal {...props}>
                         <Tabpane title='Imagem'>
-                            <div className="row" style={{marginLeft:0, marginRight:0}}>
+                            <div className="row" style={rowStyle}>
                                 <div className="col-md-12" style={{overflow:'scroll',height:300,width:'100%'}}>
                                     <Canvas loadCallback={this.canvasImage}></Canvas>
                                 </div>
@@ -56,12 +82,12 @@ var ResourceModal = React.createClass({
                             </div>
                         </Tabpane>
                         <Tabpane title="Grid">
-                            <div className="row form-group">
+                            <div className="row form-group" style={rowStyle}>
                                 <div className="col-md-12" style={{overflow:'scroll',height:300,width:'100%'}}>
                                     <Canvas loadCallback={this.canvasGrid}></Canvas>
                                 </div>
                             </div>
-                            <div className="row form-group">
+                            <div className="row form-group" style={rowStyle}>
                                 <div className="col-md-6">
                                     <label>Linhas</label>
                                     <InputNumber min={1} max={100} value={1}/>
@@ -113,12 +139,37 @@ var ResourceModal = React.createClass({
         state.canvasGrid = canvasGrid;
         this.updateState(state);
     },
+    stepModal:function(stepModal){
+        var state = {};
+        state.stepModal = stepModal;
+        this.updateState(state);
+    },
     inputFileChange:function(e){
         var self = this;
-        var img = new Image;
-        img.src = URL.createObjectURL(e.target.files[0]);
-        this.setState({
-            image:img
-        });
+        var src = e.target.files[0].name;
+        var index = _.lastIndexOf(src,'.');
+        var valid = false;
+        console.log(src);
+        if(index != -1){
+            var ext = src.substring(index+1,src.length);
+            if(_.indexOf(this.allowedExtensions.img,ext) != -1){
+                valid = true;
+            }
+        }
+
+        if(valid){
+            var img = new Image;
+            img.src = URL.createObjectURL(e.target.files[0]);
+            this.updateState({
+                image:img
+            });
+
+        }
+        else{
+            this.updateState({
+                image:null
+            });
+        }
+        this.state.stepModal.setDisabled(!valid);
     }
 });

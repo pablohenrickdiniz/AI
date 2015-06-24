@@ -9,6 +9,7 @@ var Canvas = React.createClass({
         parent:React.PropTypes.object
     },
     getInitialState:function(){
+        console.log('initial state...');
         return {
             context:null,
             id:generateUUID(),
