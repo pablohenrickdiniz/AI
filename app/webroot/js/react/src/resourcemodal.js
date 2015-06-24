@@ -90,11 +90,11 @@ var ResourceModal = React.createClass({
                             <div className="row form-group" style={rowStyle}>
                                 <div className="col-md-6">
                                     <label>Linhas</label>
-                                    <InputNumber min={1} max={100} value={1}/>
+                                    <InputNumber min={1} max={100} value={1} onChange={this.rowsChange}/>
                                 </div>
                                 <div className="col-md-6">
                                     <label>Colunas</label>
-                                    <InputNumber min={1} max={100} value={1}/>
+                                    <InputNumber min={1} max={100} value={1} onChange={this.colsChange}/>
                                 </div>
                             </div>
                         </Tabpane>
@@ -105,6 +105,12 @@ var ResourceModal = React.createClass({
                 );
                 break;
         }
+
+    },
+    rowsChange:function(value){
+
+    },
+    colsChange:function(value){
 
     },
     componentDidUpdate:function(){

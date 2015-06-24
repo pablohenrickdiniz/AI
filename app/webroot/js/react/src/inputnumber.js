@@ -4,7 +4,8 @@ var InputNumber = React.createClass({
         value: React.PropTypes.number,
         change: React.PropTypes.func,
         min: React.PropTypes.number,
-        max: React.PropTypes.number
+        max: React.PropTypes.number,
+        onChange:React.PropTypes.func
     },
     incrementInterval: null,
     decrementInterval: null,
@@ -15,7 +16,8 @@ var InputNumber = React.createClass({
             min: null,
             max: null,
             incrementDisabled: false,
-            decrementDisabled: false
+            decrementDisabled: false,
+            onChange:null
         };
     },
     componentDidUpdate: function () {
@@ -29,11 +31,13 @@ var InputNumber = React.createClass({
             incrementDisabled: this.state.value == this.state.max,
             decrementDisabled: this.state.value == this.state.min
         };
-
         if (this.state.value == this.state.max || this.state.value == this.state.min) {
             this.mouseUp();
         }
         this.updateState(state);
+        if(_.isFunction(this.state.onChange)){
+            this.state.onChange(this.state.value);
+        }
     },
     change: function (e) {
         var value = parseInt(e.target.value);
