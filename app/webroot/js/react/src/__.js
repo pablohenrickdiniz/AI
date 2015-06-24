@@ -25,10 +25,15 @@ var setIntervalMixin = {
         this.intervals = [];
     },
     componentWillUnmount: function () {
-        this.intervals.map(clearInterval);
+        this.clearIntervals();
     },
     clearInterval: function (key) {
         clearInterval(this.intervals[key]);
+    },
+    clearIntervals:function(){
+        this.intervals.forEach(function(interval){
+            clearInterval(interval);
+        });
     },
     setInterval: function (key, func, time) {
         var interval = setInterval.apply(self, [func, time]);
@@ -36,6 +41,9 @@ var setIntervalMixin = {
             this.intervals.push(interval);
         }
         else {
+            if(this.intervals[key] != undefined){
+                clearInterval(this.intervals[key]);
+            }
             this.intervals[key] = interval;
         }
     }

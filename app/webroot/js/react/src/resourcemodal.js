@@ -10,7 +10,9 @@ var ResourceModal = React.createClass({
             id: generateUUID(),
             open: false,
             fileInputId:generateUUID(),
-            canvas:null
+            canvasImage:null,
+            canvasGrid:null,
+            image:null
         };
     },
     close: function () {
@@ -45,7 +47,7 @@ var ResourceModal = React.createClass({
                         <Tabpane title='Imagem'>
                             <div className="row" style={{marginLeft:0, marginRight:0}}>
                                 <div className="col-md-12" style={{overflow:'scroll',height:300,width:'100%'}}>
-                                    <Canvas parent={this}></Canvas>
+                                    <Canvas loadCallback={this.canvasImage}></Canvas>
                                 </div>
                                 <div className="col-md-12">
                                     <label htmlFor="arquivo">Selecione o arquivo</label>
@@ -54,6 +56,21 @@ var ResourceModal = React.createClass({
                             </div>
                         </Tabpane>
                         <Tabpane title="Grid">
+                            <div className="row form-group">
+                                <div className="col-md-12" style={{overflow:'scroll',height:300,width:'100%'}}>
+                                    <Canvas loadCallback={this.canvasGrid}></Canvas>
+                                </div>
+                            </div>
+                            <div className="row form-group">
+                                <div className="col-md-6">
+                                    <label>Linhas</label>
+                                    <InputNumber min={1} max={100} value={1}/>
+                                </div>
+                                <div className="col-md-6">
+                                    <label>Colunas</label>
+                                    <InputNumber min={1} max={100} value={1}/>
+                                </div>
+                            </div>
                         </Tabpane>
                         <Tabpane title="Regiões">
                         </Tabpane>
@@ -64,19 +81,44 @@ var ResourceModal = React.createClass({
         }
 
     },
+    componentDidUpdate:function(){
+        if(this.state.image != null){
+            if(this.state.image.onload == null){
+                var self = this;
+                this.state.image.onload = function(){
+                    var contextA = self.state.canvasImage.state.context;
+                    var contextB = self.state.canvasGrid.state.context;
+
+                    var state = {
+                        width:self.state.image.width,
+                        height:self.state.image.height
+                    };
+
+                    self.state.canvasImage.updateState(state);
+                    self.state.canvasGrid.updateState(state);
+
+                    contextA.drawImage(self.state.image,0,0);
+                    contextB.drawImage(self.state.image, 0, 0);
+                };
+            }
+        }
+    },
+    canvasImage:function(canvasImage){
+        var state = {};
+        state.canvasImage = canvasImage;
+        this.updateState(state);
+    },
+    canvasGrid:function(canvasGrid){
+        var state = {};
+        state.canvasGrid = canvasGrid;
+        this.updateState(state);
+    },
     inputFileChange:function(e){
         var self = this;
         var img = new Image;
         img.src = URL.createObjectURL(e.target.files[0]);
-        img.onload = function(){
-            var state = {
-                width:img.width,
-                height:img.height
-            };
-            var canvas = self.state.canvas;
-            var context = canvas.state.context;
-            canvas.updateState(state);
-            context.drawImage(img,0,0);
-        };
+        this.setState({
+            image:img
+        });
     }
 });

@@ -14,7 +14,7 @@ var Canvas = React.createClass({
             id:generateUUID(),
             width:'100%',
             height:'auto',
-            parent:null
+            loadCallback:null
         };
     },
     componentDidMount:function(){
@@ -29,10 +29,8 @@ var Canvas = React.createClass({
             var context = document.getElementById(this.state.id).getContext('2d');
             state.context = context;
         }
-        if(this.state.parent != null){
-            this.state.parent.updateState({
-                canvas:this
-            });
+        if(_.isFunction(this.state.loadCallback)){
+            this.state.loadCallback(this);
         }
         this.updateState(state);
     },
