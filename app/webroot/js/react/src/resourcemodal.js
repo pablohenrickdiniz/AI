@@ -16,7 +16,9 @@ var ResourceModal = React.createClass({
             canvasImage:null,
             canvasGrid:null,
             stepModal:null,
-            image:null
+            image:null,
+            rows:1,
+            cols:1
         };
     },
     close: function () {
@@ -73,7 +75,7 @@ var ResourceModal = React.createClass({
                         <Tabpane title='Imagem'>
                             <div className="row" style={rowStyle}>
                                 <div className="col-md-12" style={{overflow:'scroll',height:300,width:'100%'}}>
-                                    <Canvas loadCallback={this.canvasImage}></Canvas>
+                                    <Canvas loadCallback={this.canvasImage} layers={2}></Canvas>
                                 </div>
                                 <div className="col-md-12">
                                     <label htmlFor="arquivo">Selecione o arquivo</label>
@@ -84,7 +86,7 @@ var ResourceModal = React.createClass({
                         <Tabpane title="Grid">
                             <div className="row form-group" style={rowStyle}>
                                 <div className="col-md-12" style={{overflow:'scroll',height:300,width:'100%'}}>
-                                    <Canvas loadCallback={this.canvasGrid}></Canvas>
+                                    <Canvas loadCallback={this.canvasGrid} layers={2}></Canvas>
                                 </div>
                             </div>
                             <div className="row form-group" style={rowStyle}>
@@ -94,7 +96,7 @@ var ResourceModal = React.createClass({
                                 </div>
                                 <div className="col-md-6">
                                     <label>Colunas</label>
-                                    <InputNumber min={1} max={100} value={1} onChange={this.colsChange}/>
+                                    <InputNumber min={1} max={100} value={1} layers={2} onChange={this.colsChange}/>
                                 </div>
                             </div>
                         </Tabpane>
@@ -108,32 +110,38 @@ var ResourceModal = React.createClass({
 
     },
     rowsChange:function(value){
-
+        this.updateState({
+            rows:value
+        });
     },
     colsChange:function(value){
-
+        this.updateState({
+            cols:value
+        });
     },
     componentDidUpdate:function(){
         if(this.state.image != null){
             if(this.state.image.onload == null){
                 var self = this;
                 this.state.image.onload = function(){
-                    var contextA = self.state.canvasImage.state.context;
-                    var contextB = self.state.canvasGrid.state.context;
-
                     var state = {
                         width:self.state.image.width,
                         height:self.state.image.height
                     };
-
                     self.state.canvasImage.updateState(state);
                     self.state.canvasGrid.updateState(state);
+
+                    var contextA = self.state.canvasImage.getContext(0);
+                    var contextB = self.state.canvasGrid.getContext(0);
 
                     contextA.drawImage(self.state.image,0,0);
                     contextB.drawImage(self.state.image, 0, 0);
                 };
             }
         }
+    },
+    drawCanvasGrid:function() {
+
     },
     canvasImage:function(canvasImage){
         var state = {};
@@ -155,7 +163,7 @@ var ResourceModal = React.createClass({
         var src = e.target.files[0].name;
         var index = _.lastIndexOf(src,'.');
         var valid = false;
-        console.log(src);
+
         if(index != -1){
             var ext = src.substring(index+1,src.length);
             if(_.indexOf(this.allowedExtensions.img,ext) != -1){
