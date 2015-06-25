@@ -40,16 +40,11 @@ var InputNumber = React.createClass({
         }
     },
     change: function (e) {
+        e.preventDefault();
         var value = parseInt(e.target.value);
         value = !isNaN(value) ? value : this.state.min != null?this.state.min:0;
         if ((this.state.max == null || value <= this.state.max) && (this.state.min == null || value >= this.state.min)) {
-            this.updateState({
-                value: value
-            });
-        }
-
-        if (_.isFunction(this.state.onChange)) {
-            this.state.change(e, this);
+            this.updateState({value: value});
         }
     },
     mouseDownIncrement: function (e) {

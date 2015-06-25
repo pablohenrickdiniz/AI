@@ -45,10 +45,6 @@ var ResourceModal = React.createClass({
             );
         }
     },
-    closeStepModal:function(){
-        this.state.canvasImage.updateState(this.state.canvasImage.getInitialState());
-        this.state.canvasGrid.updateState(this.state.canvasGrid.getInitialState());
-    },
     callback: function (key, e, obj) {
         switch (key) {
             case 'new':
@@ -109,17 +105,25 @@ var ResourceModal = React.createClass({
         }
 
     },
-    rowsChange:function(value){
-        this.updateState({
-            rows:value
+    closeStepModal:function(){
+        this.setState({
+            image:null
         });
+    },
+    rowsChange:function(value){
+        console.log('rows change...');
+        if(this.state.rows != value){
+            this.updateState({rows:value});
+        }
     },
     colsChange:function(value){
-        this.updateState({
-            cols:value
-        });
+        console.log('cols change...');
+        if(this.state.cols != value){
+            this.updateState({cols:value});
+        }
     },
     componentDidUpdate:function(){
+        console.log('component did update...');
         if(this.state.image != null){
             if(this.state.image.onload == null){
                 var self = this;
@@ -136,29 +140,66 @@ var ResourceModal = React.createClass({
 
                     contextA.drawImage(self.state.image,0,0);
                     contextB.drawImage(self.state.image, 0, 0);
+                    self.drawCanvasGrid();
                 };
             }
         }
+        this.drawCanvasGrid();
     },
-    drawCanvasGrid:function() {
+    drawCanvasGrid:function(){
+         console.log('drawing canvas grid...');
+        if(this.state.image != null){
+            var contextA = this.state.canvasGrid.getContext(1);
+            if(contextA != null){
+                if(this.state.image.width != 0 && this.state.image.height != 0){
+                    var width = this.state.image.width/this.state.cols;
+                    var height = this.state.image.height/this.state.rows;
+                    this.state.canvasGrid.clearLayer(1);
 
+                    contextA.setLineDash([4,4]);
+                    if(width == height){
+                        contextA.strokeStyle = 'blue';
+                    }
+                    else{
+                        contextA.strokeStyle = 'red';
+                    }
+
+                    console.log('image width:'+this.state.image.width);
+                    console.log('image height:'+this.state.image.height);
+                    console.log('square width:'+width);
+                    console.log('square height:'+height);
+
+                    for(var x = 0; x <= this.state.image.width;x+=width){
+                        for(var y =0; y <= this.state.image.height;y+=height){
+                            contextA.strokeRect(x,y,width,height);
+                        }
+                    }
+                }
+
+            }
+        }
     },
     canvasImage:function(canvasImage){
+        console.log('canvas image callback...');
         var state = {};
         state.canvasImage = canvasImage;
         this.updateState(state);
     },
     canvasGrid:function(canvasGrid){
+        console.log('canvas grid callback..');
         var state = {};
         state.canvasGrid = canvasGrid;
         this.updateState(state);
     },
     stepModal:function(stepModal){
+        console.log('step modal callback..');
         var state = {};
         state.stepModal = stepModal;
         this.updateState(state);
     },
     inputFileChange:function(e){
+        e.preventDefault();
+        console.log('input file change..');
         var self = this;
         var src = e.target.files[0].name;
         var index = _.lastIndexOf(src,'.');
@@ -184,6 +225,7 @@ var ResourceModal = React.createClass({
                 image:null
             });
         }
+        console.log('B');
         this.state.stepModal.setDisabled(!valid);
     }
 });

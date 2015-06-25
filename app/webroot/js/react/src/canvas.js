@@ -72,6 +72,17 @@ var Canvas = React.createClass({
         }
         return null;
     },
+    clearLayer:function(layer){
+        var context = this.getContext(layer);
+        if(context != null){
+            context.clearRect(0,0,this.state.width,this.state.height);
+        }
+    },
+    clearLayers:function(){
+        for(var i = 0; i < this.state.layers;i++){
+            this.clearLayer(i);
+        }
+    },
     getContext:function(layer){
         if(this.state.layers > layer){
             if(this.state.context[layer] == null){
