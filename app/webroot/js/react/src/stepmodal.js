@@ -35,14 +35,14 @@ var StepModal = React.createClass({
         };
     },
     close:function(){
-        console.log('step modal close...');
+
         if(_.isFunction(this.state.onClose)){
             this.state.onClose();
         }
         this.setState(this.getInitialState());
     },
     setDisabled:function(disabled){
-        console.log('step modal set disabled...');
+
         var state ={};
         var self = this;
         state.confirmDisabled = this.state.confirmDisabled.map(function(val,index){
@@ -51,7 +51,7 @@ var StepModal = React.createClass({
         this.updateState(state);
     },
     render:function(){
-        console.log('step modal render...');
+
         var props = {
             id:this.state.id,
             title:this.state.title,
@@ -61,7 +61,7 @@ var StepModal = React.createClass({
             layer:this.state.layer,
             confirmDisabled:this.state.confirmDisabled[this.state.step]
         };
-        console.log('step modal updated...');
+
 
         return (
             <Modal {...props} onConfirm={this.onConfirm} onCancel={this.onCancel} onClose={this.close}>
@@ -72,7 +72,7 @@ var StepModal = React.createClass({
         );
     },
     onConfirm:function(){
-        console.log('step modal confirm click...');
+
         var action = this.state.onConfirm;
         var self = this;
         if(typeof action == 'function'){
@@ -87,18 +87,18 @@ var StepModal = React.createClass({
         }
     },
     componentDidMount:function(){
-        console.log('step modal component did mount...');
+
         this.updateInputs();
         if(_.isFunction(this.state.loadCallback)){
             this.state.loadCallback(this);
         }
     },
     componentDidUpdate:function(){
-        console.log('step modal component did update...');
+
         this.updateInputs();
     },
     updateInputs:function(){
-        console.log('step modal updateInputs...');
+
         var state  = {};
         var length = this.state.children.length;
         state.confirmDisabled = this.state.confirmDisabled;
@@ -125,7 +125,7 @@ var StepModal = React.createClass({
         this.updateState(state);
     },
     onCancel:function(){
-        console.log('step modal onCancel...');
+
         var action = this.state.onCancel;
         var self = this;
         if(typeof action == 'function'){
@@ -140,7 +140,7 @@ var StepModal = React.createClass({
         }
     },
     next:function(){
-        console.log('step modal next...');
+
         var step = this.state.step;
         if(this.state.children[step+1] != undefined){
             this.setState({
@@ -149,7 +149,7 @@ var StepModal = React.createClass({
         }
     },
     prev:function(){
-        console.log('step modal prev...');
+
         var step = this.state.step;
         if(this.state.children[step-1] != undefined){
 

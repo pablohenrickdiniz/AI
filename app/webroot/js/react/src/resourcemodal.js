@@ -88,11 +88,11 @@ var ResourceModal = React.createClass({
                             <div className="row form-group" style={rowStyle}>
                                 <div className="col-md-6">
                                     <label>Linhas</label>
-                                    <InputNumber min={1} max={100} value={1} onChange={this.rowsChange}/>
+                                    <InputNumber min={1} value={1} onChange={this.rowsChange}/>
                                 </div>
                                 <div className="col-md-6">
                                     <label>Colunas</label>
-                                    <InputNumber min={1} max={100} value={1} layers={2} onChange={this.colsChange}/>
+                                    <InputNumber min={1} value={1} layers={2} onChange={this.colsChange}/>
                                 </div>
                             </div>
                         </Tabpane>
@@ -117,13 +117,11 @@ var ResourceModal = React.createClass({
         }
     },
     colsChange:function(value){
-        console.log('cols change...');
         if(this.state.cols != value){
             this.updateState({cols:value});
         }
     },
     componentDidUpdate:function(){
-        console.log('component did update...');
         if(this.state.image != null){
             if(this.state.image.onload == null){
                 var self = this;
@@ -147,7 +145,7 @@ var ResourceModal = React.createClass({
         this.drawCanvasGrid();
     },
     drawCanvasGrid:function(){
-         console.log('drawing canvas grid...');
+
         if(this.state.image != null){
             var contextA = this.state.canvasGrid.getContext(1);
             if(contextA != null){
@@ -164,10 +162,10 @@ var ResourceModal = React.createClass({
                         contextA.strokeStyle = 'red';
                     }
 
-                    console.log('image width:'+this.state.image.width);
-                    console.log('image height:'+this.state.image.height);
-                    console.log('square width:'+width);
-                    console.log('square height:'+height);
+
+
+
+
 
                     for(var x = 0; x <= this.state.image.width;x+=width){
                         for(var y =0; y <= this.state.image.height;y+=height){
@@ -180,26 +178,26 @@ var ResourceModal = React.createClass({
         }
     },
     canvasImage:function(canvasImage){
-        console.log('canvas image callback...');
+
         var state = {};
         state.canvasImage = canvasImage;
         this.updateState(state);
     },
     canvasGrid:function(canvasGrid){
-        console.log('canvas grid callback..');
+
         var state = {};
         state.canvasGrid = canvasGrid;
         this.updateState(state);
     },
     stepModal:function(stepModal){
-        console.log('step modal callback..');
+
         var state = {};
         state.stepModal = stepModal;
         this.updateState(state);
     },
     inputFileChange:function(e){
         e.preventDefault();
-        console.log('input file change..');
+
         var self = this;
         var src = e.target.files[0].name;
         var index = _.lastIndexOf(src,'.');
@@ -225,7 +223,7 @@ var ResourceModal = React.createClass({
                 image:null
             });
         }
-        console.log('B');
+
         this.state.stepModal.setDisabled(!valid);
     }
 });
