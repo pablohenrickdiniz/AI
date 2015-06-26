@@ -3,34 +3,34 @@ var Tabpanel = React.createClass({
     propTypes:{
         activeTab:React.PropTypes.number,
         toggle:React.PropTypes.bool,
-        children:React.PropTypes.array
+        items:React.PropTypes.array,
+        panes:React.PropTypes.array
     },
     getInitialState: function () {
         return {
             activeTab: 0,
             toggle:false,
-            children:[]
+            items:[],
+            panes:[]
         };
     },
     render: function () {
-        var nav_tabs = [];
-        var children = [];
         var activeTab = this.state.activeTab;
         var self = this;
-        children = this.state.children.map(function (tabpane, index) {
-            var title = tabpane.props.title;
-
-            nav_tabs.push(<Tablistitem title={title} key={index} active={activeTab == index} toggle={self.state.toggle}/>);
-            return <Tabpane title={title} active={activeTab == index} key={index}>{tabpane.props.children}</Tabpane>;
+        var items = this.state.items.map(function(item,index){
+            return <Tablistitem title={item.props.title} key={index} active={item.key == activeTab}/>
+        });
+        var tabs = this.state.panes.map(function(pane,index){
+            return <Tabpane  key={index} active={pane.key == activeTab}>{pane.props.children}</Tabpane>
         });
 
         return (
             <div className="tabpanel" role="tabpanel">
                 <ul className="nav nav-tabs" role="tablist">
-                    {nav_tabs}
+                    {items}
                 </ul>
                 <div className="tab-content">
-                    {children}
+                    {tabs}
                 </div>
             </div>
         );

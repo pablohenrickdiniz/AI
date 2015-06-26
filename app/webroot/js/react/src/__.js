@@ -52,6 +52,11 @@ var setIntervalMixin = {
 var customFunctions = {
     node: function (name) {
         return React.findDOMNode(this.refs[name]);
+    },
+    componentDidMount:function(){
+        if(_.isFunction(this.state.loadCallback)){
+            this.state.loadCallback(this);
+        }
     }
 };
 

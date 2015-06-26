@@ -105,6 +105,35 @@ span.close{
     cursor:pointer;
 }
 
-#content .navbar{
-    border-radius:0 !important;
+#content .navbar {
+    border-radius: 0 !important;
+}
+
+.canvas-container{
+    max-width:100%;
+    min-height:200px;
+    overflow:hidden;
+    position:relative;
+}
+
+.canvas-aligner{
+    margin:auto;
+    position:relative;
+}
+
+.transparent-pattern{
+    background-color: #FEFEFE;
+    background-image: -webkit-linear-gradient(45deg, #CBCBCB 25%, transparent 25%, transparent 75%, #CBCBCB 75%, #CBCBCB), -webkit-linear-gradient(45deg, #CBCBCB 25%, transparent 25%, transparent 75%, #CBCBCB 75%, #CBCBCB);
+    background-image: -moz-linear-gradient(45deg, #CBCBCB 25%, transparent 25%, transparent 75%, #CBCBCB 75%, #CBCBCB), -moz-linear-gradient(45deg, #CBCBCB 25%, transparent 25%, transparent 75%, #CBCBCB 75%, #CBCBCB);
+    background-image: -o-linear-gradient(45deg, #CBCBCB 25%, transparent 25%, transparent 75%, #CBCBCB 75%, #CBCBCB), -o-linear-gradient(45deg, #CBCBCB 25%, transparent 25%, transparent 75%, #CBCBCB 75%, #CBCBCB);
+    background-image: -ms-linear-gradient(45deg, #CBCBCB 25%, transparent 25%, transparent 75%, #CBCBCB 75%, #CBCBCB), -ms-linear-gradient(45deg, #CBCBCB 25%, transparent 25%, transparent 75%, #CBCBCB 75%, #CBCBCB);
+    background-image: linear-gradient(45deg, #CBCBCB 25%, transparent 25%, transparent 75%, #CBCBCB 75%, #CBCBCB), linear-gradient(45deg, #CBCBCB 25%, transparent 25%, transparent 75%, #CBCBCB 75%, #CBCBCB);
+    -webkit-background-size:30px 30px;
+    -moz-background-size:30px 30px;
+    background-size:30px 30px;
+    background-position:0 0, 15px 15px;
+}
+
+canvas{
+    background-color:transparent;
 }

@@ -1,5 +1,5 @@
 var InputNumber = React.createClass({
-    mixins: [updateMixin],
+    mixins: [updateMixin,customFunctions],
     propTypes: {
         value: React.PropTypes.number,
         change: React.PropTypes.func,

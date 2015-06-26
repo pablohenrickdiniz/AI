@@ -8,10 +8,12 @@ var StepModal = React.createClass({
         id:React.PropTypes.string,
         layer:React.PropTypes.number,
         open:React.PropTypes.bool,
-        children:React.PropTypes.array,
+        panes:React.PropTypes.array,
+        items:React.PropTypes.array,
         confirmDisabled:React.PropTypes.arrayOf(React.PropTypes.bool),
         loadCallback:React.PropTypes.func,
-        onClose:React.PropTypes.func
+        onClose:React.PropTypes.func,
+        children:React.PropTypes.array
     },
     getInitialState:function(){
         return {
@@ -22,6 +24,8 @@ var StepModal = React.createClass({
             id:generateUUID(),
             layer:1,
             open:false,
+            panes:[],
+            items:[],
             children:[],
             confirmText:'confirm',
             cancelText:'cancel',
@@ -51,23 +55,30 @@ var StepModal = React.createClass({
         this.updateState(state);
     },
     render:function(){
-
-        var props = {
+        var modal_props = {
             id:this.state.id,
             title:this.state.title,
             confirmText:this.state.inputConfirmText,
             cancelText:this.state.inputCancelText,
             open:this.state.open,
             layer:this.state.layer,
-            confirmDisabled:this.state.confirmDisabled[this.state.step]
+            confirmDisabled:this.state.confirmDisabled[this.state.step],
+            onConfirm:this.onConfirm,
+            onCancel:this.onCancel,
+            onClose:this.close
+        };
+
+        var tabpane_props = {
+            activeTab:this.state.step,
+            dataToggle:false,
+            items:this.state.items,
+            panes:this.state.panes
         };
 
 
         return (
-            <Modal {...props} onConfirm={this.onConfirm} onCancel={this.onCancel} onClose={this.close}>
-                <Tabpanel activeTab={this.state.step} dataToggle={false}>
-                    {this.state.children}
-                </Tabpanel>
+            <Modal {...modal_props}>
+                <Tabpanel {...tabpane_props}/>
             </Modal>
         );
     },
@@ -87,21 +98,35 @@ var StepModal = React.createClass({
         }
     },
     componentDidMount:function(){
-
+        this.updateChildren();
         this.updateInputs();
         if(_.isFunction(this.state.loadCallback)){
             this.state.loadCallback(this);
         }
     },
     componentDidUpdate:function(){
-
+        this.updateChildren();
         this.updateInputs();
     },
+    updateChildren:function(){
+        var state = {
+            panes:[],
+            items:[]
+        };
+        this.state.children.map(function(child){
+            if(child.type == Tablistitem){
+                state.items.push(child);
+            }
+            else if(child.type == Tabpane){
+                state.panes.push(child);
+            }
+        });
+        this.updateState(state);
+    },
     updateInputs:function(){
-
         var state  = {};
-        var length = this.state.children.length;
-        state.confirmDisabled = this.state.confirmDisabled;
+        var length = this.state.items.length;
+        state.confirmDisabled = this.state.confirmDisabled.map(function(disabled){return disabled;});
 
         if(state.confirmDisabled.length != length){
             state.confirmDisabled.length = length;
@@ -116,7 +141,7 @@ var StepModal = React.createClass({
         else{
             state.inputCancelText = this.state.previousText;
         }
-        if(this.state.step == this.state.children.length - 1){
+        if(this.state.step == this.state.items.length - 1){
             state.inputConfirmText =  this.state.confirmText;
         }
         else{
@@ -142,17 +167,15 @@ var StepModal = React.createClass({
     next:function(){
 
         var step = this.state.step;
-        if(this.state.children[step+1] != undefined){
+        if(this.state.items[step+1] != undefined){
             this.setState({
                 step:step+1
             });
         }
     },
     prev:function(){
-
         var step = this.state.step;
-        if(this.state.children[step-1] != undefined){
-
+        if(this.state.items[step-1] != undefined){
             this.setState({
                 step:step-1
             });

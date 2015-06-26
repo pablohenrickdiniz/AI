@@ -3,8 +3,8 @@ var ResourceModal = React.createClass({
     items: {
         'new': {name: 'Importar recurso', icon: "add"}
     },
-    allowedExtensions:{
-        img:['jpg','png','jpeg']
+    allowedExtensions: {
+        img: ['jpg', 'png', 'jpeg']
     },
     getInitialState: function () {
         return {
@@ -12,13 +12,17 @@ var ResourceModal = React.createClass({
             projectId: 0,
             id: generateUUID(),
             open: false,
-            fileInputId:generateUUID(),
-            canvasImage:null,
-            canvasGrid:null,
-            stepModal:null,
-            image:null,
-            rows:1,
-            cols:1
+            fileInputId: generateUUID(),
+            canvasImage: null,
+            canvasGrid: null,
+            stepModal: null,
+            image: null,
+            rows: 1,
+            cols: 1,
+            maxRows:1,
+            maxCols:1,
+            rowsInput:null,
+            colsInput:null
         };
     },
     close: function () {
@@ -33,7 +37,9 @@ var ResourceModal = React.createClass({
             </Modal>
         );
     },
-
+    componentDidMount:function(){
+        console.log(this.refs);
+    },
     onItemLeftClick: function (e, obj) {
         if (obj.state.metadata.type == 'resource-folder') {
             var x = e.pageX;
@@ -49,28 +55,30 @@ var ResourceModal = React.createClass({
         switch (key) {
             case 'new':
                 var props = {
-                    title:'Novo Recurso',
-                    layer:3,
-                    open:true,
-                    confirmText:'confirmar',
-                    cancelText:'cancelar',
-                    nextText:'próximo',
-                    previousText:'anterior',
-                    loadCallback:this.stepModal,
-                    onClose:this.closeStepModal
+                    title: 'Novo Recurso',
+                    layer: 3,
+                    open: true,
+                    confirmText: 'confirmar',
+                    cancelText: 'cancelar',
+                    nextText: 'próximo',
+                    previousText: 'anterior',
+                    loadCallback: this.stepModal,
+                    onClose: this.closeStepModal
                 };
 
                 var rowStyle = {
-                    marginLeft:0,
-                    marginRight:0,
-                    paddingTop:10
+                    marginLeft: 0,
+                    marginRight: 0,
+                    paddingTop: 10
                 };
 
                 React.render(
                     <StepModal {...props}>
-                        <Tabpane title='Imagem'>
+                        <Tablistitem title="Imagem" key={0}/>
+                        <Tablistitem title="Grid" key={1}/>
+                        <Tabpane key={0}>
                             <div className="row" style={rowStyle}>
-                                <div className="col-md-12" style={{overflow:'scroll',height:300,width:'100%'}}>
+                                <div className="col-md-12">
                                     <Canvas loadCallback={this.canvasImage} layers={2}></Canvas>
                                 </div>
                                 <div className="col-md-12">
@@ -79,24 +87,22 @@ var ResourceModal = React.createClass({
                                 </div>
                             </div>
                         </Tabpane>
-                        <Tabpane title="Grid">
+                        <Tabpane key={1}>
                             <div className="row form-group" style={rowStyle}>
-                                <div className="col-md-12" style={{overflow:'scroll',height:300,width:'100%'}}>
-                                    <Canvas loadCallback={this.canvasGrid} layers={2}></Canvas>
+                                <div className="col-md-12">
+                                    <Canvas loadCallback={this.canvasGrid} onWheel={this.onWheel}layers={2}></Canvas>
                                 </div>
                             </div>
                             <div className="row form-group" style={rowStyle}>
                                 <div className="col-md-6">
                                     <label>Linhas</label>
-                                    <InputNumber min={1} value={1} onChange={this.rowsChange}/>
+                                    <InputNumber min={1} value={1} onChange={this.rowsChange} loadCallback={this.rowsInput}/>
                                 </div>
                                 <div className="col-md-6">
                                     <label>Colunas</label>
-                                    <InputNumber min={1} value={1} layers={2} onChange={this.colsChange}/>
+                                    <InputNumber min={1} value={1} layers={2} onChange={this.colsChange} loadCallback={this.colsInput}/>
                                 </div>
                             </div>
-                        </Tabpane>
-                        <Tabpane title="Regiões">
                         </Tabpane>
                     </StepModal>,
                     document.getElementById('resource-step-modal-container')
@@ -105,30 +111,33 @@ var ResourceModal = React.createClass({
         }
 
     },
-    closeStepModal:function(){
+    onWheel:function(){
+        this.drawCanvasGrid();
+    },
+    closeStepModal: function () {
         this.setState({
-            image:null
+            image: null
         });
     },
-    rowsChange:function(value){
+    rowsChange: function (value) {
         console.log('rows change...');
-        if(this.state.rows != value){
-            this.updateState({rows:value});
+        if (this.state.rows != value) {
+            this.updateState({rows: value});
         }
     },
-    colsChange:function(value){
-        if(this.state.cols != value){
-            this.updateState({cols:value});
+    colsChange: function (value) {
+        if (this.state.cols != value) {
+            this.updateState({cols: value});
         }
     },
-    componentDidUpdate:function(){
-        if(this.state.image != null){
-            if(this.state.image.onload == null){
+    componentDidUpdate: function () {
+        if (this.state.image != null) {
+            if (this.state.image.onload == null) {
                 var self = this;
-                this.state.image.onload = function(){
+                this.state.image.onload = function () {
                     var state = {
-                        width:self.state.image.width,
-                        height:self.state.image.height
+                        width: self.state.image.width,
+                        height: self.state.image.height
                     };
                     self.state.canvasImage.updateState(state);
                     self.state.canvasGrid.updateState(state);
@@ -136,91 +145,107 @@ var ResourceModal = React.createClass({
                     var contextA = self.state.canvasImage.getContext(0);
                     var contextB = self.state.canvasGrid.getContext(0);
 
-                    contextA.drawImage(self.state.image,0,0);
+                    contextA.drawImage(self.state.image, 0, 0);
                     contextB.drawImage(self.state.image, 0, 0);
+                    var maxRows = self.state.image.height / 24;
+                    var maxCols = self.state.image.width / 24;
+
+                    self.state.rowsInput.updateState({max:maxRows});
+                    self.state.colsInput.updateState({max:maxCols});
                     self.drawCanvasGrid();
                 };
             }
         }
         this.drawCanvasGrid();
     },
-    drawCanvasGrid:function(){
+    drawCanvasGrid: function () {
+        if (this.state.canvasGrid != null) {
+            var visible = this.state.canvasGrid.getVisibleArea();
+            if (this.state.image != null) {
+                var contextA = this.state.canvasGrid.getContext(1);
+                if (contextA != null) {
+                    if (this.state.image.width != 0 && this.state.image.height != 0) {
+                        var width = this.state.image.width / this.state.cols;
+                        var height = this.state.image.height / this.state.rows;
+                        this.state.canvasGrid.clearLayer(1);
 
-        if(this.state.image != null){
-            var contextA = this.state.canvasGrid.getContext(1);
-            if(contextA != null){
-                if(this.state.image.width != 0 && this.state.image.height != 0){
-                    var width = this.state.image.width/this.state.cols;
-                    var height = this.state.image.height/this.state.rows;
-                    this.state.canvasGrid.clearLayer(1);
+                        contextA.setLineDash([4, 4]);
+                        if (width == height) {
+                            contextA.strokeStyle = 'blue';
+                        }
+                        else {
+                            contextA.strokeStyle = 'red';
+                        }
 
-                    contextA.setLineDash([4,4]);
-                    if(width == height){
-                        contextA.strokeStyle = 'blue';
-                    }
-                    else{
-                        contextA.strokeStyle = 'red';
-                    }
+                        var start_x = (visible.x == 0 ? 0 : Math.floor(visible.x / width))*width;
+                        var start_y = (visible.y == 0 ? 0 : Math.floor(visible.y / height))*height;
+                        var xf = visible.x+visible.w;
+                        var yf = visible.y+visible.h;
+                        var end_x = (xf == 0 ? 1 : Math.floor(xf / width)+1)*width;
+                        var end_y = (yf == 0 ? 1 : Math.floor(yf / height)+1)*height;
 
-
-
-
-
-
-                    for(var x = 0; x <= this.state.image.width;x+=width){
-                        for(var y =0; y <= this.state.image.height;y+=height){
-                            contextA.strokeRect(x,y,width,height);
+                        for (var x = start_x; x <= end_x; x += width) {
+                            for (var y = start_y; y <= end_y; y += height) {
+                                contextA.strokeRect(x, y, width, height);
+                            }
                         }
                     }
-                }
 
+                }
             }
         }
     },
-    canvasImage:function(canvasImage){
-
+    canvasImage: function (canvasImage) {
         var state = {};
         state.canvasImage = canvasImage;
         this.updateState(state);
     },
-    canvasGrid:function(canvasGrid){
-
+    canvasGrid: function (canvasGrid) {
         var state = {};
         state.canvasGrid = canvasGrid;
         this.updateState(state);
     },
-    stepModal:function(stepModal){
-
+    stepModal: function (stepModal) {
         var state = {};
         state.stepModal = stepModal;
         this.updateState(state);
     },
-    inputFileChange:function(e){
+    rowsInput:function(rowsInput){
+        var state ={};
+        state.rowsInput = rowsInput;
+        this.updateState(state);
+    },
+    colsInput:function(colsInput){
+        var state ={};
+        state.colsInput = colsInput;
+        this.updateState(state);
+    },
+    inputFileChange: function (e) {
         e.preventDefault();
 
         var self = this;
         var src = e.target.files[0].name;
-        var index = _.lastIndexOf(src,'.');
+        var index = _.lastIndexOf(src, '.');
         var valid = false;
 
-        if(index != -1){
-            var ext = src.substring(index+1,src.length);
-            if(_.indexOf(this.allowedExtensions.img,ext) != -1){
+        if (index != -1) {
+            var ext = src.substring(index + 1, src.length);
+            if (_.indexOf(this.allowedExtensions.img, ext) != -1) {
                 valid = true;
             }
         }
 
-        if(valid){
+        if (valid) {
             var img = new Image;
             img.src = URL.createObjectURL(e.target.files[0]);
             this.updateState({
-                image:img
+                image: img
             });
 
         }
-        else{
+        else {
             this.updateState({
-                image:null
+                image: null
             });
         }
 
