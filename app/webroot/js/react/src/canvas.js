@@ -10,7 +10,8 @@ var Canvas = React.createClass({
         layers: React.PropTypes.number,
         left: React.PropTypes.number,
         top: React.PropTypes.number,
-        onWheel:React.PropTypes.func
+        onWheel:React.PropTypes.func,
+        scale:1
     },
     mouse:{
         mouseDown:false,
@@ -42,10 +43,18 @@ var Canvas = React.createClass({
         if (_.isFunction(this.state.loadCallback)) {
             this.state.loadCallback(this);
         }
+
         this.updateIds(state);
         this.updateLayers(state);
 
         this.updateState(state);
+    },
+    setScale:function(scale){
+        this.state.context.scale(1/this.state.scale,1/this.state.scale);
+        this.state.context.scale(scale,scale);
+        this.setState({
+            scale:scale
+        });
     },
     updateIds: function (state) {
         if (this.state.layers != this.state.id.length) {
@@ -139,7 +148,7 @@ var Canvas = React.createClass({
                 height: this.state.height,
                 key: layer,
                 style: style,
-                onContext: this.onContext
+                onContextMenu: this.onContext
             };
             canvas_layers.push(<canvas {...props}></canvas>);
         }
@@ -169,25 +178,59 @@ var Canvas = React.createClass({
             var df = {x:pa.x-pb.x,y:pa.y-pb.y};
             var aux = this.mouse.auxPos;
 
-            var state = {
-                left:aux.x+df.x,
-                top:aux.y+df.y
-            };
+            var left = aux.x+df.x;
+            var top = aux.y+df.y;
+            var min_top = this.getMinTop();
+            var min_left = this.getMinLeft();
+            var state = {};
+
+            if(top <= 0 && top >= min_top) {
+                state.top = top;
+            }
+            else if(df.y > 0){
+                state.top = 0;
+            }
+            else{
+                state.top = min_top;
+            }
+
+
+
+            if(left <= 0 && left >= min_left){
+                state.left = left;
+            }
+            else if(df.x > 0){
+                state.left = 0;
+            }
+            else{
+                state.left = min_left;
+            }
+
+
+
             this.updateState(state);
         }
     },
-
-
+    getMinTop:function(){
+        var container_height = $(this.node('container')).height();
+        var min_top = -(this.state.height)+container_height;
+        return min_top;
+    },
+    getMinLeft:function(){
+        var container_width = $(this.node('container')).width();
+        var min_left = this.state.width-container_width;
+        min_left = min_left<0?0:min_left;
+        return -(min_left);
+    },
     onWheel: function (e) {
         e.preventDefault();
         var state = {};
-        var container_height = $(this.node('container')).width();
 
 
         if (e.deltaY > 0) {
-            var min_top = -(this.state.height - container_height);
-            if (this.state.top - e.deltaY >= min_top) {
-                state.top = this.state.top - e.deltaY;
+            var min_top = this.getMinTop();
+            if(this.state.top- e.deltaY >= min_top){
+                state.top = this.state.top- e.deltaY;
             }
             else{
                 state.top = min_top;
