@@ -19,10 +19,10 @@ var ResourceModal = React.createClass({
             image: null,
             rows: 1,
             cols: 1,
-            maxRows:1,
-            maxCols:1,
-            rowsInput:null,
-            colsInput:null
+            maxRows: 1,
+            maxCols: 1,
+            rowsInput: null,
+            colsInput: null
         };
     },
     close: function () {
@@ -36,9 +36,6 @@ var ResourceModal = React.createClass({
                 <Tree id="resource-tree" loadUrl={this.state.loadUrl} formData={{'data[id]': this.state.projectId}} onItemLeftClick={this.onItemLeftClick}/>
             </Modal>
         );
-    },
-    componentDidMount:function(){
-        console.log(this.refs);
     },
     onItemLeftClick: function (e, obj) {
         if (obj.state.metadata.type == 'resource-folder') {
@@ -79,7 +76,10 @@ var ResourceModal = React.createClass({
                         <Tabpane key={0}>
                             <div className="row" style={rowStyle}>
                                 <div className="col-md-12">
-                                    <Canvas loadCallback={this.canvasImage} layers={2}></Canvas>
+                                    <Canvas loadCallback={this.canvasImage} layers={1} onWheel={this.redrawImage} onMove={this.redrawImage}></Canvas>
+                                </div>
+                                <div className="col-md-12">
+                                    <ZoomBtn className="pull-right" onZoomIn={this.zoomIn} onZoomOut={this.zoomOut}/>
                                 </div>
                                 <div className="col-md-12">
                                     <label htmlFor="arquivo">Selecione o arquivo</label>
@@ -90,7 +90,7 @@ var ResourceModal = React.createClass({
                         <Tabpane key={1}>
                             <div className="row form-group" style={rowStyle}>
                                 <div className="col-md-12">
-                                    <Canvas loadCallback={this.canvasGrid} onWheel={this.onWheel}layers={2}></Canvas>
+                                    <Canvas loadCallback={this.canvasGrid} onWheel={this.onWheel} layers={2} onMove={this.canvasGridMove}></Canvas>
                                 </div>
                             </div>
                             <div className="row form-group" style={rowStyle}>
@@ -111,7 +111,28 @@ var ResourceModal = React.createClass({
         }
 
     },
-    onWheel:function(){
+    canvasGridMove: function () {
+        this.drawCanvasGrid();
+    },
+    zoomIn: function () {
+        var self = this;
+        self.state.canvasImage.clearLayer(0);
+        var scale = self.state.canvasImage.state.scale;
+        scale = scale > 1 ? scale + 0.1 : scale < 1 ? scale * 2 : scale + 0.1;
+        self.state.canvasImage.setScale(scale,function(){
+            self.redrawImage();
+        });
+    },
+    zoomOut: function () {
+        var self = this;
+        self.state.canvasImage.clearLayer(0);
+        var scale = self.state.canvasImage.state.scale;
+        scale = scale < 1 ? scale / 2 : scale > 1 ? scale - 0.1 : scale / 2;
+        self.state.canvasImage.setScale(scale,function(){
+            self.redrawImage();
+        });
+    },
+    onWheel: function () {
         this.drawCanvasGrid();
     },
     closeStepModal: function () {
@@ -120,14 +141,15 @@ var ResourceModal = React.createClass({
         });
     },
     rowsChange: function (value) {
-        console.log('rows change...');
         if (this.state.rows != value) {
             this.updateState({rows: value});
+            this.drawCanvasGrid();
         }
     },
     colsChange: function (value) {
         if (this.state.cols != value) {
             this.updateState({cols: value});
+            this.drawCanvasGrid();
         }
     },
     componentDidUpdate: function () {
@@ -135,28 +157,39 @@ var ResourceModal = React.createClass({
             if (this.state.image.onload == null) {
                 var self = this;
                 this.state.image.onload = function () {
-                    var state = {
-                        width: self.state.image.width,
-                        height: self.state.image.height
+                    var state  = {
+                        frameWidth: self.state.image.width,
+                        frameHeight: self.state.image.height
                     };
-                    self.state.canvasImage.updateState(state);
                     self.state.canvasGrid.updateState(state);
-
-                    var contextA = self.state.canvasImage.getContext(0);
-                    var contextB = self.state.canvasGrid.getContext(0);
-
-                    contextA.drawImage(self.state.image, 0, 0);
-                    contextB.drawImage(self.state.image, 0, 0);
-                    var maxRows = self.state.image.height / 24;
-                    var maxCols = self.state.image.width / 24;
-
-                    self.state.rowsInput.updateState({max:maxRows});
-                    self.state.colsInput.updateState({max:maxCols});
-                    self.drawCanvasGrid();
+                    self.state.canvasImage.updateState(state, function () {
+                        console.log(self.state.canvasImage.state);
+                        self.redrawImage();
+                        var maxRows = self.state.image.height / 24;
+                        var maxCols = self.state.image.width / 24;
+                        self.state.rowsInput.updateState({max: maxRows});
+                        self.state.colsInput.updateState({max: maxCols});
+                    });
                 };
             }
         }
-        this.drawCanvasGrid();
+    },
+    redrawImage: function () {
+        var self = this;
+        if (self.state.image != null) {
+            self.state.canvasImage.clearLayer(0);
+            self.state.canvasGrid.clearLayer(0);
+            self.state.canvasImage.getContext(0, function (contextA) {
+               if(contextA != null){
+                   contextA.drawImage(self.state.image, -this.state.left, this.state.top);
+               }
+            });
+            self.state.canvasGrid.getContext(0, function (contextB) {
+                if(contextB != null){
+                    contextB.drawImage(self.state.image, -this.state.left, this.state.top);
+                }
+            });
+        }
     },
     drawCanvasGrid: function () {
         if (this.state.canvasGrid != null) {
@@ -168,8 +201,8 @@ var ResourceModal = React.createClass({
                         var width = this.state.image.width / this.state.cols;
                         var height = this.state.image.height / this.state.rows;
                         this.state.canvasGrid.clearLayer(1);
-
                         contextA.setLineDash([4, 4]);
+
                         if (width == height) {
                             contextA.strokeStyle = 'blue';
                         }
@@ -177,12 +210,12 @@ var ResourceModal = React.createClass({
                             contextA.strokeStyle = 'red';
                         }
 
-                        var start_x = (visible.x == 0 ? 0 : Math.floor(visible.x / width))*width;
-                        var start_y = (visible.y == 0 ? 0 : Math.floor(visible.y / height))*height;
-                        var xf = visible.x+visible.w;
-                        var yf = visible.y+visible.h;
-                        var end_x = (xf == 0 ? 1 : Math.floor(xf / width)+1)*width;
-                        var end_y = (yf == 0 ? 1 : Math.floor(yf / height)+1)*height;
+                        var start_x = (visible.x == 0 ? 0 : Math.floor(visible.x / width)) * width;
+                        var start_y = (visible.y == 0 ? 0 : Math.floor(visible.y / height)) * height;
+                        var xf = visible.x + visible.w;
+                        var yf = visible.y + visible.h;
+                        var end_x = (xf == 0 ? 1 : Math.floor(xf / width) + 1) * width;
+                        var end_y = (yf == 0 ? 1 : Math.floor(yf / height) + 1) * height;
 
                         for (var x = start_x; x <= end_x; x += width) {
                             for (var y = start_y; y <= end_y; y += height) {
@@ -210,13 +243,13 @@ var ResourceModal = React.createClass({
         state.stepModal = stepModal;
         this.updateState(state);
     },
-    rowsInput:function(rowsInput){
-        var state ={};
+    rowsInput: function (rowsInput) {
+        var state = {};
         state.rowsInput = rowsInput;
         this.updateState(state);
     },
-    colsInput:function(colsInput){
-        var state ={};
+    colsInput: function (colsInput) {
+        var state = {};
         state.colsInput = colsInput;
         this.updateState(state);
     },

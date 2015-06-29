@@ -1,17 +1,38 @@
 var Canvas = React.createClass({
     mixins: [updateMixin, customFunctions],
     propTypes: {
-        context: React.PropTypes.object,
+        context: React.PropTypes.array,
         id: React.PropTypes.arrayOf(React.PropTypes.string),
         width: React.PropTypes.string,
         height: React.PropTypes.string,
+        frameWidth:React.PropTypes.number,
+        frameHeight:React.PropTypes.number,
         execute: React.PropTypes.func,
         parent: React.PropTypes.object,
         layers: React.PropTypes.number,
         left: React.PropTypes.number,
         top: React.PropTypes.number,
         onWheel:React.PropTypes.func,
-        scale:1
+        onMove:React.PropTypes.func,
+        scale:React.PropTypes.number
+    },
+    getScaleTop:function(){
+        return this.state.top*this.state.scale;
+    },
+    getScaleLeft:function(){
+        return this.state.left*this.state.scale;
+    },
+    getScaleFrameWidth:function(){
+        return this.state.frameWidth*this.state.scale;
+    },
+    getScaleFrameHeight:function(){
+        return this.state.frameHeight*this.state.scale;
+    },
+    getInverseScaleFrameWidth:function(){
+        return this.state.frameWidth*(1/this.state.scale);
+    },
+    getInverseScaleFrameHeight:function(){
+        return this.state.frameHeight*(1/this.state.scale);
     },
     mouse:{
         mouseDown:false,
@@ -19,17 +40,20 @@ var Canvas = React.createClass({
         auxPos:{x:0,y:0}
     },
     getInitialState: function () {
-        console.log('initial state...');
         return {
             context: [],
             id: [generateUUID()],
             width: '100%',
             height: 'auto',
+            frameWidth:0,
+            frameHeight:0,
             loadCallback: null,
             layers: 1,
             left: 0,
             top: 0,
-            onWheel:null
+            onWheel:null,
+            onMove:null,
+            scale:1
         };
     },
     componentDidMount: function () {
@@ -44,16 +68,45 @@ var Canvas = React.createClass({
             this.state.loadCallback(this);
         }
 
+        this.updateSize(state);
         this.updateIds(state);
         this.updateLayers(state);
-
         this.updateState(state);
     },
-    setScale:function(scale){
-        this.state.context.scale(1/this.state.scale,1/this.state.scale);
-        this.state.context.scale(scale,scale);
-        this.setState({
-            scale:scale
+    updateSize:function(state){
+        var container_width = Math.ceil($(this.node('container')).width());
+        var container_height = Math.ceil($(this.node('container')).height());
+        state.width = container_width;
+        state.height = container_height;
+    },
+    setScale:function(scale,callback){
+        var self = this;
+        var count = 0;
+        var state ={scale:scale};
+        for(var layer = 0; layer < self.state.layers;layer++){
+            self.getContext(layer,function(context){
+                if(context != null){
+                    context.scale(1/self.state.scale,1/self.state.scale);
+                    context.scale(scale,scale);
+                }
+            });
+        }
+
+        self.updateState(state,function(){
+            var state = {};
+            var min_top = self.getMinTop();
+            var min_left = self.getMinLeft();
+            if(min_top > self.state.top){
+                state.top = min_top;
+            }
+            if(min_left > self.state.left) {
+                state.left = min_left;
+            }
+
+            self.updateState(state);
+            if(_.isFunction(callback)){
+                callback();
+            }
         });
     },
     updateIds: function (state) {
@@ -93,18 +146,22 @@ var Canvas = React.createClass({
         return null;
     },
     clearLayer: function (layer) {
-        var context = this.getContext(layer);
-        if (context != null) {
-            context.clearRect(0, 0, this.state.width, this.state.height);
-        }
+        var self = this;
+        this.getContext(layer,function(context){
+            if (context != null) {
+                context.clearRect(0,0, self.state.width*(1/self.state.scale), self.state.height*(1/self.state.scale));
+            }
+        });
     },
     getVisibleArea: function () {
         var container_width = $(this.node('container')).width();
         var container_height = $(this.node('container')).height();
-        var x = this.state.left;
-        var y = -(this.state.top);
-        var w = Math.min(container_width,this.state.width);
-        var h = Math.min(container_height,this.state.height);
+        var x = -(this.getScaleLeft());
+        var y = -(this.getScaleTop());
+        var width = this.getScaleWidth();
+        var height = this.getScaleHeight();
+        var w = Math.min(container_width,width);
+        var h = Math.min(container_height,height);
         return {
             x: x,
             y: y,
@@ -117,28 +174,37 @@ var Canvas = React.createClass({
             this.clearLayer(i);
         }
     },
-    getContext: function (layer) {
-        if (this.state.layers > layer) {
-            if (this.state.context[layer] == null) {
-                var id = this.getCanvasId(layer);
+    getContext: function (layer,callback) {
+        var self = this;
+        if (self.state.layers > layer) {
+            if (self.state.context[layer] == null) {
+                var id = self.getCanvasId(layer);
                 var context = document.getElementById(id).getContext('2d');
                 var state = {};
-                state.context = this.state.context.map(function (context) {
+                state.context = self.state.context.map(function (context) {
                     return context;
                 });
                 state.context[layer] = context;
-                this.updateState(state);
+                self.updateState(state,function(){
+                    if(_.isFunction(callback)){
+                        callback.apply(self,[self.state.context[layer]]);
+                    }
+                });
             }
-            return this.state.context[layer];
+            if(_.isFunction(callback)){
+                callback.apply(self,[self.state.context[layer]]);
+            }
         }
-        return null;
+        else  if(_.isFunction(callback)){
+            callback.apply(self,[null]);
+        }
     },
     render: function () {
         var canvas_layers = [];
         var style = {
             position: 'absolute',
-            left: this.state.left,
-            top: this.state.top,
+            left:0,
+            top:0,
             zIndex: layer
         };
         for (var layer = 0; layer < this.state.layers; layer++) {
@@ -155,9 +221,7 @@ var Canvas = React.createClass({
 
         return (
             <div className="canvas-container thumbnail  transparent-pattern" onWheel={this.onWheel} onMouseMove={this.mouseMove} onMouseDown={this.mouseDown} onMouseUp={this.mouseUp} onMouseOut={this.mouseUp} ref="container">
-                <div className="canvas-aligner" style={{width:this.state.width}}>
-                     {canvas_layers}
-                </div>
+                {canvas_layers}
             </div>
         );
     },
@@ -194,8 +258,6 @@ var Canvas = React.createClass({
                 state.top = min_top;
             }
 
-
-
             if(left <= 0 && left >= min_left){
                 state.left = left;
             }
@@ -205,27 +267,22 @@ var Canvas = React.createClass({
             else{
                 state.left = min_left;
             }
-
-
-
-            this.updateState(state);
+            this.updateState(state,this.state.onMove);
         }
     },
     getMinTop:function(){
         var container_height = $(this.node('container')).height();
-        var min_top = -(this.state.height)+container_height;
-        return min_top;
+        return  -(this.state.frameHeight)+(container_height*(1/this.state.scale));
     },
     getMinLeft:function(){
         var container_width = $(this.node('container')).width();
-        var min_left = this.state.width-container_width;
+        var min_left = this.state.frameWidth-(container_width*(1/this.state.scale));
         min_left = min_left<0?0:min_left;
         return -(min_left);
     },
     onWheel: function (e) {
         e.preventDefault();
         var state = {};
-
 
         if (e.deltaY > 0) {
             var min_top = this.getMinTop();
@@ -244,10 +301,7 @@ var Canvas = React.createClass({
                 state.top = 0;
             }
         }
-        this.updateState(state);
-        if(_.isFunction(this.state.onWheel)){
-            this.state.onWheel();
-        }
+        this.updateState(state,this.state.onWheel);
     },
     onContext: function (e) {
         e.preventDefault();

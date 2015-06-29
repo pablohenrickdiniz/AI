@@ -2,7 +2,7 @@ var updateMixin = {
     componentWillMount: function () {
         this.updateState(this.props);
     },
-    updateState: function (props) {
+    updateState: function (props,callback) {
         var self = this;
         var state = {};
         for (var index in props) {
@@ -10,9 +10,8 @@ var updateMixin = {
                 state[index] = props[index];
             }
         }
-
         if (!_.isEmpty(state)) {
-            this.setState(state);
+            this.setState(state,callback);
         }
     },
     componentWillReceiveProps: function (props) {
