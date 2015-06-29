@@ -3,9 +3,9 @@ var StepModal = React.createClass({
     propTypes:{
         step:React.PropTypes.number,
         title:React.PropTypes.string,
-        onConfirm:React.PropTypes.func,
-        onCancel:React.PropTypes.func,
         id:React.PropTypes.string,
+        onNext:React.PropTypes.func,
+        onPrev:React.PropTypes.func,
         layer:React.PropTypes.number,
         open:React.PropTypes.bool,
         panes:React.PropTypes.array,
@@ -19,8 +19,6 @@ var StepModal = React.createClass({
         return {
             step:0,
             title:'Step Modal',
-            onConfirm:null,
-            onCancel:null,
             id:generateUUID(),
             layer:1,
             open:false,
@@ -35,7 +33,9 @@ var StepModal = React.createClass({
             inputCancelText:'cancel',
             confirmDisabled:[true],
             loadCallback:null,
-            onClose:null
+            onClose:null,
+            onNext:null,
+            onPrev:null
         };
     },
     close:function(){
@@ -63,8 +63,8 @@ var StepModal = React.createClass({
             open:this.state.open,
             layer:this.state.layer,
             confirmDisabled:this.state.confirmDisabled[this.state.step],
-            onConfirm:this.onConfirm,
-            onCancel:this.onCancel,
+            onConfirm:this.next,
+            onCancel:this.prev,
             onClose:this.close
         };
 
@@ -81,21 +81,6 @@ var StepModal = React.createClass({
                 <Tabpanel {...tabpane_props}/>
             </Modal>
         );
-    },
-    onConfirm:function(){
-
-        var action = this.state.onConfirm;
-        var self = this;
-        if(typeof action == 'function'){
-            action.apply(this,function(success){
-                if(success){
-                    self.next();
-                }
-            });
-        }
-        else{
-            self.next();
-        }
     },
     componentDidMount:function(){
         this.updateChildren();
@@ -149,36 +134,37 @@ var StepModal = React.createClass({
         }
         this.updateState(state);
     },
-    onCancel:function(){
-
-        var action = this.state.onCancel;
-        var self = this;
-        if(typeof action == 'function'){
-            action.apply(this,function(success){
-                if(success){
-                    self.prev();
-                }
-            });
-        }
-        else{
-            self.prev();
-        }
-    },
     next:function(){
-
         var step = this.state.step;
         if(this.state.items[step+1] != undefined){
-            this.setState({
-                step:step+1
-            });
+            var state = {};
+            if(_.isFunction(this.state.onNext)){
+                var result = this.state.onNext(step,this);
+                if(result){
+                    state.step = step+1;
+                }
+            }
+            else{
+                state.step = step+1;
+            }
+            console.log('next...');
+            this.updateState(state);
         }
     },
     prev:function(){
         var step = this.state.step;
         if(this.state.items[step-1] != undefined){
-            this.setState({
-                step:step-1
-            });
+            var state = {};
+            if(_.isFunction(this.state.onPrev)){
+                var result = this.state.onPrev(step,this);
+                if(result){
+                    state.step = step-1;
+                }
+            }
+            else{
+                state.step = step-1;
+            }
+            this.updateState(state);
         }
     }
 });

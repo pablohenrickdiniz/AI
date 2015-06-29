@@ -70,7 +70,7 @@ var ResourceModal = React.createClass({
                 };
 
                 React.render(
-                    <StepModal {...props}>
+                    <StepModal {...props} onNext={this.onNext} onPrev={this.onPrev}>
                         <Tablistitem title="Imagem" key={0}/>
                         <Tablistitem title="Grid" key={1}/>
                         <Tabpane key={0}>
@@ -110,6 +110,21 @@ var ResourceModal = React.createClass({
                 break;
         }
 
+    },
+    onNext:function(step,modal){
+        console.log(step);
+        if(step == 0){
+            this.redrawImage();
+            this.drawCanvasGrid();
+        }
+        return true;
+    },
+    onPrev:function(step,modal){
+        console.log(step);
+        if(step == 1){
+            this.redrawImage();
+        }
+        return true;
     },
     canvasGridMove: function () {
         this.drawCanvasGrid();
@@ -179,52 +194,54 @@ var ResourceModal = React.createClass({
         if (self.state.image != null) {
             self.state.canvasImage.clearLayer(0);
             self.state.canvasGrid.clearLayer(0);
-            self.state.canvasImage.getContext(0, function (contextA) {
+            self.state.canvasImage.getContext(0, function (contextA,canvas) {
                if(contextA != null){
-                   contextA.drawImage(self.state.image, -this.state.left, this.state.top);
+                   contextA.drawImage(self.state.image, -canvas.state.left, canvas.state.top);
                }
             });
-            self.state.canvasGrid.getContext(0, function (contextB) {
+            self.state.canvasGrid.getContext(0, function (contextB,canvas) {
                 if(contextB != null){
-                    contextB.drawImage(self.state.image, -this.state.left, this.state.top);
+                    contextB.drawImage(self.state.image, -canvas.state.left, canvas.state.top);
                 }
             });
         }
     },
     drawCanvasGrid: function () {
-        if (this.state.canvasGrid != null) {
-            var visible = this.state.canvasGrid.getVisibleArea();
-            if (this.state.image != null) {
-                var contextA = this.state.canvasGrid.getContext(1);
-                if (contextA != null) {
-                    if (this.state.image.width != 0 && this.state.image.height != 0) {
-                        var width = this.state.image.width / this.state.cols;
-                        var height = this.state.image.height / this.state.rows;
-                        this.state.canvasGrid.clearLayer(1);
-                        contextA.setLineDash([4, 4]);
+        var self = this;
+        if (self.state.canvasGrid != null) {
+            var visible = self.state.canvasGrid.getVisibleArea();
+            if (self.state.image != null) {
+                self.state.canvasGrid.getContext(1,function(contextA,canvas){
+                    if (contextA != null) {
+                        if (canvas.state.frameWidth != 0 && canvas.state.frameHeight != 0) {
+                            var width = canvas.state.frameWidth / self.state.cols;
+                            var height = canvas.state.frameHeight / self.state.rows;
+                            this.clearLayer(1);
+                            contextA.setLineDash([4, 4]);
 
-                        if (width == height) {
-                            contextA.strokeStyle = 'blue';
-                        }
-                        else {
-                            contextA.strokeStyle = 'red';
-                        }
+                            if (width == height) {
+                                contextA.strokeStyle = 'blue';
+                            }
+                            else {
+                                contextA.strokeStyle = 'red';
+                            }
 
-                        var start_x = (visible.x == 0 ? 0 : Math.floor(visible.x / width)) * width;
-                        var start_y = (visible.y == 0 ? 0 : Math.floor(visible.y / height)) * height;
-                        var xf = visible.x + visible.w;
-                        var yf = visible.y + visible.h;
-                        var end_x = (xf == 0 ? 1 : Math.floor(xf / width) + 1) * width;
-                        var end_y = (yf == 0 ? 1 : Math.floor(yf / height) + 1) * height;
+                            var start_x = (visible.x == 0 ? 0 : Math.floor(visible.x / width)) * width;
+                            var start_y = (visible.y == 0 ? 0 : Math.floor(visible.y / height)) * height;
+                            var xf = visible.x + visible.w;
+                            var yf = visible.y + visible.h;
+                            var end_x = (xf == 0 ? 1 : Math.floor(xf / width) + 1) * width;
+                            var end_y = (yf == 0 ? 1 : Math.floor(yf / height) + 1) * height;
 
-                        for (var x = start_x; x <= end_x; x += width) {
-                            for (var y = start_y; y <= end_y; y += height) {
-                                contextA.strokeRect(x, y, width, height);
+                            for (var x = start_x; x <= end_x; x += width) {
+                                for (var y = start_y; y <= end_y; y += height) {
+                                    contextA.strokeRect(x, y, width, height);
+                                }
                             }
                         }
-                    }
 
-                }
+                    }
+                });
             }
         }
     },

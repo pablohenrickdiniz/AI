@@ -14,13 +14,20 @@ var Canvas = React.createClass({
         top: React.PropTypes.number,
         onWheel:React.PropTypes.func,
         onMove:React.PropTypes.func,
-        scale:React.PropTypes.number
+        scale:React.PropTypes.number,
+        copy:[]
     },
     getScaleTop:function(){
         return this.state.top*this.state.scale;
     },
     getScaleLeft:function(){
         return this.state.left*this.state.scale;
+    },
+    getScaleWidth:function(){
+        return this.state.width*this.state.scale;
+    },
+    getScaleHeight:function(){
+        return this.state.height*this.state.scale;
     },
     getScaleFrameWidth:function(){
         return this.state.frameWidth*this.state.scale;
@@ -76,8 +83,10 @@ var Canvas = React.createClass({
     updateSize:function(state){
         var container_width = Math.ceil($(this.node('container')).width());
         var container_height = Math.ceil($(this.node('container')).height());
-        state.width = container_width;
-        state.height = container_height;
+        if(container_width != 0 && container_height != 0){
+            state.width = container_width;
+            state.height = container_height;
+        }
     },
     setScale:function(scale,callback){
         var self = this;
@@ -158,16 +167,12 @@ var Canvas = React.createClass({
         var container_height = $(this.node('container')).height();
         var x = -(this.getScaleLeft());
         var y = -(this.getScaleTop());
-        var width = this.getScaleWidth();
-        var height = this.getScaleHeight();
+        var width = this.state.frameWidth;
+        var height = this.state.frameHeight;
         var w = Math.min(container_width,width);
         var h = Math.min(container_height,height);
-        return {
-            x: x,
-            y: y,
-            w:w,
-            h: h
-        };
+        var visible = {x: x, y: y, w:w, h: h};
+        return visible;
     },
     clearLayers: function () {
         for (var i = 0; i < this.state.layers; i++) {
@@ -187,16 +192,16 @@ var Canvas = React.createClass({
                 state.context[layer] = context;
                 self.updateState(state,function(){
                     if(_.isFunction(callback)){
-                        callback.apply(self,[self.state.context[layer]]);
+                        callback.apply(self,[self.state.context[layer],this]);
                     }
                 });
             }
             if(_.isFunction(callback)){
-                callback.apply(self,[self.state.context[layer]]);
+                callback.apply(self,[self.state.context[layer],this]);
             }
         }
         else  if(_.isFunction(callback)){
-            callback.apply(self,[null]);
+            callback.apply(self,[null,this]);
         }
     },
     render: function () {
