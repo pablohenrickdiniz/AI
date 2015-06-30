@@ -157,14 +157,12 @@ var ResourceModal = React.createClass({
     },
     rowsChange: function (value) {
         if (this.state.rows != value) {
-            this.updateState({rows: value});
-            this.drawCanvasGrid();
+            this.updateState({rows: value},this.drawCanvasGrid);
         }
     },
     colsChange: function (value) {
         if (this.state.cols != value) {
-            this.updateState({cols: value});
-            this.drawCanvasGrid();
+            this.updateState({cols: value},this.drawCanvasGrid);
         }
     },
     componentDidUpdate: function () {
@@ -226,16 +224,31 @@ var ResourceModal = React.createClass({
                                 contextA.strokeStyle = 'red';
                             }
 
-                            var start_x = (visible.x == 0 ? 0 : Math.floor(visible.x / width)) * width;
-                            var start_y = (visible.y == 0 ? 0 : Math.floor(visible.y / height)) * height;
-                            var xf = visible.x + visible.w;
-                            var yf = visible.y + visible.h;
-                            var end_x = (xf == 0 ? 1 : Math.floor(xf / width) + 1) * width;
-                            var end_y = (yf == 0 ? 1 : Math.floor(yf / height) + 1) * height;
 
-                            for (var x = start_x; x <= end_x; x += width) {
-                                for (var y = start_y; y <= end_y; y += height) {
+                            var start_x = (visible.x == 0 ? 0 : Math.floor(visible.x / width)) * width; //start slice x
+                            var start_y = (visible.y == 0 ? 0 : Math.floor(visible.y / height)) * height;//start slice y
+                            var xf = visible.x + visible.w;//non rounded final x
+                            var yf = visible.y + visible.h;//non rounded final y
+                            var end_x = (Math.floor(xf / width)) * width;//rounded final x
+                            var end_y = (Math.floor(yf / height)+1) * height;//rounded final y
+                            end_x = (end_x/width)>this.state.cols?this.state.cols*width:end_x;
+                            end_y = (end_x/width)>this.state.rows?this.state.rows*height:end_y;
+
+                            console.log('cols:'+self.state.cols);
+                            console.log('rows:'+self.state.rows);
+                            console.log('visible:',visible);
+                            console.log('slice width:'+width);
+                            console.log('slice height:'+height);
+                            console.log('start_x:'+start_x);
+                            console.log('start_y:'+start_y);
+                            console.log('end_x:'+end_x);
+                            console.log('end_y:'+end_y);
+
+                            //draw squares in visible area
+                            for(var y = start_y; y < end_x;y+=height){
+                                for (var x = start_x; x < end_y; x += width) {
                                     contextA.strokeRect(x, y, width, height);
+                                    console.log(x,y,width,height);
                                 }
                             }
                         }
