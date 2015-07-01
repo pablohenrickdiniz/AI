@@ -215,7 +215,6 @@ var ResourceModal = React.createClass({
                             var width = canvas.state.frameWidth / self.state.cols;
                             var height = canvas.state.frameHeight / self.state.rows;
                             this.clearLayer(1);
-                            contextA.setLineDash([4, 4]);
 
                             if (width == height) {
                                 contextA.strokeStyle = 'blue';
@@ -224,31 +223,13 @@ var ResourceModal = React.createClass({
                                 contextA.strokeStyle = 'red';
                             }
 
-
-                            var start_x = (visible.x == 0 ? 0 : Math.floor(visible.x / width)) * width; //start slice x
-                            var start_y = (visible.y == 0 ? 0 : Math.floor(visible.y / height)) * height;//start slice y
-                            var xf = visible.x + visible.w;//non rounded final x
-                            var yf = visible.y + visible.h;//non rounded final y
-                            var end_x = (Math.floor(xf / width)) * width;//rounded final x
-                            var end_y = (Math.floor(yf / height)+1) * height;//rounded final y
-                            end_x = (end_x/width)>this.state.cols?this.state.cols*width:end_x;
-                            end_y = (end_x/width)>this.state.rows?this.state.rows*height:end_y;
-
-                            console.log('cols:'+self.state.cols);
-                            console.log('rows:'+self.state.rows);
-                            console.log('visible:',visible);
-                            console.log('slice width:'+width);
-                            console.log('slice height:'+height);
-                            console.log('start_x:'+start_x);
-                            console.log('start_y:'+start_y);
-                            console.log('end_x:'+end_x);
-                            console.log('end_y:'+end_y);
-
-                            //draw squares in visible area
-                            for(var y = start_y; y < end_x;y+=height){
-                                for (var x = start_x; x < end_y; x += width) {
-                                    contextA.strokeRect(x, y, width, height);
-                                    console.log(x,y,width,height);
+                            var start_y = Math.floor(-canvas.state.top/width)*width;
+                            var start_x = Math.floor(-canvas.state.left/height)*height;
+                            var end_x = Math.floor((-canvas.state.left+visible.w)/width)*width;
+                            var end_y = (Math.floor((-canvas.state.top+visible.h)/height)+1)*height;
+                            for(var y = start_y;y <= end_y;y+=height){
+                                for(var x = start_x; x < end_x;x+=width){
+                                    contextA.strokeRect(x,y,width,height);
                                 }
                             }
                         }

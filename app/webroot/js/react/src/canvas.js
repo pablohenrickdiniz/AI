@@ -14,8 +14,7 @@ var Canvas = React.createClass({
         top: React.PropTypes.number,
         onWheel:React.PropTypes.func,
         onMove:React.PropTypes.func,
-        scale:React.PropTypes.number,
-        copy:[]
+        scale:React.PropTypes.number
     },
     getScaleTop:function(){
         return this.state.top*this.state.scale;
@@ -88,7 +87,7 @@ var Canvas = React.createClass({
             state.height = container_height;
         }
     },
-    setScale:function(scale,callback){
+    setScale:function(scale,callback){//change the scale of drawings on canvas
         var self = this;
         var count = 0;
         var state ={scale:scale};
@@ -118,7 +117,7 @@ var Canvas = React.createClass({
             }
         });
     },
-    updateIds: function (state) {
+    updateIds: function (state) {//generate ids for layers of canvas
         if (this.state.layers != this.state.id.length) {
             state.id = this.state.id;
             state.id.length = this.state.layers;
@@ -129,7 +128,7 @@ var Canvas = React.createClass({
             }
         }
     },
-    updateLayers: function (state) {
+    updateLayers: function (state) {//update the layers of canvas
         if (this.state.layers != this.state.context.length) {
             state.context = this.state.context;
             state.context.length = this.state.layers;
@@ -140,7 +139,7 @@ var Canvas = React.createClass({
             }
         }
     },
-    getCanvasId: function (layer) {
+    getCanvasId: function (layer) {//return the id of an especific layer
         if (this.state.layers > layer) {
             if (this.state.id[layer] == null) {
                 var state = {};
@@ -154,7 +153,7 @@ var Canvas = React.createClass({
         }
         return null;
     },
-    clearLayer: function (layer) {
+    clearLayer: function (layer) {//clear an especifc lauer
         var self = this;
         this.getContext(layer,function(context){
             if (context != null) {
@@ -162,19 +161,20 @@ var Canvas = React.createClass({
             }
         });
     },
-    getVisibleArea: function () {
-        var container_width = $(this.node('container')).width();
-        var container_height = $(this.node('container')).height();
-        var x = -(this.getScaleLeft());
-        var y = -(this.getScaleTop());
-        var width = this.state.frameWidth;
-        var height = this.state.frameHeight;
+    getVisibleArea: function () {  //return the visible area of canvas
+        var container_width = parseFloat($(this.node('container')).width());
+        var container_height = parseFloat($(this.node('container')).height());
+        var x = parseFloat(-this.getScaleLeft());
+        var y = parseFloat(-this.getScaleTop());
+        var width = parseFloat(this.state.frameWidth);
+        var height = parseFloat(this.state.frameHeight);
         var w = Math.min(container_width,width);
         var h = Math.min(container_height,height);
         var visible = {x: x, y: y, w:w, h: h};
         return visible;
     },
     clearLayers: function () {
+        //clear all layers of canvas
         for (var i = 0; i < this.state.layers; i++) {
             this.clearLayer(i);
         }
@@ -240,7 +240,7 @@ var Canvas = React.createClass({
         e.preventDefault();
         this.mouse.mouseDown = false;
     },
-    mouseMove:function(e){
+    mouseMove:function(e){//canvas drag
         if(this.mouse.mouseDown){
             var pa = {x:e.clientX,y:e.clientY};
             var pb = this.mouse.startPoint;
@@ -275,17 +275,17 @@ var Canvas = React.createClass({
             this.updateState(state,this.state.onMove);
         }
     },
-    getMinTop:function(){
+    getMinTop:function(){//get the min top possible position of view of canvas
         var container_height = $(this.node('container')).height();
         return  -(this.state.frameHeight)+(container_height*(1/this.state.scale));
     },
-    getMinLeft:function(){
+    getMinLeft:function(){//get the min left possible position of view of canvas
         var container_width = $(this.node('container')).width();
         var min_left = this.state.frameWidth-(container_width*(1/this.state.scale));
         min_left = min_left<0?0:min_left;
         return -(min_left);
     },
-    onWheel: function (e) {
+    onWheel: function (e) {//canvas scroll
         e.preventDefault();
         var state = {};
 
