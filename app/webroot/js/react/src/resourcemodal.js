@@ -223,12 +223,8 @@ var ResourceModal = React.createClass({
                                 contextA.strokeStyle = 'red';
                             }
 
-                            var start_y = Math.floor(-canvas.state.top/width)*width;
-                            var start_x = Math.floor(-canvas.state.left/height)*height;
-                            var end_x = Math.floor((-canvas.state.left+visible.w)/width)*width;
-                            var end_y = (Math.floor((-canvas.state.top+visible.h)/height)+1)*height;
-                            for(var y = start_y;y <= end_y;y+=height){
-                                for(var x = start_x; x < end_x;x+=width){
+                            for(var y = 0;y < canvas.state.frameHeight;y+=height){
+                                for(var x = 0; x < canvas.state.frameWidth;x+=width){
                                     contextA.strokeRect(x,y,width,height);
                                 }
                             }
