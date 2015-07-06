@@ -76,7 +76,7 @@ var ResourceModal = React.createClass({
                         <Tabpane key={0}>
                             <div className="row" style={rowStyle}>
                                 <div className="col-md-12">
-                                    <Canvas loadCallback={this.canvasImage} layers={1} onWheel={this.redrawImage} onMove={this.redrawImage}></Canvas>
+                                    <canvas id="step-1-canvas" width="550" height="300"></canvas>
                                 </div>
                                 <div className="col-md-12">
                                     <ZoomBtn className="pull-right" onZoomIn={this.zoomIn} onZoomOut={this.zoomOut}/>
@@ -90,7 +90,7 @@ var ResourceModal = React.createClass({
                         <Tabpane key={1}>
                             <div className="row form-group" style={rowStyle}>
                                 <div className="col-md-12">
-                                    <Canvas loadCallback={this.canvasGrid} onWheel={this.onWheel} layers={2} onMove={this.canvasGridMove}></Canvas>
+                                    <canvas id="step-2-canvas" width="550" height="300"></canvas>
                                 </div>
                             </div>
                             <div className="row form-group" style={rowStyle}>
@@ -111,44 +111,28 @@ var ResourceModal = React.createClass({
         }
 
     },
-    onNext:function(step,modal){
-        console.log(step);
-        if(step == 0){
-            this.redrawImage();
-            this.drawCanvasGrid();
-        }
+    onNext: function (step, modal) {
+
         return true;
     },
-    onPrev:function(step,modal){
-        console.log(step);
-        if(step == 1){
-            this.redrawImage();
-        }
+    onPrev: function (step, modal) {
+
         return true;
-    },
-    canvasGridMove: function () {
-        this.drawCanvasGrid();
     },
     zoomIn: function () {
-        var self = this;
-        self.state.canvasImage.clearLayer(0);
-        var scale = self.state.canvasImage.state.scale;
-        scale = scale > 1 ? scale + 0.1 : scale < 1 ? scale * 2 : scale + 0.1;
-        self.state.canvasImage.setScale(scale,function(){
-            self.redrawImage();
+        $('#step-1-canvas,#step-2-canvas').scaleCanvas({
+            scaleX: 1.1,
+            scaleY: 1.1
         });
     },
     zoomOut: function () {
-        var self = this;
-        self.state.canvasImage.clearLayer(0);
-        var scale = self.state.canvasImage.state.scale;
-        scale = scale < 1 ? scale / 2 : scale > 1 ? scale - 0.1 : scale / 2;
-        self.state.canvasImage.setScale(scale,function(){
-            self.redrawImage();
+        $('#step-1-canvas,#step-2-canvas').scaleCanvas({
+            scaleX: 0.9,
+            scaleY: 0.9
         });
     },
     onWheel: function () {
-        this.drawCanvasGrid();
+
     },
     closeStepModal: function () {
         this.setState({
@@ -170,80 +154,86 @@ var ResourceModal = React.createClass({
             if (this.state.image.onload == null) {
                 var self = this;
                 this.state.image.onload = function () {
-                    var state  = {
-                        frameWidth: self.state.image.width,
-                        frameHeight: self.state.image.height
-                    };
-                    self.state.canvasGrid.updateState(state);
-                    self.state.canvasImage.updateState(state, function () {
-                        console.log(self.state.canvasImage.state);
-                        self.redrawImage();
-                        var maxRows = self.state.image.height / 24;
-                        var maxCols = self.state.image.width / 24;
-                        self.state.rowsInput.updateState({max: maxRows});
-                        self.state.colsInput.updateState({max: maxCols});
-                    });
+                    self.redrawImage();
                 };
             }
+        }
+    },
+    drawCanvasGrid:function(){
+        var self = this;
+        if(self.state.image != null){
+
+            var x = 0;
+            var y = 0;
+
+
+            var layer = $('#step-2-canvas').getLayer('graphic');
+            if(layer != undefined){
+                x = layer.x;
+                y = layer.y;
+            }
+
+            var width =  self.state.image.width/this.state.cols;
+            var height = self.state.image.height/this.state.rows;
+
+            $('#step-2-canvas').removeLayer('gridLayer').draw({
+                type:'function',
+                name:'gridLayer',
+                index:1,
+                fillStyle:'transparent',
+                layer:true,
+                fn:function(ctx){
+                    ctx.strokeStyle = 'black';
+                    for(var rows = 0; rows < self.state.rows;rows++){
+                        for(var cols = 0; cols < self.state.cols;cols++){
+                            ctx.strokeRect(cols*width,rows*height,width,height);
+                        }
+                    }
+                }
+            }).drawLayers();
         }
     },
     redrawImage: function () {
         var self = this;
         if (self.state.image != null) {
-            self.state.canvasImage.clearLayer(0);
-            self.state.canvasGrid.clearLayer(0);
-            self.state.canvasImage.getContext(0, function (contextA,canvas) {
-               if(contextA != null){
-                   contextA.drawImage(self.state.image, -canvas.state.left, canvas.state.top);
-               }
-            });
-            self.state.canvasGrid.getContext(0, function (contextB,canvas) {
-                if(contextB != null){
-                    contextB.drawImage(self.state.image, -canvas.state.left, canvas.state.top);
+            self.drawCanvasGrid();
+            var parent_width = $('#step-1-canvas').parent().width();
+            var parent_height = $('#step-1-canvas').parent().height();
+            var img = self.state.image;
+
+            var x = 0;
+            var y = 0;
+            var layer = $('#step-1-canvas').getLayer('graphic');
+            if(layer != undefined){
+                x = layer.x;
+                y = layer.y;
+            }
+
+            $('#step-1-canvas,#step-2-canvas').drawImage({
+                source: img,
+                x: x,
+                y: y,
+                name: 'graphic',
+                fromCenter: false,
+                draggable: true,
+                layer: true,
+                index:0,
+                drag:function(layer){
+                    var x = layer.x;
+                    var y = layer.y;
+                    var layerA = $('#step-1-canvas').getLayer('graphic');
+                    var layerB = $('#step-2-canvas').getLayer('graphic');
+                    var layerC = $('#step-2-canvas').getLayer('gridLayer');
+                    layerA.x = x;
+                    layerB.x = x;
+                    layerC.x = x;
+                    layerA.y = y;
+                    layerB.y = y;
+                    layerC.y = y;
                 }
             });
+
         }
-    },
-    drawCanvasGrid: function () {
-        var self = this;
-        if (self.state.canvasGrid != null) {
-            var visible = self.state.canvasGrid.getVisibleArea();
-            if (self.state.image != null) {
-                self.state.canvasGrid.getContext(1,function(contextA,canvas){
-                    if (contextA != null) {
-                        if (canvas.state.frameWidth != 0 && canvas.state.frameHeight != 0) {
-                            var width = canvas.state.frameWidth / self.state.cols;
-                            var height = canvas.state.frameHeight / self.state.rows;
-                            this.clearLayer(1);
-
-                            if (width == height) {
-                                contextA.strokeStyle = 'blue';
-                            }
-                            else {
-                                contextA.strokeStyle = 'red';
-                            }
-
-                            for(var y = 0;y < canvas.state.frameHeight;y+=height){
-                                for(var x = 0; x < canvas.state.frameWidth;x+=width){
-                                    contextA.strokeRect(x,y,width,height);
-                                }
-                            }
-                        }
-
-                    }
-                });
-            }
-        }
-    },
-    canvasImage: function (canvasImage) {
-        var state = {};
-        state.canvasImage = canvasImage;
-        this.updateState(state);
-    },
-    canvasGrid: function (canvasGrid) {
-        var state = {};
-        state.canvasGrid = canvasGrid;
-        this.updateState(state);
     },
     stepModal: function (stepModal) {
         var state = {};
@@ -269,7 +259,7 @@ var ResourceModal = React.createClass({
         var valid = false;
 
         if (index != -1) {
-            var ext = src.substring(index + 1, src.length);
+            var ext = src.substring(index + 1, src.length).toLowerCase();
             if (_.indexOf(this.allowedExtensions.img, ext) != -1) {
                 valid = true;
             }
