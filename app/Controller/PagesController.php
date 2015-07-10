@@ -12,7 +12,7 @@ class PagesController extends AppController {
             'build'
         ),
         'public' => array(
-            'isOnline'
+            'physics'
         )
     );
 
@@ -42,5 +42,9 @@ class PagesController extends AppController {
         if($var != 0){
             echo 'erro ao compilar jsx';
         }
+    }
+
+    public function physics(){
+        $this->build();
     }
 }

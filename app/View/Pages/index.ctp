@@ -41,11 +41,6 @@
         </div>
     </div>
 </div>
-<?= $this->Html->script('lodash.min')?>
-<?= $this->Html->script('uuid') ?>
-<?= $this->Html->script('jquery.form.min') ?>
-<?= $this->Html->script('jcanvas.min')?>
-<?= $this->Html->script('jquery-mask') ?>
 <script type="text/javascript">
     var Global = {
         resource: {

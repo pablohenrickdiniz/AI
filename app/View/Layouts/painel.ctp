@@ -10,6 +10,11 @@
     <?=$this->Html->css('/jquery-context-menu/jquery.contextMenu')?>
     <?=$this->Html->css('sb-admin')?>
     <?=$this->Html->script('bootstrap.min')?>
+    <?= $this->Html->script('lodash.min')?>
+    <?= $this->Html->script('uuid') ?>
+    <?= $this->Html->script('jquery.form.min') ?>
+    <?= $this->Html->script('jcanvas.min')?>
+    <?= $this->Html->script('jquery-mask') ?>
     <meta charset="utf-8"/>
     <title>
         <?= $this->fetch('title') ?>
