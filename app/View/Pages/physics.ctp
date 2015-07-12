@@ -67,92 +67,50 @@
 <?= $this->Html->script('box2d/dynamics/joints/b2RevoluteJoint') ?>
 <?= $this->Html->script('box2d/dynamics/joints/b2RevoluteJointDef') ?>
 <?= $this->Html->script('draw_world') ?>
-<?= $this->Html->script('box2d/common')?>
+<?= $this->Html->script('box2d/common') ?>
+<?= $this->Html->css('tool') ?>
+<?= $this->Html->css('jquery.minicolors') ?>
 <div class="container" id="container">
-    <div class="col-md-9">
-        <canvas id="draw" width="700" height="500"></canvas>
-    </div>
-    <div class="col-md-3">
-        <div class="tool-box">
-            <div class="tool-box-header">
-
-            </div>
-            <div class="tool-box-body">
-                <div class="tool">
-
+    <div class="row">
+        <div class="col-md-3">
+            <div class="tool-box" data-toggle="buttons">
+                <div class="btn-group">
+                    <label class="btn btn-default active">
+                        <input type="radio" name="tool" id="option1" autocomplete="off" value="pointer">
+                        <i class="fa fa-hand-o-up"></i>
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="tool" id="option3" autocomplete="off" value="move">
+                        <i class="fa fa-arrows"></i>
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="tool" id="option2" autocomplete="off" value="pencil">
+                        <i class="fa fa-pencil"></i>
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="tool" id="option3" autocomplete="off" value="rect">
+                        <i class="fa fa-square"></i>
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="tool" id="option3" autocomplete="off" value="circle">
+                        <i class="fa fa-circle"></i>
+                    </label>
                 </div>
+
             </div>
         </div>
     </div>
-
+    <div class="row">
+        <div class="col-sm-7">
+            <canvas id="draw" width="660" height="500" class="thumbnail"></canvas>
+        </div>
+        <div class="col-sm-2">
+            <label for="">Preenchimento</label>
+            <input type="text" id="fillColor" class="form-control" title="preenchimento"/>
+        </div>
+    </div>
 </div>
-
-<style type="text/css">
-    #draw{
-        border:1px solid gray;
-    }
-
-    #container{
-        padding-top:10px;
-    }
-
-    .tool-box{
-        width:100px;
-        height:500px;
-        border:1px solid black;
-        float:left;
-        background-color:#d6d6d6;
-        -webkit-border-radius: 3px;
-        -moz-border-radius: 3px;
-        border-radius: 3px;;
-    }
-</style>
-
-
-<script type="text/javascript">
-    $2 = jQuery.noConflict();
-    $2(document).ready(function(){
-        var time_step = 1.0/60;
-        var interval  = null;
-        var worldAABB = new b2AABB();
-        worldAABB.minVertex.Set(-500, -500);
-        worldAABB.maxVertex.Set(500,500);
-        var gravity = new b2Vec2(0, 100);
-        var doSleep = true;
-
-
-        world = new b2World(worldAABB, gravity, doSleep);
-        context = document.getElementById('draw').getContext('2d');
-
-
-        function start(){
-            step();
-        }
-
-        function step() {
-            world.Step(time_step,1);
-            context.clearRect(0,0,500,500);
-            drawWorld(world,context);
-            interval = setTimeout(step,10);
-        }
-
-        start();
-
-
-        function stop(){
-            clearInterval(interval);
-        }
-
-        var started = true;
-        document.onclick = function(){
-            if(started){
-                stop();
-            }
-            else{
-                step();
-            }
-            started = !started;
-        }
-    });
-</script>
-
+<?= $this->Html->script('jquery.minicolors.min') ?>
+<?= $this->Html->script('Math') ?>
+<?= $this->Html->script('keys') ?>
+<?= $this->Html->script('physics') ?>

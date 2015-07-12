@@ -75,7 +75,6 @@
 </script>
 <?= $this->Html->script('react/react') ?>
 <?= $this->Import->script('react/build') ?>
-<?= $this->Html->script('InterfaceElements') ?>
 <script type="text/javascript">
     $(document).ready(function () {
         $('#open-project').click(function () {
