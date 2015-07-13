@@ -190,6 +190,24 @@ PaintShape.prototype.updateDrawingShapeState = function (pb) {
             shape.y = pb.y < pa.y ? pa.y - h : pa.y;
 
             break;
+        case 'image':
+            var pc = {x: pa.x, y: pb.y};
+            var pd = {x: pb.x, y: pa.y};
+            var w = Math.distance(pa, pd);
+            var h = Math.distance(pa, pc);
+            if (self.isKeyDown(KEY_SH_TAB)) {
+                var max = Math.max(w, h);
+                w = max;
+                h = max;
+            }
+            shape.width = w;
+            shape.height = h;
+            shape.swidth = w;
+            shape.sheight = h;
+            shape.x = pb.x < pa.x ? pa.x - w : pa.x;
+            shape.y = pb.y < pa.y ? pa.y - h : pa.y;
+
+            break;
     }
     self.refresh();
 };
@@ -290,6 +308,10 @@ PaintShape.prototype.drawShape = function (shape) {
             break;
         case 'rect':
             self.drawRect(shape);
+            break;
+        case 'image':
+            self.drawImage(shape);
+            break;
     }
 };
 
@@ -306,6 +328,13 @@ PaintShape.prototype.drawRect = function (rect) {
     self.context.beginPath();
     self.context.fillRect(rect.x, rect.y, rect.width, rect.height);
     self.context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+};
+
+PaintShape.prototype.drawImage = function(image){
+    var self = this;
+    self.context.beginPath();
+    self.context.drawImage(image.image, image.sx, image.sy,image.swidth,image.sheight,image.x,image.y,image.width,image.height);
+    self.context.strokeRect(image.x, image.y, image.width, image.height);
 };
 
 PaintShape.prototype.clear = function () {
@@ -333,6 +362,15 @@ PaintShape.prototype.generateInitialShape = function (type, position) {
             shape.width = 1;
             shape.height = 1;
             break;
+        case 'image':
+            shape.image = new Image;
+            shape.sx = 0;
+            shape.sy = 0;
+            shape.swidth = 0;
+            shape.sheight = 0;
+            shape.width = 0;
+            shape.height = 0;
+            break;
     }
 
     return shape;
@@ -341,9 +379,9 @@ PaintShape.prototype.generateInitialShape = function (type, position) {
 
 $2(document).ready(function () {
     var Paint = new PaintShape('#draw');
-    Paint.setDrawingTools(['circle', 'rect']);
+    Paint.setDrawingTools(['circle', 'rect','image']);
 
-    Paint.onClick(function (position) {
+    Paint.onMouseDown(function (position) {
         var self = this;
         if (!self.drawing && self.isDrawingToolSelected()) {
             self.drawing = true;
@@ -380,7 +418,7 @@ $2(document).ready(function () {
                                 shape.selected = false;
                             }
                         }
-                        else if (shape.type == 'rect') {
+                        else if (shape.type == 'rect' || shape.type == 'image') {
                             var xo = shape.x;
                             var yo = shape.y;
                             var xf = shape.x + shape.width;

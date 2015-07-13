@@ -95,8 +95,11 @@
                         <input type="radio" name="tool" id="option3" autocomplete="off" value="circle">
                         <i class="fa fa-circle"></i>
                     </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="tool" id="option3" autocomplete="off" value="image">
+                        <i class="fa fa-picture-o"></i>
+                    </label>
                 </div>
-
             </div>
         </div>
     </div>
