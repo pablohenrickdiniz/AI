@@ -109,8 +109,11 @@
         </div>
         <div class="col-sm-2">
             <label for="">Preenchimento</label>
-            <input type="text" id="fillColor" class="form-control" title="preenchimento"/>
+            <input type="text" id="fillColor" class="form-control fillColor" title="preenchimento"/>
         </div>
+    </div>
+    <div class="row">
+
     </div>
 </div>
 <?= $this->Html->script('jquery.minicolors.min') ?>

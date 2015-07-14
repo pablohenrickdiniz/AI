@@ -513,7 +513,7 @@ $2(document).ready(function () {
     });
 
 
-    $2('#fillColor').minicolors({
+    $2('.fillColor').minicolors({
         control: 'wheel',
         theme: 'bootstrap',
         change: function (hex) {
