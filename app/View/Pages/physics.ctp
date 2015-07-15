@@ -80,24 +80,28 @@
                         <i class="fa fa-hand-o-up"></i>
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="tool" id="option3" autocomplete="off" value="move">
+                        <input type="radio" name="tool" id="option2" autocomplete="off" value="move">
                         <i class="fa fa-arrows"></i>
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="tool" id="option2" autocomplete="off" value="pencil">
+                        <input type="radio" name="tool" id="option3" autocomplete="off" value="pencil">
                         <i class="fa fa-pencil"></i>
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="tool" id="option3" autocomplete="off" value="rect">
+                        <input type="radio" name="tool" id="option4" autocomplete="off" value="rect">
                         <i class="fa fa-square"></i>
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="tool" id="option3" autocomplete="off" value="circle">
+                        <input type="radio" name="tool" id="option5" autocomplete="off" value="circle">
                         <i class="fa fa-circle"></i>
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="tool" id="option3" autocomplete="off" value="image">
+                        <input type="radio" name="tool" id="option6" autocomplete="off" value="image">
                         <i class="fa fa-picture-o"></i>
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="tool" id="option7" autocomplete="off" value="select">
+                        <i class="fa fa-select"></i>
                     </label>
                 </div>
             </div>

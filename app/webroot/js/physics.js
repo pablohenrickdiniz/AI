@@ -119,10 +119,10 @@ PaintShape.prototype.sequenceIs = function (sequence) {
 
 PaintShape.prototype.moveToLayer = function (shape, layerIndex) {
     var self = this;
-    if(layerIndex < 0){
+    if (layerIndex < 0) {
         var size = self.layers.length;
-        for(var i = size;size>0;size--){
-            self.layers[i] = self.layers[i-1];
+        for (var i = size; size > 0; size--) {
+            self.layers[i] = self.layers[i - 1];
             self.layers[i].index = i;
         }
         self.layers[0] = undefined;
@@ -132,8 +132,8 @@ PaintShape.prototype.moveToLayer = function (shape, layerIndex) {
     var layer = self.getLayer(layerIndex);
 
     var index = shape.layer.shapes.indexOf(shape);
-    if(index != -1){
-        shape.layer.shapes.splice(index,1);
+    if (index != -1) {
+        shape.layer.shapes.splice(index, 1);
     }
     layer.shapes.push(shape);
     shape.layer = layer;
@@ -262,8 +262,8 @@ PaintShape.prototype.addShape = function (shape) {
 PaintShape.prototype.remove = function (shape) {
     var layer = shape.layer;
     var index = layer.shapes.indexOf(shape);
-    if(index != -1){
-        layer.shapes.splice(index,1);
+    if (index != -1) {
+        layer.shapes.splice(index, 1);
     }
 };
 
@@ -330,10 +330,10 @@ PaintShape.prototype.drawRect = function (rect) {
     self.context.strokeRect(rect.x, rect.y, rect.width, rect.height);
 };
 
-PaintShape.prototype.drawImage = function(image){
+PaintShape.prototype.drawImage = function (image) {
     var self = this;
     self.context.beginPath();
-    self.context.drawImage(image.image, image.sx, image.sy,image.swidth,image.sheight,image.x,image.y,image.width,image.height);
+    self.context.drawImage(image.image, image.sx, image.sy, image.swidth, image.sheight, image.x, image.y, image.width, image.height);
     self.context.strokeRect(image.x, image.y, image.width, image.height);
 };
 
@@ -376,10 +376,35 @@ PaintShape.prototype.generateInitialShape = function (type, position) {
     return shape;
 };
 
+PaintShape.prototype.unselectShapes = function () {
+    var self = this;
+    for (var i = 0; i < self.selectedShapes.length; i++) {
+        var shape = self.selectedShapes[i];
+        shape.selected = false;
+    }
+    self.selectedShapes = [];
+};
+
+PaintShape.prototype.eachShape = function (func) {
+    var self = this;
+    for (var i = self.layers.length - 1; i >= 0; i--) {
+        var layer = self.layers[i];
+        if (layer.shapes != undefined) {
+            for (var j = 0; j < layer.shapes.length; j++) {
+                var shape = layer.shapes[j];
+                var response = func.apply(shape, [j, layer]);
+                if (response != undefined && response == false) {
+                    break;
+                }
+            }
+        }
+    }
+};
+
 
 $2(document).ready(function () {
     var Paint = new PaintShape('#draw');
-    Paint.setDrawingTools(['circle', 'rect','image']);
+    Paint.setDrawingTools(['circle', 'rect', 'image']);
 
     Paint.onMouseDown(function (position) {
         var self = this;
@@ -399,45 +424,32 @@ $2(document).ready(function () {
     Paint.onMouseDown(function (position) {
         var self = this;
         if (self.selectedTool == 'move') {
-            self.selectedShapes = [];
-            var selected = false;
-            for (var i = self.layers.length-1; i >= 0; i--) {
-                var layer = self.layers[i];
-                if(layer.shapes != undefined){
-                    for(var j = 0; j < layer.shapes.length;j++){
-                        var shape = layer.shapes[j];
-                        if (shape.type == 'circle') {
-                            var cc = {x: shape.x, y: shape.y};
-                            var distance = Math.distance(position, cc);
-                            if (distance <= shape.radius && !selected) {
-                                shape.selected = true;
-                                self.selectedShapes.push(shape);
-                                selected = true;
-                            }
-                            else {
-                                shape.selected = false;
-                            }
-                        }
-                        else if (shape.type == 'rect' || shape.type == 'image') {
-                            var xo = shape.x;
-                            var yo = shape.y;
-                            var xf = shape.x + shape.width;
-                            var yf = shape.y + shape.height;
-
-                            if (xo <= position.x && yo <= position.y && xf >= position.x && yf >= position.y && !selected) {
-                                shape.selected = true;
-                                self.selectedShapes.push(shape);
-                                selected = true;
-                            }
-                            else {
-                                shape.selected = false;
-                            }
-                        }
-                        shape.oldX = shape.x;
-                        shape.oldY = shape.y;
+            self.unselectShapes();
+            self.eachShape(function () {
+                var shape = this;
+                if (shape.type == 'circle') {
+                    var cc = {x: shape.x, y: shape.y};
+                    var distance = Math.distance(position, cc);
+                    if (distance <= shape.radius) {
+                        shape.selected = true;
+                        self.selectedShapes.push(shape);
+                        return false;
                     }
                 }
-            }
+                else if (shape.type == 'rect' || shape.type == 'image') {
+                    var xo = shape.x;
+                    var yo = shape.y;
+                    var xf = shape.x + shape.width;
+                    var yf = shape.y + shape.height;
+
+                    if (xo <= position.x && yo <= position.y && xf >= position.x && yf >= position.y) {
+                        self.selectedShapes.push(shape);
+                        return false;
+                    }
+                }
+                shape.oldX = shape.x;
+                shape.oldY = shape.y;
+            });
             self.refresh();
         }
     });
@@ -464,6 +476,51 @@ $2(document).ready(function () {
             }
             self.refresh();
         }
+        else if (self.selectedTool == 'select' && self.mouseIsDown) {
+            var pa = self.lp;
+            var pb = position;
+
+            var pc = {x: pa.x, y: pb.y};
+            var pd = {x: pb.x, y: pa.y};
+            var w = Math.distance(pa, pd);
+            var h = Math.distance(pa, pc);
+            var x = pb.x < pa.x ? pa.x - w : pa.x;
+            var y = pb.y < pa.y ? pa.y - h : pa.y;
+
+            var rect = {
+                type: 'rect',
+                width: w,
+                height: h,
+                x: x,
+                y: y,
+                strokeStyle: 'black',
+                fillStyle: 'transparent',
+                selected: true
+            };
+
+            self.unselectShapes();
+            self.eachShape(function () {
+                var shape = this;
+                switch (shape.type) {
+                    case 'rect':
+                        if (Math.rectIntersectRect(rect, shape)) {
+                            self.selectedShapes.push(shape);
+                            shape.selected = true;
+                        }
+                        break;
+                    case 'circle':
+                        if (Math.circleIntersectRect(shape, rect)) {
+                            self.selectedShapes.push(shape);
+                            shape.selected = true;
+                        }
+                        break;
+
+                }
+            });
+
+            self.refresh();
+            self.drawShape(rect);
+        }
     });
 
     Paint.onMouseUp(function (position) {
@@ -475,6 +532,7 @@ $2(document).ready(function () {
                 shape.oldY = shape.y;
             }
         }
+        self.refresh();
     });
 
 

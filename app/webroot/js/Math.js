@@ -17,10 +17,13 @@ Math.vpv = function () { //element-wise addition
     return vec;
 };
 
-Math.vmv = function (x, y) { //element-wise subtraction
-    return x.map(function (xElem, i) {
-        return xElem - y[i];
-    });
+Math.vmv = function () { //element-wise subtraction
+    var vec = arguments[0];
+    for(var i = 1; i < arguments.length;i++){
+        vec.x-= arguments[i].x;
+        vec.y-= arguments[i].y;
+    }
+    return vec;
 };
 
 Math.med = function () {
@@ -67,4 +70,24 @@ Math.min = function(){
 
 Math.distance = function (pa, pb) {
     return Math.sqrt(Math.pow(pa.x - pb.x, 2) + Math.pow(pa.y - pb.y, 2));
+};
+
+Math.circleIntersectRect = function(circle,rect){
+    var x0 = rect.x;
+    var y0 = rect.y;
+    var x1 = rect.x+rect.width;
+    var y1 = rect.y+rect.height;
+    return (circle.x >= x0 && circle.x <= x1 && circle.y >= y0  && circle.y <= y1);
+};
+
+Math.rectIntersectRect = function(rectA,rectB){
+    var x0a = rectA.x;
+    var y0a = rectA.y;
+    var x1a = rectA.x+rectA.width;
+    var y1a = rectA.y+rectA.height;
+    var x0b = rectB.x;
+    var y0b = rectB.y;
+    var x1b = rectB.x+rectB.width;
+    var y1b = rectB.y+rectB.height;
+    return !(x0a > x1b || x1a < x0b || y0a > y1b || y1a < y0b);
 };
