@@ -15,6 +15,8 @@
     <?= $this->Html->script('jquery.form.min') ?>
     <?= $this->Html->script('jcanvas.min')?>
     <?= $this->Html->script('jquery-mask') ?>
+    <?= $this->Html->script('react/react') ?>
+    <?= $this->Html->script('react/build/__') ?>
     <meta charset="utf-8"/>
     <title>
         <?= $this->fetch('title') ?>
