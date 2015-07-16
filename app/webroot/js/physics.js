@@ -348,6 +348,8 @@ PaintShape.prototype.generateInitialShape = function (type, position) {
         id: generateUUID(),
         x: position.x,
         y: position.y,
+        oldX:position.x,
+        oldY:position.y,
         selected: false,
         fillStyle: self.fillStyle,
         strokeStyle: self.strokeStyle,
@@ -424,8 +426,7 @@ $2(document).ready(function () {
         var self = this;
         if (self.selectedTool == 'move') {
             self.unselectShapes();
-            self.eachShape(function () {
-                var shape = this;
+            self.eachShape(function (shape) {
                 if (shape.type == 'circle') {
                     var cc = {x: shape.x, y: shape.y};
                     var distance = Math.distance(position, cc);
@@ -581,5 +582,13 @@ $2(document).ready(function () {
         Paint.setTool($2(this).val());
     });
 
+    $2('.file-btn').click(function(){
+        $2(this).parent().find('input[type=file]').click();
+    });
+
+    $2('.input-file').find('input[type=file]').change(function(){
+        var name = $2(this)[0].files[0].name;
+        $2(this).parent().find('input[type=text]').val(name);
+    });
 });
 

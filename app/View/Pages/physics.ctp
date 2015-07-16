@@ -112,8 +112,25 @@
             <canvas id="draw" width="660" height="500" class="thumbnail"></canvas>
         </div>
         <div class="col-sm-2">
-            <label for="">Preenchimento</label>
-            <input type="text" id="fillColor" class="form-control fillColor" title="preenchimento"/>
+            <div class="row form-group">
+                <div class="input-group">
+                    <input type="text" id="fillColor" class="form-control fillColor" title="preenchimento"/>
+                <span class="input-group-addon">
+                    <i class="fa fa-tint"></i>
+                </span>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="input-file">
+                    <div class="input-group">
+                        <input type="file" class="hidden"/>
+                        <input type="text" class="form-control"  readonly/>
+                        <span class="input-group-addon file-btn">
+                            <i class="fa fa-picture-o"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="row">
