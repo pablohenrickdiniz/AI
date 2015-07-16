@@ -86,7 +86,6 @@ function PaintShape(canvas) {
             self.keySequence.push(e.which);
         }
         self.keys[e.which] = true;
-        console.log(self.keySequence);
         self.keyDown.forEach(function (action) {
             action.apply(self, [e.which]);
         });
@@ -392,7 +391,7 @@ PaintShape.prototype.eachShape = function (func) {
         if (layer.shapes != undefined) {
             for (var j = 0; j < layer.shapes.length; j++) {
                 var shape = layer.shapes[j];
-                var response = func.apply(shape, [j, layer]);
+                var response = func.apply(self,[shape,j, layer]);
                 if (response != undefined && response == false) {
                     break;
                 }
@@ -499,17 +498,16 @@ $2(document).ready(function () {
             };
 
             self.unselectShapes();
-            self.eachShape(function () {
-                var shape = this;
+            self.eachShape(function (shape) {
                 switch (shape.type) {
                     case 'rect':
-                        if (Math.rectIntersectRect(rect, shape)) {
+                        if (Overlap.rectIntersectRect(rect, shape)) {
                             self.selectedShapes.push(shape);
                             shape.selected = true;
                         }
                         break;
                     case 'circle':
-                        if (Math.circleIntersectRect(shape, rect)) {
+                        if (Overlap.circleRect(shape, rect)) {
                             self.selectedShapes.push(shape);
                             shape.selected = true;
                         }
@@ -582,5 +580,6 @@ $2(document).ready(function () {
     $2('input[name=tool]').change(function () {
         Paint.setTool($2(this).val());
     });
+
 });
 
