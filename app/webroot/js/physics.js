@@ -240,6 +240,8 @@ PaintShape.prototype.setTool = function (tool) {
     var self = this;
     if (self.selectedTool != tool) {
         self.drawing = false;
+        $2(self.canvas).removeClass(self.selectedTool);
+        $2(self.canvas).addClass(tool);
         self.selectedTool = tool;
     }
 };

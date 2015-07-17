@@ -1,105 +1,106 @@
-Math.dot = function dot(va,vb) { //dot product
-    var sum = 0;
-    va = _.cloneDeep(va);
-    for(var index in va){
-        sum += va[index]*vb[index];
-    }
-    return sum;
+Math.dot = function(x,y){
+    return Object.keys(x).reduce(function (p, c) {
+        return p + x[c] * y[c];
+    }, 0);
 };
 
-Math.norm = function (x) { //2-norm of a vector
-    return Math.sqrt(Math.dot(x, x));
-};
-
-Math.vpv = function () { //element-wise addition
-    if(arguments.length >= 2){
-        var vec = _.cloneDeep(arguments[0]);
-        var size = arguments.length;
-        for(var index in vec){
-            for(var j = 1; j < size;j++){
-                vec[index] += arguments[j][index];
-            }
-        }
-
-        return vec;
-    }
-
-    return null;
-};
-
-Math.vmv = function () { //element-wise subtraction
-    if(arguments.length >= 2){
-        var vec = _.cloneDeep(arguments[0]);
-        var size = arguments.length;
-        for(var index in vec){
-            for(var j = 1; j < size;j++){
-                vec[index] += arguments[j][index];
-            }
-        }
-
-        return vec;
-    }
-
-    return null;
-};
-
-Math.med = function () {
-    var vec = Math.vpv.apply(this,arguments);
-    for(var index in vec){
-        vec[index] = vec[index]/arguments.length;
-    }
+Math.vxv = function(x,y){
+    var vec = {};
+    Object.keys(x).forEach(function (index) {
+        vec[index] = x[index]*y[index];
+    });
     return vec;
 };
 
-Math.radiansToDegree = function (radians) {
-    return radians * (180 / Math.PI);
+Math.vdv = function(x,y){
+    var vec = {};
+    Object.keys(x).forEach(function (index) {
+        vec[index] = x[index]/y[index];
+    });
+    return vec;
 };
 
-Math.degreeToRadians = function (degree) {
-    return degree / (180 / Math.PI);
+Math.vpv = function(x, y){
+    var vec = {};
+    Object.keys(x).forEach(function (index) {
+        vec[index] = x[index]+y[index];
+    });
+    return vec;
 };
 
-
-Math.getDegreeFromVec = function (a, b) {
-    return Math.radiansToDegree(Math.acos(Math.dot(a, b) / (Math.norm(a) * Math.norm(b))));
+Math.vmv = function(x, y){
+    var vec = {};
+    Object.keys(x).forEach(function (index) {
+        vec[index] = x[index]-y[index];
+    });
+    return vec;
 };
 
+Math.sxv = function(c,x){
+    var vec = {};
+    Object.keys(x).forEach(function (index) {
+        vec[index] = x[index]*c;
+    });
+    return vec;
+};
 
-Math.rotate = function (v, theta, c) {
+Math.mxv = function(m,x){
+    return m.map(function (mElem) {
+        return Math.dot(mElem, x);
+    });
+};
+
+Math.cross2 = function(x,y) {
+    return x.x * y.y - x.y * y.x;
+};
+
+Math.norm = function(x){
+    return Math.sqrt(Math.dot(x, x));
+};
+
+Math.normalize = function(x){
+    return Math.sxv(1 / Math.norm(x), x);
+};
+
+Math.med = function(va, vb){
+    var vec = {};
+    Object.keys(va).forEach(function(index){
+        vec[index] = (va[index]+vb[index])/2;
+    });
+    return vec;
+};
+
+Math.rotate = function(va, theta, center){
     var rad = Math.degreeToRadians(theta);
-    c = c == undefined ? {x:0,y:0} : c;
+    center = center == undefined ? {x:0,y:0} : center;
     var radc = Math.cos(rad);
     var rads = Math.sin(rad);
-    var suba = v.x - c.x;
-    var subb = v.y - c.y;
-    return {x:(suba * radc - subb * rads) + c.x,y: (subb * radc + suba * rads) + c.y};
+    var suba = va.x - center.x;
+    var subb = va.y - center.y;
+    return [(suba * radc - subb * rads) + center.x, (subb * radc + suba * rads) + center.y];
 };
 
-
-Math.getClockDegree = function (origin, p) {
-    var va = {x:0, y:-1};
-    var vb = [p.x - origin.x, p.y - origin.y];
-    var degree = Math.getDegreeFromVec(va, vb);
-    return vb.x < 0 ? 360 - degree : degree;
+Math.degreeToRadians = function(theta){
+    return theta * (Math.PI / 180);
 };
 
-Math.min = function(){
-    if(arguments.length > 0 ){
-        var min = _.cloneDeep(arguments[0]);
-        var size = arguments.length;
-        for(var j = 1; j < size;j++){
-            for(var index in arguments[j]){
-                if(min[index] > arguments[j][index]){
-                    min[index] = arguments[j][index];
-                }
-            }
-        }
-        return min;
-    }
-    return null;
+Math.degreeFromVec = function(va, vb){
+    return Math.radiansToDegree(Math.radiansFromVec(va, vb));
 };
 
-Math.distance = function (pa, pb) {
-    return Math.sqrt(Math.pow(pa.x - pb.x, 2) + Math.pow(pa.y - pb.y, 2));
+Math.radiansFromVec = function(va, vb){
+    var pe = Math.dot(va, vb);
+    var na = Math.norm(va);
+    var nb = Math.norm(vb);
+    return Math.acos(pe / (na * nb));
 };
 
+Math.radiansToDegree = function(theta){
+    return theta * (180 / Math.PI);
+};
+
+Math.distance = function(va,vb){
+    return Math.sqrt(Object.keys(va).reduce(function(p,c){
+        return p + Math.pow(va[c] - vb[c],2);
+    },0));
+};

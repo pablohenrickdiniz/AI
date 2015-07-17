@@ -1,7 +1,7 @@
 var Overlap = {
     circleLine: function (circle, line) {
         var med = Math.med(line.pa, line.pb);
-        var degree = Math.getDegreeFromVec(line.pa, line.pb);
+        var degree = Math.degreeFromVec(line.pa, line.pb);
         var va = Math.rotate(line.pa, -degree, med);
         var vb = Math.rotate(line.pb, -degree, med);
         var cc = Math.rotate({x: circle.x, y: circle.y}, -degree, med);
@@ -26,7 +26,7 @@ var Overlap = {
                 break;
             case 'circle':
                 return this.circlePoint(shape,point);
-            break;
+                break;
         }
         return false;
     },
@@ -53,10 +53,10 @@ var Overlap = {
         var ld = {pa:pd,pb:pa};
 
         return(
-            this.circleLine(circle,la) ||
-            this.circleLine(circle,lb) ||
-            this.circleLine(circle,lc) ||
-            this.circleLine(circle,ld)
+        this.circleLine(circle,la) ||
+        this.circleLine(circle,lb) ||
+        this.circleLine(circle,lc) ||
+        this.circleLine(circle,ld)
         );
     },
     rectIntersectRect: function (rectA, rectB) {
