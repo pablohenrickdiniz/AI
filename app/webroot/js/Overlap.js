@@ -15,6 +15,28 @@ var Overlap = {
         var maxY = cpMaxy + circle.radius;
         return (((cc.x <= va.x && cc.x >= minX) || (cc.x >= va.x && cc.x <= maxX)) && (cc.t <= maxY && cc.y >= minY));
     },
+    circlePoint:function(circle,pt){
+        var distance = Math.distance(pt, {x:circle.x,y:circle.y});
+        return distance <= circle.radius;
+    },
+    shapePoint:function(shape,point){
+        switch(shape.type){
+            case 'rect':
+                return this.rectPoint(shape,point);
+                break;
+            case 'circle':
+                return this.circlePoint(shape,point);
+            break;
+        }
+        return false;
+    },
+    rectPoint:function(rect,pt){
+        var xo = rect.x;
+        var yo = rect.y;
+        var xf = rect.x + rect.width;
+        var yf = rect.y + rect.height;
+        return (xo <= pt.x && yo <= pt.y && xf >= pt.x && yf >= pt.y);
+    },
     circleRect: function (circle, rect) {
         var pa = {x:rect.x,y:rect.y};
         var pc = {x:rect.x+rect.width,y:rect.y+rect.height};

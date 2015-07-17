@@ -3,7 +3,7 @@
 <?= $this->Html->script('react/build/inputnumber')?>
 <div class="container" id="container">
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="tool-box" data-toggle="buttons">
                 <div class="btn-group">
                     <label class="btn btn-default active">
@@ -27,12 +27,20 @@
                         <i class="fa fa-circle"></i>
                     </label>
                     <label class="btn btn-default">
+                        <input type="radio" name="tool" id="option9" autocomplete="off" value="polygon">
+                        <span class="glyphicon glyphicon-vector-path-polygon"></span>
+                    </label>
+                    <label class="btn btn-default">
                         <input type="radio" name="tool" id="option6" autocomplete="off" value="image">
                         <i class="fa fa-picture-o"></i>
                     </label>
                     <label class="btn btn-default">
                         <input type="radio" name="tool" id="option7" autocomplete="off" value="select">
                         <i class="fa fa-select"></i>
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="tool" id="option8" autocomplete="off" value="fill">
+                        <i class="fa fa-bucket-fill"></i>
                     </label>
                 </div>
             </div>
@@ -75,4 +83,5 @@
 <?= $this->Html->script('Math') ?>
 <?= $this->Html->script('keys') ?>
 <?= $this->Html->script('Overlap') ?>
+<?= $this->Html->script('physics') ?>
 <?= $this->Html->script('physics') ?>

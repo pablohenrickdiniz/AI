@@ -167,10 +167,9 @@ PaintShape.prototype.updateDrawingShapeState = function (pb) {
     switch (shape.type) {
         case 'circle':
             var distance = Math.distance(pa, pb);
-            var med = Math.med(pa, pb);
-            shape.x = med.x;
-            shape.y = med.y;
-            shape.radius = distance / 2;
+            shape.x = pa.x;
+            shape.y = pa.y;
+            shape.radius = distance;
             break;
         case 'rect':
             var pc = {x: pa.x, y: pb.y};
@@ -205,7 +204,11 @@ PaintShape.prototype.updateDrawingShapeState = function (pb) {
             shape.sheight = h;
             shape.x = pb.x < pa.x ? pa.x - w : pa.x;
             shape.y = pb.y < pa.y ? pa.y - h : pa.y;
-
+            break;
+        case 'polygon':
+            var last = shape.vertices[shape.vertices.length - 1];
+            last.x = pb.x;
+            last.y = pb.y;
             break;
     }
     self.refresh();
@@ -311,7 +314,24 @@ PaintShape.prototype.drawShape = function (shape) {
         case 'image':
             self.drawImage(shape);
             break;
+        case 'polygon':
+            self.drawPolygon(shape);
+            break;
     }
+};
+
+PaintShape.prototype.drawPolygon = function (polygon) {
+    var self = this;
+    self.context.beginPath();
+    var vertex = polygon.vertices[0];
+    self.context.moveTo(vertex.x, vertex.y);
+    for (var i = 1; i < polygon.vertices.length; i++) {
+        vertex = polygon.vertices[i];
+        self.context.lineTo(vertex.x, vertex.y);
+    }
+    self.context.closePath();
+    self.context.fill();
+    self.context.stroke();
 };
 
 PaintShape.prototype.drawCircle = function (circle) {
@@ -348,8 +368,8 @@ PaintShape.prototype.generateInitialShape = function (type, position) {
         id: generateUUID(),
         x: position.x,
         y: position.y,
-        oldX:position.x,
-        oldY:position.y,
+        oldX: position.x,
+        oldY: position.y,
         selected: false,
         fillStyle: self.fillStyle,
         strokeStyle: self.strokeStyle,
@@ -372,6 +392,9 @@ PaintShape.prototype.generateInitialShape = function (type, position) {
             shape.width = 0;
             shape.height = 0;
             break;
+        case 'polygon':
+            shape.vertices = [position, position];
+            break;
     }
 
     return shape;
@@ -388,33 +411,39 @@ PaintShape.prototype.unselectShapes = function () {
 
 PaintShape.prototype.eachShape = function (func) {
     var self = this;
-    for (var i = self.layers.length - 1; i >= 0; i--) {
-        var layer = self.layers[i];
-        if (layer.shapes != undefined) {
-            for (var j = 0; j < layer.shapes.length; j++) {
-                var shape = layer.shapes[j];
-                var response = func.apply(self,[shape,j, layer]);
-                if (response != undefined && response == false) {
-                    break;
+    level:
+        for (var i = self.layers.length - 1; i >= 0; i--) {
+            var layer = self.layers[i];
+            if (layer.shapes != undefined) {
+                for (var j = 0; j < layer.shapes.length; j++) {
+                    var shape = layer.shapes[j];
+                    var response = func.apply(self, [shape, j, layer]);
+                    if (response != undefined && !response) {
+                        break level;
+                    }
                 }
             }
         }
-    }
 };
 
 
 $2(document).ready(function () {
     var Paint = new PaintShape('#draw');
-    Paint.setDrawingTools(['circle', 'rect', 'image']);
+    Paint.setDrawingTools(['circle', 'rect', 'image', 'polygon']);
 
     Paint.onMouseDown(function (position) {
         var self = this;
+
         if (!self.drawing && self.isDrawingToolSelected()) {
             self.drawing = true;
             self.drawingLayer = self.layers.length;
             var shape = self.generateInitialShape(self.selectedTool, position);
             self.addShape(shape);
             self.drawingShape = shape;
+            self.refresh();
+        }
+        else if (self.selectedTool == 'polygon') {
+            self.drawingShape.vertices.push(position);
         }
         else {
             self.drawing = false;
@@ -427,28 +456,20 @@ $2(document).ready(function () {
         if (self.selectedTool == 'move') {
             self.unselectShapes();
             self.eachShape(function (shape) {
-                if (shape.type == 'circle') {
-                    var cc = {x: shape.x, y: shape.y};
-                    var distance = Math.distance(position, cc);
-                    if (distance <= shape.radius) {
-                        shape.selected = true;
-                        self.selectedShapes.push(shape);
-                        return false;
-                    }
+                if (Overlap.shapePoint(shape, position)) {
+                    shape.selected = true;
+                    self.selectedShapes.push(shape);
+                    return false;
                 }
-                else if (shape.type == 'rect' || shape.type == 'image') {
-                    var xo = shape.x;
-                    var yo = shape.y;
-                    var xf = shape.x + shape.width;
-                    var yf = shape.y + shape.height;
-
-                    if (xo <= position.x && yo <= position.y && xf >= position.x && yf >= position.y) {
-                        self.selectedShapes.push(shape);
-                        return false;
-                    }
+            });
+            self.refresh();
+        }
+        else if (self.selectedTool == 'fill') {
+            self.eachShape(function (shape) {
+                if (Overlap.shapePoint(shape, position)) {
+                    shape.fillStyle = self.fillStyle;
+                    return false;
                 }
-                shape.oldX = shape.x;
-                shape.oldY = shape.y;
             });
             self.refresh();
         }
@@ -555,6 +576,11 @@ $2(document).ready(function () {
             });
             self.refresh();
         }
+        else if (self.sequenceIs([KEY_ENTER])) {
+            if (self.selectedTool == 'polygon') {
+                self.drawing = false;
+            }
+        }
     });
 
 
@@ -582,13 +608,14 @@ $2(document).ready(function () {
         Paint.setTool($2(this).val());
     });
 
-    $2('.file-btn').click(function(){
+    $2('.file-btn').click(function () {
         $2(this).parent().find('input[type=file]').click();
     });
 
-    $2('.input-file').find('input[type=file]').change(function(){
+    $2('.input-file').find('input[type=file]').change(function () {
         var name = $2(this)[0].files[0].name;
         $2(this).parent().find('input[type=text]').val(name);
     });
-});
+})
+;
 
