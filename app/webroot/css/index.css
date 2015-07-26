@@ -138,3 +138,6 @@ canvas{
     background-color:transparent;
 }
 
+.modal-backdrop{
+    z-index:initial;
+}
